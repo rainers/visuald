@@ -49,6 +49,7 @@
     <li><a href='https://wiki.dlang.org/Get_involved'>Get involved</a></li>
     <li class="menu-divider"><a href='http://www.dlang.org/foundation/contributors.html'>Contributors</a></li>
     <li><a href='http://www.dlang.org/foundation/index.html'>Foundation</a></li>
+    <li><a href='http://www.dlang.org//security.html'>Security Team</a></li>
     <li><a href='http://www.dlang.org/foundation/donate.html'>Donate</a></li>
     <li><a href='http://www.dlang.org/foundation/sponsors.html'>Sponsors</a></li>
  </ul></li>
@@ -87,7 +88,7 @@
 </div></div></div>
 
 <div class="container">    <div class="subnav-helper"></div> <div class="subnav">    
-    <div class="head">        <h2>Visual D 0.47.0</h2>
+    <div class="head">        <h2>Visual D 0.48.0</h2>
         <p class="subnav-duplicate">            <a href="StartPage.html">Home</a></p>
     </div>
     <ul>        <li><a href='StartPage.html'><span>Home</span></a></li>
@@ -117,6 +118,93 @@
         <h1>Version History</h1>
         
         
+
+<h2>2018-12-02 Version 0.48.0</h2>
+ <ul>
+  <li>installation
+   <ul>
+    <li>installer and binaries now digitally signed by the "D Language Foundation"</li>
+    <li>fixed uninstallation for VS2017</li>
+    <li>installation for VS2013+ now uses PackageManifest format instead of Vsix</li>
+    <li>VS2017: loading the Visual D package could crash with some VS installation "ids""</li>
+    <li>avoid initial error message regarding altered assemblies with same version</li>
+    <li>fix installation of the D icon for the solution explorer in VS2017</li>
+    <li>installer hides options for VS2005-VS2012 if not installed</li>
+    <li>remove old extension folders before installation</li>
+  </ul></li>
+  <li>new project wizard
+   <ul>
+    <li>restore project templates for VS2008, new project wizard doesn't work there'</li>
+    <li>mixed D/C++ VC project: optionally adding main in C++, setup precompiled headers</li>
+    <li>new VCProject: now uses <!--UNDEFINED MACRO: "LatestTargetPlatformVersion"--> as WindowsTargetPlatformVersion to
+      avoid defaulting to Windows SDK 8.1</li>
+  </ul></li>
+  <li>settings
+   <ul>
+    <li>fix default library path if UCRT has different version than SDK</li>
+    <li>VS2017: D compiler installation paths and "demangle link errors" are now saved
+	  to "HKCR\Softwre\Visual D" to be picked up by msbuild</li>
+    <li>show detected compiler version below installation path</li>
+    <li>removed option "parse source for syntax errors", now always on</li>
+    <li>removed option "expansions from text buffer", now always off</li>
+    <li>removed option "use semantic analysis for goto definition", now always on</li>
+    <li>removed option "override linker settings from sc.ini", always on as linker no 
+      longer set in sc.ini since dmd 2.079</li>
+    <li>removed option "additional linker options", it was invisible anyway</li>
+    <li>rearrange settings to better show their scope</li>
+  </ul></li>
+  <li>build system
+   <ul>
+    <li>fixed linking link privatephobos.lib if intermediate dir different from output dir</li>
+  </ul></li>
+  <li>dparser
+   <ul>
+    <li>semantic analysis did not work if "parse source for syntax errors" was disabled</li>
+    <li>no semantic info for a package if any file in the package has fatal parser error</li>
+    <li>now has semantic support for static foreach (thanks to Alexander Bothe)</li>
+    <li>fixed "Find references"</li>
+    <li>added experimental option to show value of constants in tooltip</li>
+    <li>the last user specified version was prepended to "Windows"</li>
+    <li>predefined versions now evaluated by compiler invocation</li>
+    <li>experimental: option to enable semantic identifier highlighting</li>
+    <li>'virtual' no longer considered a keyword</li>
+    <li>updated list of traits for completion</li>
+    <li>fix crash with dub generated project</li>
+    <li>add 'typeof' to completion where 'typeid' is valid, too</li>
+  </ul></li>
+  <li>mago
+   <ul>
+    <li>added option to show base class fields as direct fields</li>
+    <li>allow suffix 'h' for hex numbers for better interoperablility with VS disassembly</li>
+    <li>concord: can now show return values of functions stepped over (not slices or delegates 
+      on x64 or small non-POD-structs)</li>
+    <li>concord: fix crash when showing children in data tooltip (mostly occured in VS2017)</li>
+    <li>concord: allow dragging addresses to the disassembly window</li>
+    <li>engine: Fix the way the debugger steps over instructions with REP prefix.</li>
+    <li>engine: the disassemble view now supports SSE4 and AVX</li>
+    <li>detect AA if type ends with "]", but not with "[]"</li>
+    <li>fix crash in VS if a value is marked expandable, but doesn't yield any children</li>
+    <li>fix .ptr property of static array if it is a struct/class member</li>
+    <li>add option to disable strings to be expandable</li>
+    <li>support showing closure and capture variables as locals for dmd 2.084</li>
+  </ul></li>
+  <li>cv2pdb
+   <ul>
+    <li>can now detect VS2017 via Setup-COM-API</li>
+    <li>some DWARF fixes</li>
+  </ul></li>
+  <li>editor
+   <ul>
+    <li>when pasting code to D source file newlines are adapted to surrounding code</li>
+    <li>added outlining for case statements</li>
+    <li>implemented commands View.PopBrowseContext and View.ForwardBrowseContext</li>
+    <li>reindent if multiple lines added by completion</li>
+    <li>tweaked formatting for enumerators, struct and array initializers</li>
+    <li>added option to not indent case statements</li>
+  </ul></li>
+  <li>fixed "Compile and Run" on selection</li>
+  <li>fix help via F1 for dmd 2.072+</li>
+ </ul>
 
 <h2>2018-06-24 Version 0.47.0</h2>
  <ul>
@@ -1314,7 +1402,7 @@
 
 
         <div class="smallprint" id="copyright">Copyright &copy; 1999-2018 by the <a href="http://www.dlang.org/foundation_overview.html">D Language Foundation</a> | Page generated by
-<a href="http://www.dlang.org/spec/ddoc.html">Ddoc</a> on Tue Jun 26 09:28:40 2018
+<a href="http://www.dlang.org/spec/ddoc.html">Ddoc</a> on Sun Dec 02 16:23:15 2018
 </div>
     </div>
 </div>

@@ -49,6 +49,7 @@
     <li><a href='https://wiki.dlang.org/Get_involved'>Get involved</a></li>
     <li class="menu-divider"><a href='http://www.dlang.org/foundation/contributors.html'>Contributors</a></li>
     <li><a href='http://www.dlang.org/foundation/index.html'>Foundation</a></li>
+    <li><a href='http://www.dlang.org//security.html'>Security Team</a></li>
     <li><a href='http://www.dlang.org/foundation/donate.html'>Donate</a></li>
     <li><a href='http://www.dlang.org/foundation/sponsors.html'>Sponsors</a></li>
  </ul></li>
@@ -87,7 +88,7 @@
 </div></div></div>
 
 <div class="container">    <div class="subnav-helper"></div> <div class="subnav">    
-    <div class="head">        <h2>Visual D 0.47.0</h2>
+    <div class="head">        <h2>Visual D 0.48.0</h2>
         <p class="subnav-duplicate">            <a href="StartPage.html">Home</a></p>
     </div>
     <ul>        <li><a href='StartPage.html'><span>Home</span></a></li>
@@ -165,7 +166,7 @@
 <p>Short version:
 <ul>
  <li>Load visuald_vs10.sln into Visual Studio 2013+.</li>
- <li>Select configuration Debug/Win32</li>
+ <li>Select configuration "Debug COFF32"/Win32</li>
  <li>Build project "build".</li>
  <li>Build project "VisualD".</li>
 </ul>
@@ -197,6 +198,30 @@ branch in the registry, so it does not interfere with your working
 environment.</p>
 
 <ul>
+ <li>VS2010-VS2017: The mechanism has changed with VS2010, as the non-standard registry settings are rebuilt
+   on every start of Visual Studio.
+  <ul>
+   <li>Copy the files from <span class="d_inlinecode donthyphenate notranslate">$(VSINSTALLDIR)\Common7\IDE\Extensions\Rainer Schuetze\VisualD</span> into the folder
+     <span class="d_inlinecode donthyphenate notranslate">$(APPDATA)\Local\Microsoft\VisualStudio\12.0\Extensions\VisualD</span> (replace 12.0 with 14.0 for VS2015, 15.0_<span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span>
+     for VS2017 with <span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span> some identifier generated during VS installation)</li>
+   <li>Move the files from <span class="d_inlinecode donthyphenate notranslate">$(VSINSTALLDIR)\Common7\IDE\Extensions\Rainer Schuetze\VisualD</span> into the folder
+     <span class="d_inlinecode donthyphenate notranslate">$(APPDATA)\Local\Microsoft\VisualStudio\12.0D\Extensions\VisualD</span> (replace 12.0D with 14.0D for VS2015, 15.0_<span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span>D
+     for VS2017 with <span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span> some identifier generated during VS installation)</li>
+   <li>in visuald.pkgdef, replace the path "C:\\Program Files (x86)\\Visual D\\visuald.dll" with your debug build output path.</li>
+   <li>Modify a line in `$(VSINSTALLDIR)\Common7\IDE\devenv.pkgdef:
+     <pre>-"PkgDefSearchPath" = "$ApplicationExtensionsFolder$;$RootFolder$\Common7\IDE\CommonExtensions;$RootFolder$\Common7\IDE\devenv.admin.pkgdef;"</pre>
+     <pre>+"PkgDefSearchPath" = "$ApplicationExtensionsFolder$;$RootFolder$\Common7\IDE\CommonExtensions;$AppDataLocalFolder$\Extensions;$RootFolder$\Common7\IDE\devenv.admin.pkgdef;"</pre>
+    </li>
+   <li>in the registry, delete hives
+    <ul>
+     <li><span class="d_inlinecode donthyphenate notranslate">HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\14.0D</span></li>
+     <li><span class="d_inlinecode donthyphenate notranslate">HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\14.0D_Config</span></li>
+   </ul></li>
+   <li>Start the IDE with the new settings branch via</li>
+    <pre>devenv /RootSuffix D</pre>
+   <li>Visual D will now be shown in the Extension Manager where it might have to be enabled.</li>
+  </ul>
+ </li>
  <li>VS2008: To create a configuration named "D"
   <ul>
    <li>As administrator, execute from the command line:
@@ -210,25 +235,13 @@ environment.</p>
    </li>
   </ul>
  </li>
- <li>VS2010-VS2017: The mechanism has changed with VS2010, as the non-standard registry settings are rebuilt
-   on every start of Visual Studio.
-  <ul>
-   <li>Copy the files from <span class="d_inlinecode donthyphenate notranslate">$(VSINSTALLDIR)\Common\IDE\Extensions\Rainer Schuetze\visuald\VisualD</span> into the folder
-     <span class="d_inlinecode donthyphenate notranslate">$(APPDATA)\Local\Microsoft\VisualStudio\12.0D\Extensions\VisualD</span> (replace 12.0D with 14.0D for VS2015, 15.0_<span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span>D
-	 for VS2017 with <span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span> some identifier generated during VS installation)</li>
-   <li>in visuald.pkgdef, replace the path "C:\\Program Files (x86)\\Visual D\\visuald.dll" with your debug build output path.</li>
-   <li>Start the IDE with the new settings branch via</li>
-    <pre>devenv /RootSuffix D</pre>
-   <li>Visual D will now be shown in the Extension Manager where it has to be enabled.</li>
-  </ul>
- </li>
 </ul>
 
 <p>Good luck!</p>
 
 
         <div class="smallprint" id="copyright">Copyright &copy; 1999-2018 by the <a href="http://www.dlang.org/foundation_overview.html">D Language Foundation</a> | Page generated by
-<a href="http://www.dlang.org/spec/ddoc.html">Ddoc</a> on Tue Jun 26 09:28:40 2018
+<a href="http://www.dlang.org/spec/ddoc.html">Ddoc</a> on Sun Dec 02 16:23:15 2018
 </div>
     </div>
 </div>
