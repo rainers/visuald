@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <!--
-    Copyright (c) 1999-2018 by the D Language Foundation
+    Copyright (c) 1999-2019 by the D Language Foundation
     All Rights Reserved.
     https://dlang.org/foundation_overview.html
   -->
@@ -88,7 +88,7 @@
 </div></div></div>
 
 <div class="container">    <div class="subnav-helper"></div> <div class="subnav">    
-    <div class="head">        <h2>Visual D 0.48.1</h2>
+    <div class="head">        <h2>Visual D 0.49.0</h2>
         <p class="subnav-duplicate">            <a href="StartPage.html">Home</a></p>
     </div>
     <ul>        <li><a href='StartPage.html'><span>Home</span></a></li>
@@ -119,6 +119,9 @@
         
         
 
+<p>Visual D works with all Visual Studio versions from 2008 to 2019. Please make sure to
+have the <b>C++ development tools</b> aswell as a <b>Windows SDK</b> included in the Visual Studio installation.</p>
+
 <p>The click-through-installer will guide you through the installation process. The installer lets you select the
 Visual Studio Version for which you want Visual D to be installed. It will always install
 for all users, not only for a single user.</p>
@@ -128,20 +131,44 @@ for all users, not only for a single user.</p>
 installed. Not all functionality
 has been thoroughly tested with GDC and LDC, so having DMD available for cross-checking is recommended.</p>
 
+<h2>Using LDC</h2>
+
+<p>LDC is a D compiler using the LLVM backend. It can produce more efficient code than DMD.
+The latest releases can be found at <a href="https://github.com/ldc-developers/ldc/releases/">https://github.com/ldc-developers/ldc/releases/</a>.
+You should install the "multilib" version.</p>
+
+<p>Enter the LDC installation path at the global Tools-&gt;Options-&gt;Projects and Solutions-&gt;Visual D Settings-&gt;LDC Directories
+option page. Then switch the "Compiler" option in the project configuration to "LDC".</p>
+
+<h2>Using GDC</h2>
+
+<p>GDC is a D compiler using the GNU compiler suite backend. It can produce more efficient code than DMD.</p>
+You can find a rather dated build at <a href="http://gdcproject.org/downloads">http://gdcproject.org/downloads</a>. Please also install the respective
+MinGW environment.
+
+<p>Enter the GDC installation path at the global Tools-&gt;Options-&gt;Projects and Solutions-&gt;Visual D Settings-&gt;GDC Directories
+option page. Then switch the "Compiler" option in the project configuration to "GDC".</p>
+
+<p>Known issues:</p>
+<ul>
+  <li>when building a library you should change the output file name extension to ".a".</li>
+  <li>when building a library object files will be generated into the project directory, not the
+    intermediate directory, because there seems to be no GDC option to change the output folder for multiple files.</li>
+  <li>as there are no recent GDC releases for Windows, support for it has fallen short. Please don't expect
+    completeness.</li>
+  <li>GDC is not supported by the VC project integration.</li>
+</ul>
+
+<h2>Visual Studio 2008 - 2012</h2>
+
+Visual D supports these versions, but is no longer being tested on these.
+
 <p>Visual D does <b>not</b> work with any of the <b>Express</b> versions of Visual Studio. Other than the
 commercial editions, the Express versions do not support loading third party extensions and add-ins.</p>
 
-<p>In November 2014 Microsoft released <b><a href="http://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx">
-Visual Studio Community 2013</a></b>, a version similar to Visual Studio Professional, but free for most users unless
-working in larger companies. Visual D integrates just as well as with the commercial versions.</p>
+<h3>Visual Studio Shell</h3>
 
-<p>Visual D also works with the professional and community version of Visual Studio 2015 and 2017. Please be
-aware that the VC runtime libraries that ship with VS 2015 are not supported by dmd up to 2.068
-when compiling 64-bit applications.</p>
-
-<h2>Visual Studio Shell</h2>
-
-<p>A <b>free</b> alternative are the integrated <b>Visual Studio Shell</b> distributions, that can be downloaded
+<p>A <b>free</b> alternative to the commercial releases are the integrated <b>Visual Studio Shell</b> distributions, that can be downloaded
 from Microsoft (see below for links). The shells are identical with the Visual Studio IDE, but stripped of any language support. It
 still contains the native debugger that can be used to debug D applications.</p>
 
@@ -167,46 +194,9 @@ make the x64 debugger work.</p>
 <a href="http://www.microsoft.com/en-us/download/details.aspx?id=40764">isolated shell</a> and the
 <a href="http://www.microsoft.com/en-us/download/details.aspx?id=40777">integrated package</a>.</p>
 
-<h2>Using GDC</h2>
 
-<p>To use GDC as the compiler to build D files, you will first have to install the MinGW environment and the GDC compiler:</p>
-<ul>
-  <li>MinGW64 installer: <a href="http://tdm-gcc.tdragon.net/">http://tdm-gcc.tdragon.net/</a></li>
-  <li>GDC binaries: <a href="http://gdcproject.org/downloads">http://gdcproject.org/downloads</a></li>
-</ul>
-
-<p>Add the MinGW64/bin path to your PATH environment variable or the executable path list in the "GDC Directories"
-option page. Then switch the "Compiler" option in the project configuration to "GDC".</p>
-
-<p>To create a 64-bit executable, you will have to add a new platform to the project and solution
-in the configuration manager.</p>
-
-<p>Known issues:</p>
-<ul>
-  <li>when building a library you should change the output file name extension to ".a".</li>
-  <li>when building a library object files will be generated into the project directory, not the
-    intermediate directory, because there seems to be no GDC option to change the output folder for multiple files.</li>
-</ul>
-
-<h2>Using LDC</h2>
-
-<p>The latest releases can be found at <a href="https://github.com/ldc-developers/ldc/releases/">https://github.com/ldc-developers/ldc/releases/</a></p>
-
-<h3>Debugging</h3>
-
-<p>For debugging applications, you should also install cv2pdb which is now included in the
-Visual D installer. Please make sure, changes to Common7\Packages\Debugger\autoexp.dat do
-not mix with previous manual installations of <a href="https://github.com/rainers/cv2pdb">cv2pdb</a>.
-Visual D also installs the alternative debug engine mago that does not need cv2pdb.</p>
-
-<p>cv2pdb has been extended to also convert from DWARF debug information to PDB, so it
-is possible to debug applications built with GDC in Visual Studio. Be sure to select
-the "Visual Studio" debugger in the debugger project settings. Mago cannot be used
-as the debug engine, it currently only supports the DMD CodeView debug format.</p>
-
-
-        <div class="smallprint" id="copyright">Copyright &copy; 1999-2018 by the <a href="http://www.dlang.org/foundation_overview.html">D Language Foundation</a> | Page generated by
-<a href="http://www.dlang.org/spec/ddoc.html">Ddoc</a> on Sat Dec 22 15:42:42 2018
+        <div class="smallprint" id="copyright">Copyright &copy; 1999-2019 by the <a href="http://www.dlang.org/foundation_overview.html">D Language Foundation</a> | Page generated by
+<a href="http://www.dlang.org/spec/ddoc.html">Ddoc</a> on Sun Apr  7 21:17:32 2019
 </div>
     </div>
 </div>
