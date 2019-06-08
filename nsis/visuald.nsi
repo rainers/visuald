@@ -330,7 +330,7 @@ ${MementoSection} "Install DMD" SecDMD
 
   ; not using ${File} to keep compiler even if Visual D uninstalled
 
-  !define DmdBaseDir "$CompilerInstallDir\dmd${DMD_VERSION}"
+  !define DmdBaseDir "$CompilerInstallDir\dmd-${DMD_VERSION}"
   ${SetOutPath} "${DmdBaseDir}"
   File /r ${DMD_SRC}\html
   File /r ${DMD_SRC}\samples
