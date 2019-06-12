@@ -27,7 +27,7 @@
 ; define DMD source path to include dmd installation
 ; !define DMD 
 !define DMD_VERSION "2.086.0"
-!define DMD_SRC c:\l\d\dmd-${DMD_VERSION}\dmd2
+!define DMD_SRC c:\l\d\dmd${DMD_VERSION}\dmd2
 
 ; define LDC to include ldc installation
 ; !define LDC
@@ -330,7 +330,7 @@ ${MementoSection} "Install DMD" SecDMD
 
   ; not using ${File} to keep compiler even if Visual D uninstalled
 
-  !define DmdBaseDir "$CompilerInstallDir\dmd-${DMD_VERSION}"
+  !define DmdBaseDir "$CompilerInstallDir\dmd_${DMD_VERSION}"
   ${SetOutPath} "${DmdBaseDir}"
   File /r ${DMD_SRC}\html
   File /r ${DMD_SRC}\samples
