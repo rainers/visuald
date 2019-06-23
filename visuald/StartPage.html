@@ -89,7 +89,7 @@
 </div></div></div>
 
 <div class="container">    <div class="subnav-helper"></div> <div class="subnav">    
-    <div class="head">        <h2>Visual D 0.49.2</h2>
+    <div class="head">        <h2>Visual D 0.50.0</h2>
         <p class="subnav-duplicate">            <a href="StartPage.html">Home</a></p>
     </div>
     <ul>        <li><a href='StartPage.html'><span>Home</span></a></li>
@@ -128,12 +128,41 @@ It works with Visual Studio 2008 - 2019 including Visual Studio Community as wel
 See the <a href="Installation.html">Installation</a> instructions, especially if not using a commercial or community edition of Visual Studio.</p>
 
 <p>Visual D aims at providing seamless integration of the D programming language into Visual Studio.</p>
-
-<div align="right">
-<a href="https://github.com/dlang/visuald/releases/download/v0.49.2/VisualD-v0.49.2.exe"><img src="images/download.png" /></a>
-<p><a href="https://github.com/dlang/visuald/releases">Beta releases</a></p>
-</div>
 </td></table>
+
+<table style="border-width: 0px 0">
+ <tr>
+  <td></td>
+  <td>Latest release: Visual D 0.50.0</td>
+ </tr>
+ <tr>
+  <td>If you are just starting with the D programming language and don't have a compiler installed then this download
+  provides you with everything to get you started with writing D program in Visual Studio:</td>
+  <td>
+  <span>
+  <div align="right">
+  <a href="https://github.com/dlang/visuald/releases/download/v0.50.0/VisualD-v0.50.0-dmd-2.086.1-ldc2-1.16.0.exe"><img src="images/download_with_dmdldc2.png" /></a>
+  </div>
+  <div align="right"><small>download size approx 70 MB</small></div>
+  </span>
+ </td></tr>
+ <tr>
+  <td>If you are a Visual D user or have a D compiler already installed then this download
+  provides you with an update to boost your experience in Visual Studio:</td>
+  <td>
+  <div align="right">
+  <a href="https://github.com/dlang/visuald/releases/download/v0.50.0/VisualD-v0.50.0.exe"><img src="images/download_extension2.png" /></a>
+  </div>
+  <div align="right"><small>download size approx 3 MB</small></div>
+ </td></tr>
+ <tr>
+  <td>Cutting edge prereleases if you want to try the most recent improvements to Visual D:</td>
+  <td>
+  <div align="right">
+  <p><a href="https://github.com/dlang/visuald/releases">Beta releases</a></p>
+  </div>
+ </td></tr>
+</table>
 
 
 <h2>Overview</h2>
@@ -144,20 +173,20 @@ See the <a href="Installation.html">Installation</a> instructions, especially if
 <td>
 <ul>
  <li>Project management with all DMD options available through the UI</li>
+ <li>seamless VC project integration</li>
  <li>Syntax highlighting with special version and token string support</li>
- <li>Import statement completion, semantic word-completion</li>
+ <li>Code completion and tooltips from semantic analysis of source code</li>
  <li>Underlining of syntactical errors</li>
  <li>Goto definition</li>
  <li>Parameter info tooltips</li>
  <li>Code outlining</li>
  <li>Symbol/File search window</li>
- <li>Integration of <a href="https://github.com/rainers/cv2pdb">cv2pdb</a> and
-      <a href="https://github.com/rainers/mago">Mago</a> for nice debugging experience</li>
+ <li>Integration with the Visual Studio debugger through native D expression evaluation
+      or custom debug engine <a href="https://github.com/rainers/mago">Mago</a></li>
  <li>Profiler browse window</li>
  <li>Code Coverage support</li>
  <li>Support for Error List, Code Definition window, Object Browser and Class View</li>
  <li>C++ to D Conversion Wizard</li>
- <li>Code completion and tooltips from semantic analysis of source code</li>
  <li>Support for building with <a href="https://github.com/ldc-developers/ldc">LDC</a> and
       <a href="https://github.com/D-Programming-GDC/GDC">GDC</a>
       instead of DMD</li>
@@ -173,6 +202,15 @@ See the <a href="Installation.html">Installation</a> instructions, especially if
 
 <p><a href="VersionHistory.html">Full version history and complete details...</a>
 </p>
+
+2019-05-24 Version 0.50.0
+<ul>
+ <li>Now checks for updates of Visual D, DMD and LDC and assists download and install</li>
+ <li>Setup including DMD and LDC now available</li>
+ <li>mago debugger: better support for dynamic type of classes, show exception messages,
+      conditional breakpoints</li>
+ <li>highlight references to symbol at caret</li>
+</ul>
 
 2019-04-28 Version 0.49.2
 <ul>
@@ -194,21 +232,6 @@ See the <a href="Installation.html">Installation</a> instructions, especially if
   <li>new "Language" configuration page for -transition=/-preview=/-revert= options</li>
 </ul>
 
-2018-12-22 Version 0.48.1
-<ul>
-  <li>goto definition on alias: jump to base definition if caret on alias</li>
-  <li>cv2pdb: fix missing line numbers for new versions of mspdb*.dll</li>
-  <li>mago: variables captured from stack of outer function not displayed in locals</li>
-</ul>
-
-2018-12-02 Version 0.48.0
-<ul>
-  <li>installer and binaries now digitally signed by the "D Language Foundation"</li>
-  <li>dparser now has semantic support for static foreach (thanks to Alexander Bothe)</li>
-  <li>experimental: option to enable semantic identifier highlighting</li>
-  <li>mago debugger: show return value, showing closure and capture variables as locals for dmd 2.084</li>
-</ul>
-
 <a href="VersionHistory.html">more...</a>
 
 <h2>Download</h2>
@@ -219,7 +242,7 @@ See the <a href="Installation.html">Installation</a> instructions, especially if
 
 
         <div class="smallprint" id="copyright">Copyright &copy; 1999-2019 by the <a href="https://www.dlang.org/foundation_overview.html">D Language Foundation</a> | Page generated by
-<a href="https://www.dlang.org/spec/ddoc.html">Ddoc</a> on Sun May 12 23:03:21 2019
+<a href="https://www.dlang.org/spec/ddoc.html">Ddoc</a> on Sun Jun 23 16:30:18 2019
 </div>
     </div>
 </div>
