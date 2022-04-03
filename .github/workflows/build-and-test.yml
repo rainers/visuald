@@ -1,0 +1,56 @@
+name: build and test Visual D
+
+on: [push, pull_request]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: visuald_vs10.sln
+
+  # Configuration type to build.
+  D_COMPILER: dmd
+  CONFIG: Release COFF32
+  CONFIG_DMDSERVER: Release COFF32
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install D compiler
+        uses: dlang-community/setup-dlang@v1
+        with:
+          compiler: dmd-2.098.1
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+      - name: Install Visual D
+        shell: pwsh
+        run: |
+          curl -Lo VisualD-v1.2.0.exe https://github.com/dlang/visuald/releases/download/v1.2.0/VisualD-v1.2.0.exe
+          .\VisualD-v1.2.0.exe /S
+      - name: configure Visual D
+        shell: cmd
+        run: |
+          echo wd=%CD%
+          where dmd
+          reg add "HKLM\SOFTWARE\DMD" /v InstallationFolder /t REG_SZ /d C:\hostedtoolcache\windows\dc\dmd-2.098.1\x64\dmd2 /reg:32 /f
+          rem disable link dependencies monitoring, fails on AppVeyor server
+          reg add "HKLM\SOFTWARE\Microsoft\VisualStudio\14.0\ToolsOptionsPages\Projects\Visual D Settings" /v optlinkDeps /t REG_DWORD /d 0 /reg:32 /f
+      - name: Print environment info
+        shell: cmd
+        run: |
+          set
+          msbuild /version
+      - name: Build visuald
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: cmd
+        run: |
+          call "c:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+          echo wd=%CD%
+          rem Fetch submodules
+          git submodule update --init --recursive
+          rem ignore failure once, in case it needs reloading the sdk project
+          nmake "CONFIG=${{env.CONFIG}}" prerequisites || nmake "CONFIG=${{env.CONFIG}}" prerequisites
+          rem build Visual D
+          nmake "CONFIG=${{env.CONFIG}}" visuald_vs
+          rem build and run Visual D unittests
+          nmake "CONFIG=${{env.CONFIG}}" "CONFIG_DMDSERVER=${{env.CONFIG_DMDSERVER}}" visuald_test dmdserver_test
