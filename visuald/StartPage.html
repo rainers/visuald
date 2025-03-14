@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <!--
-    Copyright (c) 1999-2022 by the D Language Foundation
+    Copyright (c) 1999-2025 by the D Language Foundation
     All Rights Reserved.
     https://dlang.org/foundation_overview.html
   -->
@@ -88,15 +88,32 @@
     </div>
 </div></div></div>
 
-<div class="container">    <div class="subnav-helper"></div> <div class="subnav">    
-    <div class="head">        <h2>Visual D 1.3.1</h2>
+<div class="container">    <div class="subnav-helper"></div> <div class="subnav">
+    
+    <div class="head">        <h2>Visual D 1.4.0</h2>
         <p class="subnav-duplicate">            <a href="StartPage.html">Home</a></p>
     </div>
-    <ul>        <li><a href='StartPage.html'><span>Home</span></a></li>
+    <ul>
+        <li><a href='StartPage.html'><span>Home</span></a></li>
         <li><a href='https://github.com/dlang/visuald/releases'><span>Downloads</span></a></li>
         <li><a href='Installation.html'><span>Installation</span></a></li>
         <li class='expand-container open'><a class='expand-toggle' href='#'><span>Tour</span></a>
-        <ul class='expand-content'><li><a href='            Features.html'>Feature List</a></li><li><a href='            GlobalOptions.html'>Global Options</a></li><li><a href='            ProjectWizard.html'>Project Wizard</a></li><li><a href='            Editor.html'>Editor</a></li><li><a href='            Search.html'>Search Window</a></li><li><a href='            TokenReplace.html'>Token Replace</a></li><li><a href='            ProjectConfig.html'>Project Config</a></li><li><a href='            vcxproject.html'>VC Project Integration</a></li><li><a href='            CppConversion.html'>C++ to D</a></li><li><a href='            Debugging.html'>Debugging</a></li><li><a href='            CompileCommands.html'>Compile Commands</a></li><li><a href='            Profiling.html'>Profiling</a></li><li><a href='            Coverage.html'>Code Coverage</a></li><li><a href='            DustMite.html'>DustMite Integration</a></li><li><a href='            BrowseInfo.html'>Browse Info
+        <ul class='expand-content'><li><a href='
+            Features.html'>Feature List</a></li><li><a href='
+            GlobalOptions.html'>Global Options</a></li><li><a href='
+            ProjectWizard.html'>Project Wizard</a></li><li><a href='
+            Editor.html'>Editor</a></li><li><a href='
+            Search.html'>Search Window</a></li><li><a href='
+            TokenReplace.html'>Token Replace</a></li><li><a href='
+            ProjectConfig.html'>Project Config</a></li><li><a href='
+            vcxproject.html'>VC Project Integration</a></li><li><a href='
+            CppConversion.html'>C++ to D</a></li><li><a href='
+            Debugging.html'>Debugging</a></li><li><a href='
+            CompileCommands.html'>Compile Commands</a></li><li><a href='
+            Profiling.html'>Profiling</a></li><li><a href='
+            Coverage.html'>Code Coverage</a></li><li><a href='
+            DustMite.html'>DustMite Integration</a></li><li><a href='
+            BrowseInfo.html'>Browse Info
         </a></li></ul></li>
         <li><a href='VersionHistory.html'><span>Version History</span></a></li>
         <li><a href='KnownIssues.html'><span>Known Issues</span></a></li>
@@ -134,16 +151,16 @@ of Visual Studio.</p>
 <table style="border-width: 0px 0">
  <tr>
   <td></td>
-  <td>Latest release: Visual D 1.3.1</td>
+  <td>Latest release: Visual D 1.4.0</td>
  </tr>
  <tr>
   <td>If you are just starting with the D programming language and don't have a compiler installed then this download
   provides you with everything to get you started with writing D program in Visual Studio including the reference
-  compiler DMD 2.100.2 and the LLVM-based compiler LDC 1.30.0:</td>
+  compiler DMD 2.110.0 and the LLVM-based compiler LDC 1.40.0:</td>
   <td>
   <span>
   <div align="right">
-  <a href="https://github.com/dlang/visuald/releases/download/v1.3.1/VisualD-v1.3.1-dmd-2.100.2-ldc2-1.30.0.exe"><img src="images/download_with_dmdldc2.png" /></a>
+  <a href="https://github.com/dlang/visuald/releases/download/v1.4.0/VisualD-v1.4.0-dmd-2.110.0-ldc2-1.40.0.exe"><img src="images/download_with_dmdldc2.png" /></a>
   </div>
   <div align="right"><small>download size approx 88 MB</small></div>
   </span>
@@ -153,7 +170,7 @@ of Visual Studio.</p>
   provides you with an update to boost your experience in Visual Studio:</td>
   <td>
   <div align="right">
-  <a href="https://github.com/dlang/visuald/releases/download/v1.3.1/VisualD-v1.3.1.exe"><img src="images/download_extension2.png" /></a>
+  <a href="https://github.com/dlang/visuald/releases/download/v1.4.0/VisualD-v1.4.0.exe"><img src="images/download_extension2.png" /></a>
   </div>
   <div align="right"><small>download size approx 6 MB</small></div>
  </td></tr>
@@ -205,6 +222,15 @@ of Visual Studio.</p>
 <p><a href="VersionHistory.html">Full version history and complete details...</a>
 </p>
 
+2025-03-14 Version 1.4.0
+ <ul>
+  <li>fixed msbuild integration for VS 2022 17.5 - 17.14</li>
+  <li>now works with Visual Studio for Windows on ARM64</li>
+  <li>dmdserver updated to frontend of DMD 2.110.0, improved completion</li>
+  <li>full installer now bundled with DMD 2.110.0 and LDC 1.40.0</li>
+  <li>for better responsiveness mago debug extension now executes visualizer calls asynchronously</li>
+ </ul>
+
 2022-10-09 Version 1.3.1
  <ul>
   <li>fixed memory leak in dmdserver</li>
@@ -219,13 +245,6 @@ of Visual Studio.</p>
   <li>full installer now bundled with DMD 2.100.0 and LDC 1.29.0</li>
  </ul>
 
-2022-01-15 Version 1.2.0
- <ul>
-  <li>added support for VS 2022</li>
-  <li>dmdserver updated to frontend of DMD 2.098.1</li>
-  <li>full installer now bundled with DMD 2.098.1 and LDC 1.28.1</li>
- </ul>
-
 <a href="VersionHistory.html">more...</a>
 
 <h2>Download</h2>
@@ -235,8 +254,8 @@ of Visual Studio.</p>
 </p>
 
 
-        <div class="smallprint" id="copyright">Copyright &copy; 1999-2022 by the <a href="https://www.dlang.org/foundation_overview.html">D Language Foundation</a> | Page generated by
-<a href="https://www.dlang.org/spec/ddoc.html">Ddoc</a> on Sun Oct  9 17:55:15 2022
+        <div class="smallprint" id="copyright">Copyright &copy; 1999-2025 by the <a href="https://www.dlang.org/foundation_overview.html">D Language Foundation</a> | Page generated by
+<a href="https://www.dlang.org/spec/ddoc.html">Ddoc</a> on Fri Mar 14 08:42:13 2025
 </div>
     </div>
 </div>
