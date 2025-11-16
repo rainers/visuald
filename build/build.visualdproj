@@ -860,7 +860,7 @@ echo Success &gt;&quot;$(TargetPath)&quot;
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>..\bin\$(ConfigurationName)</outdir>
+  <outdir>..\bin\$(ConfigurationName)\x64</outdir>
   <objdir>$(OutDir)\$(ProjectName)</objdir>
   <objname />
   <libname />
@@ -991,7 +991,7 @@ echo Success &gt;&quot;$(TargetPath)&quot;
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>..\bin\$(ConfigurationName)</outdir>
+  <outdir>..\bin\$(ConfigurationName)\x64</outdir>
   <objdir>$(OutDir)\$(ProjectName)</objdir>
   <objname />
   <libname />
@@ -1122,7 +1122,7 @@ echo Success &gt;&quot;$(TargetPath)&quot;
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>..\bin\$(ConfigurationName)\$(PlatformName)</outdir>
+  <outdir>..\bin\$(ConfigurationName)\x64</outdir>
   <objdir>$(OutDir)\$(ProjectName)</objdir>
   <objname />
   <libname />
@@ -1253,7 +1253,7 @@ echo Success &gt;&quot;$(TargetPath)&quot;
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>..\bin\$(ConfigurationName)\$(PlatformName)</outdir>
+  <outdir>..\bin\$(ConfigurationName)\x64</outdir>
   <objdir>$(OutDir)\$(ProjectName)</objdir>
   <objname />
   <libname />
@@ -1384,7 +1384,7 @@ echo Success &gt;&quot;$(TargetPath)&quot;
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>..\bin\$(ConfigurationName)</outdir>
+  <outdir>..\bin\$(ConfigurationName)\x64</outdir>
   <objdir>$(OutDir)\$(ProjectName)</objdir>
   <objname />
   <libname />
@@ -1515,7 +1515,7 @@ echo Success &gt;&quot;$(TargetPath)&quot;
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>..\bin\$(ConfigurationName)\$(PlatformName)</outdir>
+  <outdir>..\bin\$(ConfigurationName)\x64</outdir>
   <objdir>$(OutDir)\$(ProjectName)</objdir>
   <objname />
   <libname />
@@ -1777,7 +1777,7 @@ echo Success &gt;&quot;$(TargetPath)&quot;
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>..\bin\$(ConfigurationName)</outdir>
+  <outdir>..\bin\$(ConfigurationName)\x64</outdir>
   <objdir>$(OutDir)\$(ProjectName)</objdir>
   <objname />
   <libname />
@@ -2039,7 +2039,7 @@ echo Success &gt;&quot;$(TargetPath)&quot;
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>..\bin\$(ConfigurationName)\$(PlatformName)</outdir>
+  <outdir>..\bin\$(ConfigurationName)\x64</outdir>
   <objdir>$(OutDir)\$(ProjectName)</objdir>
   <objname />
   <libname />

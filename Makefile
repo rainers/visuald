@@ -59,16 +59,16 @@ prerequisites:
 	devenv /Project "build"     /Build "$(CONFIG)|Win32" visuald_vs10.sln
 
 visuald_vs:
-	devenv /Project "visuald"   /Build "$(CONFIG)|Win32" visuald_vs10.sln
+	devenv /Project "VisualD"   /Build "$(CONFIG)|Win32" visuald_vs10.sln
 
 visuald_vs_x64:
-	devenv /Project "visuald"   /Build "$(CONFIG_X64)|x64" visuald_vs10.sln
+	devenv /Project "VisualD"   /Build "$(CONFIG_X64)|x64" visuald_vs10.sln
 
 visuald_vs_arm64:
-	devenv /Project "visuald"   /Build "$(CONFIG_ARM64)|x64" visuald_vs10.sln
+	devenv /Project "VisualD"   /Build "$(CONFIG_ARM64)|x64" visuald_vs10.sln
 
 visuald_test:
-	devenv /Project "visuald"   /Build "TestDebug|Win32" visuald_vs10.sln
+	devenv /Project "VisualD"   /Build "TestDebug|Win32" visuald_vs10.sln
 	bin\TestDebug\VisualD\VisualD.exe
 
 vdserver:
@@ -202,25 +202,25 @@ mago:
 	cd ..\..\mago && devenv /Build "Release StaticDE|Win32" /Project "MagoNatCC" magodbg_2010.sln
 
 mago_vs15:
-	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141            /target:DebugEngine\MagoNatDE MagoDbg_2010.sln
-	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=x64;PlatformToolset=v141              /target:DebugEngine\MagoRemote MagoDbg_2010.sln
-	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=Win32;PlatformToolset=v141" /target:Expression\MagoNatCC MagoDbg_2010.sln
+	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141            /target:DebugEngine\MagoNatDE  /verbosity:quiet MagoDbg_2010.sln
+	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=x64;PlatformToolset=v141              /target:DebugEngine\MagoRemote /verbosity:quiet MagoDbg_2010.sln
+	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=Win32;PlatformToolset=v141" /target:Expression\MagoNatCC   /verbosity:quiet MagoDbg_2010.sln
 
 mago_vs16:
-	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v142            /target:DebugEngine\MagoNatDE MagoDbg_2010.sln
-	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=x64;PlatformToolset=v142              /target:DebugEngine\MagoRemote MagoDbg_2010.sln
-	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=Win32;PlatformToolset=v142" /target:Expression\MagoNatCC MagoDbg_2010.sln
+	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v142            /target:DebugEngine\MagoNatDE  /verbosity:quiet MagoDbg_2010.sln
+	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=x64;PlatformToolset=v142              /target:DebugEngine\MagoRemote /verbosity:quiet MagoDbg_2010.sln
+	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=Win32;PlatformToolset=v142" /target:Expression\MagoNatCC   /verbosity:quiet MagoDbg_2010.sln
 
 mago_vs17:
-	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v143            /target:DebugEngine\MagoNatDE MagoDbg_2010.sln
-	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=x64;PlatformToolset=v143              /target:DebugEngine\MagoRemote MagoDbg_2010.sln
-	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=Win32;PlatformToolset=v143" /target:Expression\MagoNatCC MagoDbg_2010.sln
+	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v143            /target:DebugEngine\MagoNatDE  /verbosity:quiet MagoDbg_2010.sln
+	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=x64;PlatformToolset=v143              /target:DebugEngine\MagoRemote /verbosity:quiet MagoDbg_2010.sln
+	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=Win32;PlatformToolset=v143" /target:Expression\MagoNatCC   /verbosity:quiet MagoDbg_2010.sln
 
 magocc_x64:
-	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=x64;PlatformToolset=v143" /target:Expression\MagoNatCC MagoDbg_2010.sln
+	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=x64;PlatformToolset=v143"   /target:Expression\MagoNatCC   /verbosity:quiet MagoDbg_2010.sln
 
 magocc_arm64:
-	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=ARM64;PlatformToolset=v143" /target:Expression\MagoNatCC MagoDbg_2010.sln
+	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=ARM64;PlatformToolset=v143" /target:Expression\MagoNatCC   /verbosity:quiet MagoDbg_2010.sln
 
 magogc:
 	cd ..\..\mago && devenv /Build "Release|Win32" /Project "MagoGC" magodbg_2010.sln
@@ -236,19 +236,19 @@ cv2pdb:
 	cd ..\..\cv2pdb\trunk && devenv /Project "dumplines"   /Build "Release|Win32" src\cv2pdb_vs12.sln
 
 cv2pdb_vs15:
-	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141 src\cv2pdb.vcxproj
-	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141 src\dviewhelper\dviewhelper.vcxproj
-	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141 src\dumplines.vcxproj
+	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141 /verbosity:quiet src\cv2pdb.vcxproj
+	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141 /verbosity:quiet src\dviewhelper\dviewhelper.vcxproj
+	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141 /verbosity:quiet src\dumplines.vcxproj
 
 cv2pdb_vs16:
-	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v142 src\cv2pdb.vcxproj
-	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v142 src\dviewhelper\dviewhelper.vcxproj
-	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v142 src\dumplines.vcxproj
+	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v142 /verbosity:quiet src\cv2pdb.vcxproj
+	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v142 /verbosity:quiet src\dviewhelper\dviewhelper.vcxproj
+	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v142 /verbosity:quiet src\dumplines.vcxproj
 
 cv2pdb_vs17:
-	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v143 src\cv2pdb.vcxproj
-	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v143 src\dviewhelper\dviewhelper.vcxproj
-	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v143 src\dumplines.vcxproj
+	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v143 /verbosity:quiet src\cv2pdb.vcxproj
+	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v143 /verbosity:quiet src\dviewhelper\dviewhelper.vcxproj
+	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v143 /verbosity:quiet src\dumplines.vcxproj
 
 dcxxfilt: $(DCXXFILT_EXE)
 $(DCXXFILT_EXE): tools\dcxxfilt.d

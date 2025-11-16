@@ -2,6 +2,7 @@
 rem expecting 
 rem  - vsi2d.exe with path as the first argument
 rem  - output file as second arg to remember build success
+rem  - output folder as optional third argument
 rem  - WindowsSdkDir to be set
 
 set VSI2D=%~1
@@ -11,6 +12,9 @@ if not exist "%VSI2D%" (echo %1 does not exist && exit /B 1)
 set OUT=%~2
 if "%OUT%" == "" (echo Error: please specify the output path to remember succesful builds as second argument && exit /B 1)
 if exist "%OUT%" del "%OUT%"
+
+set SDK=%~3
+if "%SDK%" == "" set SDK=..\sdk
 
 if "%WindowsSdkDir%" == "" (echo Error: environment variable WindowsSdkDir not set && exit /B 1)
 
@@ -38,9 +42,13 @@ if "%VSISDKINC%" == "" (echo Error: could not detect the Visual Studio SDK && ex
 
 if not exist "%VSISDKINC%\VisualStudioIntegration\Common\Inc\textmgr.h" (echo unexpected Visual Studio SDK installation at "%VSISDKINC%" && exit /B 1)
 
+if not exist "%SDK%" md "%SDK%"
+if not exist "%SDK%\win32" md "%SDK%\win32"
+if not exist "%SDK%\vsi" md "%SDK%\vsi"
+
 echo Translating Windows SDK and Visual Studio SDK to D, this can take several minutes. Please be patient.
-echo "%VSI2D%" --vsi="%VSISDKINC:\=/%" --win="%WINSDKINC:\=/%" --dte="%DTE_IDL_PATH%" --sdk=..\sdk
-"%VSI2D%" --vsi="%VSISDKINC:\=/%" --win="%WINSDKINC:\=/%" --dte="%DTE_IDL_PATH%" --sdk=..\sdk
+echo "%VSI2D%" --vsi="%VSISDKINC:\=/%" --win="%WINSDKINC:\=/%" --dte="%DTE_IDL_PATH%" --sdk="%SDK%"
+"%VSI2D%" --vsi="%VSISDKINC:\=/%" --win="%WINSDKINC:\=/%" --dte="%DTE_IDL_PATH%" --sdk="%SDK%"
 if errorlevel 1 exit /B 1
 
 echo Translation successful! 

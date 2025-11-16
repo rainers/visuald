@@ -34,7 +34,7 @@
   <useArrayBounds>0</useArrayBounds>
   <boundscheck>0</boundscheck>
   <useSwitchError>0</useSwitchError>
-  <useUnitTests>1</useUnitTests>
+  <useUnitTests>0</useUnitTests>
   <useInline>0</useInline>
   <release>0</release>
   <preservePaths>0</preservePaths>
@@ -790,7 +790,7 @@
   <useArrayBounds>0</useArrayBounds>
   <boundscheck>0</boundscheck>
   <useSwitchError>0</useSwitchError>
-  <useUnitTests>1</useUnitTests>
+  <useUnitTests>0</useUnitTests>
   <useInline>0</useInline>
   <release>0</release>
   <preservePaths>0</preservePaths>
@@ -2050,7 +2050,7 @@
   <useArrayBounds>0</useArrayBounds>
   <boundscheck>0</boundscheck>
   <useSwitchError>0</useSwitchError>
-  <useUnitTests>1</useUnitTests>
+  <useUnitTests>0</useUnitTests>
   <useInline>0</useInline>
   <release>0</release>
   <preservePaths>0</preservePaths>
@@ -2269,6 +2269,15 @@
   <filesToClean>*.obj</filesToClean>
  </Config>
  <Folder name="vsi2d">
+  <Folder name="c2d">
+   <File path="ast.d" />
+   <File path="cpp2d.d" />
+   <File path="dgutil.d" />
+   <File path="dlist.d" />
+   <File path="pp.d" />
+   <File path="tokenizer.d" />
+   <File path="tokutil.d" />
+  </Folder>
   <Folder name="stdext">
    <File path="..\stdext\array.d" />
    <File path="..\stdext\file.d" />

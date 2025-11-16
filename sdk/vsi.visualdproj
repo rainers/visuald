@@ -2758,6 +2758,7 @@
    <File path="vsi\msdbg177.d" />
    <File path="vsi\msdbg178.d" />
    <File path="vsi\msdbg179.d" />
+   <File path="vsi\msdbg1800.d" />
    <File path="vsi\msdbg90.d" />
    <File path="vsi\objext.d" />
    <File path="vsi\ocdesign.d" />
@@ -2847,6 +2848,7 @@
    <File path="vsi\vsshell177.d" />
    <File path="vsi\vsshell178.d" />
    <File path="vsi\vsshell179.d" />
+   <File path="vsi\vsshell180.d" />
    <File path="vsi\vsshell2.d" />
    <File path="vsi\vsshell80.d" />
    <File path="vsi\vsshell90.d" />

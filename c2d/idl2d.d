@@ -643,6 +643,10 @@ class idl2d
 		case "WriteULongPtrRaw":
 			return 1;
 
+		// SDK 10.0.26100.0
+		case "WINVER":
+			return 1;
+
 		default:
 			break;
 		}
@@ -1435,6 +1439,11 @@ version(all)
 		replaceTokenSequence(tokens, "#ifdef UNICODE\nreturn $_identW(\n#else\nreturn $_identA(\n#endif\n",
 			"    return $_identW(", false);
 
+		if(currentModule == "winuser") // SDK 10.0.16100.0
+		{
+			replaceTokenSequence(tokens, ["#endif /* __cplusplus */"], ["#endif"], false);
+			replaceTokenSequence(tokens, ["#endif  /* __cplusplus */"], ["#endif\n}\n"], false); // bad workaround for missing brace
+		}
 		replaceTokenSequence(tokens, "#ifdef __cplusplus\nextern \"C\" {\n#endif\n", "extern \"C\" {\n", false);
 		replaceTokenSequence(tokens, "#ifdef defined(__cplusplus)\nextern \"C\" {\n#endif\n", "extern \"C\" {\n", false);
 		replaceTokenSequence(tokens, "#ifdef defined __cplusplus\nextern \"C\" {\n#endif\n", "extern \"C\" {\n", false);
@@ -3102,4 +3111,44 @@ unittest
 	string exp = "/+ struct /+__declspec(deprecated(\"deprecated\"))+/ S; +/\n";
 
 	testConvert(txt, exp);
+}
+
+unittest
+{
+	string txt = `
+#include <winapifamily.h>
+
+#ifndef _WINUSER_
+#define _WINUSER_
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#endif
+
+#include <string.h>
+
+#ifdef __cplusplus
+}
+#endif  /* __cplusplus */
+#endif /* !_WINUSER_ */
+`;
+string exp = "
+public import sdk.port.winapifamily;
+
+version(all) /* #ifndef _WINUSER_ */ {
+// #define _WINUSER_
+
+extern(C) { 
+
+
+public import sdk.port.string;
+
+}} 
+ /* !_WINUSER_ */
+";
+
+//	testConvert(txt, exp, "winuser");
 }
