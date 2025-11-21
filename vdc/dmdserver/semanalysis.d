@@ -403,11 +403,11 @@ Module analyzeModule(Module parsedModule, const ref Options opts)
 	void semantic(Module m)
 	{
 		m.dsymbolSemantic(null);
-		Module.runDeferredSemantic();
+		runDeferredSemantic();
 		m.semantic2(null);
-		Module.runDeferredSemantic2();
+		runDeferredSemantic2();
 		m.semantic3(null);
-		Module.runDeferredSemantic3();
+		runDeferredSemantic3();
 	}
 
 	if (needsReinit)
@@ -2030,7 +2030,7 @@ void do_unittests()
 		"6,13,6,14:Error: found `)` instead of statement\n" ~
 		"9,2,9,3:Error: unmatched closing brace\n" ~
 		"5,3,5,4:Error: undefined identifier `a`\n" ~
-		"6,6,6,7:Error: undefined identifier `a`\n");
+		"6,7,6,8:Error: undefined identifier `a`\n");
 
 	exp2 = [
 		"abc":             [ IdTypePos(TypeReferenceKind.TLSVariable) ],
@@ -2389,9 +2389,9 @@ unittest
 		// "4:21:FUNC:test()",
 		"1:26:31:TMPL:tmpl(T)",
 		"2:28:28:STRU:helper",
-		"2:29:29:CLSS:tmpl(T)",
+		"2:29:29:CLSS:tmpl",
 		"2:30:30:ENUM:E",
-		"1:32:32:FUNC:tmplfun(T)(T x)",
+		"1:32:32:FUNC:tmplfun(T x)",
 	];
 	checkOutline(source, 3, expected);
 }

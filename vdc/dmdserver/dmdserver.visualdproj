@@ -2279,6 +2279,23 @@
     <File path="dmd\compiler\src\dmd\common\outbuffer.d" />
     <File path="dmd\compiler\src\dmd\common\smallbuffer.d" />
    </Folder>
+   <Folder name="dfa">
+    <Folder name="fast">
+     <File path="dmd\compiler\src\dmd\dfa\fast\analysis.d" />
+     <File path="dmd\compiler\src\dmd\dfa\fast\expression.d" />
+     <File path="dmd\compiler\src\dmd\dfa\fast\report.d" />
+     <File path="dmd\compiler\src\dmd\dfa\fast\statement.d" />
+     <File path="dmd\compiler\src\dmd\dfa\fast\structure.d" />
+    </Folder>
+    <File path="dmd\compiler\src\dmd\dfa\entry.d" />
+    <File path="dmd\compiler\src\dmd\dfa\utils.d" />
+   </Folder>
+   <Folder name="iasm">
+    <File path="dmd\compiler\src\dmd\iasm\dmdaarch64.d" tool="None" />
+    <File path="dmd\compiler\src\dmd\iasm\dmdx86.d" tool="None" />
+    <File path="dmd\compiler\src\dmd\iasm\gcc.d" tool="None" />
+    <File path="dmd\compiler\src\dmd\iasm\package.d" />
+   </Folder>
    <Folder name="mangle">
     <File path="dmd\compiler\src\dmd\mangle\basic.d" />
     <File path="dmd\compiler\src\dmd\mangle\cpp.d" />
@@ -2368,8 +2385,6 @@
    <File path="dmd\compiler\src\dmd\dsymbolsem.d" />
    <File path="dmd\compiler\src\dmd\dtemplate.d" />
    <File path="dmd\compiler\src\dmd\dversion.d" />
-   <File path="dmd\compiler\src\dmd\e2ir.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\eh.d" tool="None" />
    <File path="dmd\compiler\src\dmd\entity.d" />
    <File path="dmd\compiler\src\dmd\enumsem.d" />
    <File path="dmd\compiler\src\dmd\errors.d" />
@@ -2382,12 +2397,7 @@
    <File path="dmd\compiler\src\dmd\func.d" />
    <File path="dmd\compiler\src\dmd\funcsem.d" />
    <File path="dmd\compiler\src\dmd\globals.d" />
-   <File path="dmd\compiler\src\dmd\glue.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\gluelayer.d" />
    <File path="dmd\compiler\src\dmd\hdrgen.d" />
-   <File path="dmd\compiler\src\dmd\iasm.d" />
-   <File path="dmd\compiler\src\dmd\iasmdmd.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\iasmgcc.d" tool="None" />
    <File path="dmd\compiler\src\dmd\id.d" />
    <File path="dmd\compiler\src\dmd\identifier.d" />
    <File path="dmd\compiler\src\dmd\impcnvtab.d" />
@@ -2402,11 +2412,6 @@
    <File path="dmd\compiler\src\dmd\json.d" />
    <File path="dmd\compiler\src\dmd\lambdacomp.d" />
    <File path="dmd\compiler\src\dmd\lexer.d" />
-   <File path="dmd\compiler\src\dmd\lib.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\libelf.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\libmach.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\libmscoff.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\libomf.d" tool="None" />
    <File path="dmd\compiler\src\dmd\link.d" />
    <File path="dmd\compiler\src\dmd\location.d" tool="None" />
    <File path="dmd\compiler\src\dmd\mars.d" tool="None" />
@@ -2424,13 +2429,8 @@
    <File path="dmd\compiler\src\dmd\printast.d" />
    <File path="dmd\compiler\src\dmd\root\region.d" />
    <File path="dmd\compiler\src\dmd\rootobject.d" />
-   <File path="dmd\compiler\src\dmd\s2ir.d" tool="None" />
    <File path="dmd\compiler\src\dmd\safe.d" />
    <File path="dmd\compiler\src\dmd\sarif.d" />
-   <File path="dmd\compiler\src\dmd\scanelf.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\scanmach.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\scanmscoff.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\scanomf.d" tool="None" />
    <File path="dmd\compiler\src\dmd\semantic2.d" />
    <File path="dmd\compiler\src\dmd\semantic3.d" />
    <File path="dmd\compiler\src\dmd\sideeffect.d" />
@@ -2440,15 +2440,10 @@
    <File path="dmd\compiler\src\dmd\staticcond.d" />
    <File path="dmd\compiler\src\dmd\stmtstate.d" />
    <File path="dmd\compiler\src\dmd\target.d" />
+   <File path="dmd\compiler\src\dmd\targetcompiler.d" />
    <File path="dmd\compiler\src\dmd\templateparamsem.d" />
    <File path="dmd\compiler\src\dmd\templatesem.d" />
-   <File path="dmd\compiler\src\dmd\tocsym.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\toctype.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\tocvdebug.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\todt.d" tool="None" />
-   <File path="dmd\compiler\src\dmd\toir.d" tool="None" />
    <File path="dmd\compiler\src\dmd\tokens.d" />
-   <File path="dmd\compiler\src\dmd\toobj.d" tool="None" />
    <File path="dmd\compiler\src\dmd\traits.d" />
    <File path="dmd\compiler\src\dmd\typesem.d" />
    <File path="dmd\compiler\src\dmd\typinf.d" />

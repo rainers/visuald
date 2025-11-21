@@ -24,6 +24,7 @@ import dmd.dmodule;
 import dmd.dstruct;
 import dmd.dsymbol;
 import dmd.dtemplate;
+import dmd.templatesem;
 import dmd.escape;
 import dmd.expression;
 import dmd.func;
@@ -32,6 +33,7 @@ import dmd.id;
 import dmd.identifier;
 import dmd.location;
 import dmd.mtype;
+import dmd.typesem;
 import dmd.objc;
 import dmd.rootobject;
 import dmd.target;
@@ -55,12 +57,17 @@ enum string[2][] dmdStatics =
 	["_D3dmd5clone12buildXtoHashFCQBa7dstruct17StructDeclarationPSQCg6dscope5ScopeZ8tftohashCQDh5mtype12TypeFunction", "TypeFunction"],
 	// < 2.110
 	// ["_D3dmd7dstruct15search_toStringRCQBfQBe17StructDeclarationZ10tftostringCQCs5mtype12TypeFunction", "TypeFunction"],
-	// 2.110
-	["_D3dmd7dstruct15search_toStringFCQBfQBe17StructDeclarationZ10tftostringCQCs5mtype12TypeFunction", "TypeFunction"],
-	// 2.103
-	["_D3dmd7dmodule6Module11loadStdMathFZ8std_mathCQBsQBrQBm", "Module"],
-	["_D3dmd7dmodule6Module14loadCoreAtomicFZ11core_atomicCQBzQByQBt", "Module"],
-	
+	// 2.110 to 2.111
+	// ["_D3dmd7dstruct15search_toStringFCQBfQBe17StructDeclarationZ10tftostringCQCs5mtype12TypeFunction", "TypeFunction"],
+	// 2.112
+	["_D3dmd9semantic315search_toStringFCQBh7dstruct17StructDeclarationZ10tftostringCQCz5mtype12TypeFunction", "TypeFunction"],
+	// 2.103 to 2.111
+	// ["_D3dmd7dmodule6Module11loadStdMathFZ8std_mathCQBsQBrQBm", "Module"],
+	// ["_D3dmd7dmodule6Module14loadCoreAtomicFZ11core_atomicCQBzQByQBt", "Module"],
+	// 2.112
+	["_D3dmd10dsymbolsem11loadStdMathFZ8std_mathCQBp7dmodule6Module", "Module"],
+	["_D3dmd10dsymbolsem14loadCoreAtomicFZ11core_atomicCQBw7dmodule6Module", "Module"],
+
 	// up to 2.110
 //	["_D3dmd4func15FuncDeclaration8genCfuncRPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifiermZ2stCQFb7dsymbol12DsymbolTable", "DsymbolTable"],
 	// 2.111
@@ -91,13 +98,26 @@ enum string[2][] dmdStatics =
 	["_D3dmd7typesem12typeSemanticFCQBc5mtype4TypeSQBr8location3LocPSQCj6dscope5ScopeZ11visitAArrayMFCQDqQCo10TypeAArrayZ4fcmpCQEp4func15FuncDeclaration", "FuncDeclaration"],
 	["_D3dmd7typesem12typeSemanticFCQBc5mtype4TypeSQBr8location3LocPSQCj6dscope5ScopeZ11visitAArrayMFCQDqQCo10TypeAArrayZ5fhashCQEq4func15FuncDeclaration", "FuncDeclaration"],
 
-	["_D3dmd7typesem6dotExpFCQv5mtype4TypePSQBk6dscope5ScopeCQCb10expression10ExpressionCQDdQBc8DotIdExpEQDtQCz10DotExpFlagZ11visitAArrayMFCQFcQEi10TypeAArrayZ8fd_aaLenCQGf4func15FuncDeclaration", "FuncDeclaration"],
+	// <= 2.111
+	// ["_D3dmd7typesem6dotExpFCQv5mtype4TypePSQBk6dscope5ScopeCQCb10expression10ExpressionCQDdQBc8DotIdExpEQDtQCz10DotExpFlagZ11visitAArrayMFCQFcQEi10TypeAArrayZ8fd_aaLenCQGf4func15FuncDeclaration", "FuncDeclaration"],
+
 	["_D3dmd7typesem6dotExpFCQv5mtype4TypePSQBk6dscope5ScopeCQCb10expression10ExpressionCQDdQBc8DotIdExpEQDtQCz10DotExpFlagZ8noMemberMFQEdQDsQDdCQFh10identifier10IdentifieriZ4nesti", "int"],
 	//["_D3dmd6dmacro10MacroTable6expandMFKSQBi6common9outbuffer9OutBufferkKkAxaZ4nesti", "int"], // x86
-	["_D3dmd7dmodule6Module19runDeferredSemanticRZ6nestedi", "int"],
+
+	// <= 2.111
+	// ["_D3dmd7dmodule6Module19runDeferredSemanticRZ6nestedi", "int"],
+	// 2.112
+	["_D3dmd10dsymbolsem19runDeferredSemanticFZ6nestedi", "int"],
+
 	["_D3dmd10dsymbolsem22DsymbolSemanticVisitor5visitMRCQBx9dtemplate13TemplateMixinZ4nesti", "int"],
-	["_D3dmd9dtemplate16TemplateInstance16tryExpandMembersMFPSQCc6dscope5ScopeZ4nesti", "int"],
-	["_D3dmd9dtemplate16TemplateInstance12trySemantic3MFPSQBy6dscope5ScopeZ4nesti", "int"],
+
+	// <= 2.111
+	// ["_D3dmd9dtemplate16TemplateInstance16tryExpandMembersMFPSQCc6dscope5ScopeZ4nesti", "int"],
+	// ["_D3dmd9dtemplate16TemplateInstance12trySemantic3MFPSQBy6dscope5ScopeZ4nesti", "int"],
+	// 2.112
+	["_D3dmd11templatesem16tryExpandMembersFCQBl9dtemplate16TemplateInstancePSQCs6dscope5ScopeZ4nesti", "int"],
+	["_D3dmd11templatesem12trySemantic3FCQBh9dtemplate16TemplateInstancePSQCo6dscope5ScopeZ4nesti", "int"],
+
 	["_D3dmd13expressionsem25ExpressionSemanticVisitor5visitMRCQCd10expression7CallExpZ4nesti", "int"],
 	["_D3dmd5lexer5Lexer12stringbufferSQBf6common9outbuffer9OutBuffer", "OutBuffer"],
 	//["_D3dmd10expression10IntegerExp__T7literalVii0ZQnRZ11theConstantCQCkQCjQCa", "IntegerExp"],
@@ -109,12 +129,16 @@ enum string[2][] dmdStatics =
 //	["_D3dmd10identifier10Identifier17generateIdWithLocFNbAyaKxSQCe8location3LocZ8countersHSQDgQDfQCwQCnFNbQBxKxQBxZ3Keyk", "countersType"],
 	["_D3dmd10identifier10Identifier9newSuffixFNbZ1ik", "size_t"],
 	// 2.111
-	["_D3dmd10identifier10Identifier17generateIdWithLocFNbAyaSQCc8location3LocQuZ8countersHSQDgQDfQCwQCnFNbQBxQBxQCdZ3Keyk", "countersType"],
+	// ["_D3dmd10identifier10Identifier17generateIdWithLocFNbAyaSQCc8location3LocQuZ8countersHSQDgQDfQCwQCnFNbQBxQBxQCdZ3Keyk", "countersType"],
 
 	// 2.106
 	["_D3dmd7arrayop7arrayOpFCQw10expression6BinExpPSQBt6dscope5ScopeZQByCQCo9dtemplate19TemplateDeclaration", "TemplateDeclaration"],
 	["_D3dmd6errors18colorHighlightCodeFNbKSQBk6common9outbuffer9OutBufferZ6nestedi", "int"],
-	["_D3dmd7dmodule6Module18loadCoreStdcConfigFZ16core_stdc_configCQCiQChQCc", "Module"],
+	// to 2.111
+	// ["_D3dmd7dmodule6Module18loadCoreStdcConfigFZ16core_stdc_configCQCiQChQCc", "Module"],
+	// 2.112
+	["_D3dmd10dsymbolsem18loadCoreStdcConfigFZ16core_stdc_configCQCf7dmodule6Module", "Module"],
+
 	// EscapeState.reset not accessible in package dmd
 	["_D3dmd6escape11EscapeState17scopeInferFailureHiCQBu10rootobject10RootObject", "EscapeInfer" ],
 
@@ -172,8 +196,9 @@ void clearSemanticStatics()
 	// statementsem
 	// static __gshared FuncDeclaration* fdapply = [null, null];
 	// static __gshared TypeDelegate* fldeTy = [null, null];
-	statementsem_fdapply[0] = statementsem_fdapply[1] = null;
-	statementsem_fldeTy[0]  = statementsem_fldeTy[1] = null;
+	// <= 2.111
+	// statementsem_fdapply[0] = statementsem_fdapply[1] = null;
+	// statementsem_fldeTy[0]  = statementsem_fldeTy[1] = null;
 
 	// dmd.dtemplate
 	emptyArrayElement = null;
@@ -213,7 +238,7 @@ void dmdInit()
 	location_init();
 
 	target._init(global.params); // needed by Type._init
-	Type._init();
+	Type_init();
 	Module._init();
 	CTFloat.initialize();
 }
@@ -499,7 +524,7 @@ void dmdReinit()
 	target.deinitialize();
 	setTargetBuildDefaults(target);
 	target._init(global.params); // needed by Type._init
-	Type._reinit();
+	Type_reinit();
 
 	// assume object.d unmodified otherwis
 	Module.moduleinfo = null;
