@@ -213,6 +213,7 @@ mago_vs16:
 
 mago_vs17:
 	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v143            /target:DebugEngine\MagoNatDE  /verbosity:quiet MagoDbg_2010.sln
+	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=x64;PlatformToolset=v143              /target:DebugEngine\MagoNatDE  /verbosity:quiet MagoDbg_2010.sln
 	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=x64;PlatformToolset=v143              /target:DebugEngine\MagoRemote /verbosity:quiet MagoDbg_2010.sln
 	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=Win32;PlatformToolset=v143" /target:Expression\MagoNatCC   /verbosity:quiet MagoDbg_2010.sln
 
@@ -221,6 +222,9 @@ magocc_x64:
 
 magocc_arm64:
 	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=ARM64;PlatformToolset=v143" /target:Expression\MagoNatCC   /verbosity:quiet MagoDbg_2010.sln
+
+mago_mi:
+	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=x64;PlatformToolset=v143"   /target:MagoMI\mago-mi         /verbosity:quiet MagoDbg_2010.sln
 
 magogc:
 	cd ..\..\mago && devenv /Build "Release|Win32" /Project "MagoGC" magodbg_2010.sln
@@ -259,7 +263,7 @@ $(DCXXFILT_EXE): tools\dcxxfilt.d
 # create installer
 
 install_release_modules: install_modules visuald_vs_arm64 fake_dparser cv2pdb_vs17 \
-	mago_vs17 magocc_x64 magocc_arm64 magogc magogc_ldc \
+	mago_vs17 magocc_x64 magocc_arm64 magogc magogc_ldc mago_mi \
 	dbuild12 dbuild14 dbuild15
 
 install_vs: install_release_modules install_only

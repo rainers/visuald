@@ -61,6 +61,7 @@
   !include "StrFunc.nsh"
   !include "TextFunc.nsh"
   !include "InstallOptions.nsh"
+  !include "x64.nsh"
 
   !include "uninstall_helper.nsh"
   !include "replaceinfile.nsh"
@@ -303,13 +304,16 @@ Section "Visual Studio package" SecPackage
   ${File} "..\bin\${CONFIG}\" vdserver.exe
 !endif
 
-!ifdef DMDSERVER
-  ${File} "..\bin\${CONFIG_DMDSERVER}\x64\" dmdserver.exe
-!endif
-
 !ifdef VDEXTENSIONS
   ${File} ..\bin\Release\vdextensions\obj\ vdextensions.dll
   ${File} ..\bin\Release\vdext15\obj\ vdext15.dll
+!endif
+
+!ifdef DMDSERVER
+  ${File} "..\bin\${CONFIG_DMDSERVER}\x64\" dmdserver.exe
+  ${SetOutPath} "$INSTDIR\dmdserver"
+  ${File} "..\..\binaries\" dmdserver-2.110.exe
+  ${File} "..\..\binaries\" dmdserver-2.111.exe
 !endif
 
 !ifdef DPARSER
@@ -1111,9 +1115,7 @@ ${MementoSection} "mago" SecMago
 
   ${SetOutPath} "$INSTDIR\Mago"
   ${File} ${MAGO_SOURCE}\bin\Win32\Release\ MagoNatDE.dll
-;;  ${File} ${MAGO_SOURCE}\bin\Win32\Release\ MagoNatEE.dll
   ${File} ${MAGO_SOURCE}\bin\Win32\Release\ udis86.dll
-;;  ${File} ${MAGO_SOURCE}\bin\Win32\Release\ CVSTI.dll
   ${File} ${MAGO_SOURCE}\bin\x64\Release\ MagoRemote.exe
   ${File} ${MAGO_SOURCE}\bin\x64\Release\ MagoGC64.dll
   ${File} ${MAGO_SOURCE}\bin\Win32\Release\ MagoGC32.dll
@@ -1122,7 +1124,18 @@ ${MementoSection} "mago" SecMago
   ${File} ${MAGO_SOURCE}\ LICENSE.TXT
   ${File} ${MAGO_SOURCE}\ NOTICE.TXT
 
+  ${SetOutPath} "$INSTDIR\Mago\x64"
+  ${File} ${MAGO_SOURCE}\bin\x64\Release\ mago-mi.exe
+  ${File} ${MAGO_SOURCE}\bin\x64\Release\ udis86.dll
+  ${File} ${MAGO_SOURCE}\bin\x64\Release\ MagoNatDE.dll
+  ${File} "$%VSINSTALLDIR%\DIA SDK\bin\amd64\" msdia140.dll
+
   ExecWait 'regsvr32 /s "$INSTDIR\Mago\MagoNatDE.dll"'
+  ${If} ${RunningX64}
+    ${DisableX64FSRedirection}
+    ExecWait '"$SYSDIR\regsvr32.exe" /s "$INSTDIR\Mago\x64\MagoNatDE.dll"'
+    ${EnableX64FSRedirection}
+  ${EndIf}
 
 !ifdef VS_NET
   Push ${SecVS_NET}
