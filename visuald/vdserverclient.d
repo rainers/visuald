@@ -31,7 +31,9 @@ import std.concurrency;
 import std.datetime;
 import std.string;
 import std.conv;
+import std.file;
 import std.path;
+import std.process : spawnProcess, ExecConfig = Config;
 import std.windows.charset;
 import core.atomic;
 import core.thread;
@@ -116,6 +118,54 @@ void checkGCStats()
 }
 
 ///////////////////////////////////////////////////////////////////////
+string[] findDmdServerVersions()
+{
+	string[] versions;
+	string dir = buildPath(Package.GetGlobalOptions().VisualDInstallDir, "dmdserver");
+	foreach (exe; dirEntries(dir, SpanMode.shallow))
+	{
+		string base = baseName(exe);
+		if (globMatch(base, "dmdserver*.exe"))
+			if (base.length > 14 && base[9] == '-')
+				versions ~= base[10..$-4];
+	}
+	return versions;
+}
+
+// return path to dmdserver with smallest version higher than installed DMD
+string findDmdServer()
+{
+	import visuald.updates;
+
+	float installedver = Package.s_instance.getInstalledVersionFloat(CheckProduct.DMD);
+	if (installedver <= 0)
+		return null;
+	string[] dmdservers = findDmdServerVersions();
+	string bestdmdver;
+	float bestver = 9999;
+	foreach(dmdver; dmdservers)
+	{
+		try
+		{
+			string ver = dmdver; // gets consumed by parse
+			float v = parse!float(ver) + 0.0009; // include all .-releases
+			if (v >= installedver && v < bestver)
+			{
+				bestver = v;
+				bestdmdver = dmdver;
+			}
+		}
+		catch(Exception)
+		{
+		}
+	}
+	if (bestdmdver.empty)
+		return null;
+	string dir = buildPath(Package.GetGlobalOptions().VisualDInstallDir, "dmdserver");
+	return buildPath(dir, "dmdserver-" ~ bestdmdver ~ ".exe");
+}
+
+///////////////////////////////////////////////////////////////////////
 // can be changed through registry entry
 // debug version = DebugServer;
 version(DebugServer)
@@ -146,6 +196,19 @@ bool startVDServer()
 		gVDServer = addref(newCom!VDServer);
 	else
 	{
+		if (gServerClassFactory_iid == DMDServerClassFactory_iid)
+		{
+			string dmdserver = findDmdServer();
+			if (!dmdserver.empty)
+			{
+				auto pid = spawnProcess([dmdserver], null, ExecConfig.suppressConsole);
+				if (pid)
+				{
+					Sleep(100); // wait for process ready
+				}
+			}
+		}
+		
 		GUID factory_iid = IID_IClassFactory;
 		HRESULT hr = CoGetClassObject(gServerClassFactory_iid, CLSCTX_LOCAL_SERVER|CLSCTX_INPROC_SERVER, null, factory_iid, cast(void**)&gVDClassFactory);
 		if(FAILED(hr))
