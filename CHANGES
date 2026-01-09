@@ -1484,4 +1484,5 @@ Version history
     VS engine still recommended)
   * visuald projects: fixed library dependencies if different project configurations
     used in a solution configuration
-
+  * dbuild: added support for VS 2026 18.1-18.3
+  * installer: can now also add mago as an extension for cppvsdbg in VSCode

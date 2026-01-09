@@ -388,6 +388,7 @@ Section "Visual Studio package" SecPackage
 !endif
 !ifdef VS2026
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.0.dll
+  ${File} ..\bin\dbuild\release-v18_1\obj\ dbuild.18.1.dll
 !endif
   WriteRegStr HKLM "Software\${APPNAME}" "msbuild" $INSTDIR\msbuild
 !endif
@@ -1124,6 +1125,11 @@ ${MementoSection} "mago" SecMago
   ${File} ${MAGO_SOURCE}\ LICENSE.TXT
   ${File} ${MAGO_SOURCE}\ NOTICE.TXT
 
+  ${SetOutPath} "$INSTDIR\vscode"
+  ${File} ${MAGO_SOURCE}\bin\Win32\Release\ MagoNatCC.dll
+  ${File} ${MAGO_SOURCE}\bin\Win32\Release\ MagoNatCC.vsdconfig
+  ${File} ${MAGO_SOURCE}\EED\MagoNatCC\     .vsdbg-config.json
+
   ${SetOutPath} "$INSTDIR\Mago\x64"
   ${File} ${MAGO_SOURCE}\bin\x64\Release\ mago-mi.exe
   ${File} ${MAGO_SOURCE}\bin\x64\Release\ udis86.dll
@@ -1176,6 +1182,27 @@ ${MementoSection} "mago" SecMago
   WriteRegStr HKLM "SOFTWARE\Wow6432Node\MagoDebugger" "MagoGC64.dll" "$INSTDIR\Mago\MagoGC64.dll"
 
 ${MementoSectionEnd}
+
+;--------------------------------
+${MementoSection} "add mago as VSCode debug extension" SecMagoVSCode
+
+  SectionGetFlags ${SecMago} $2
+  IntOp $2 $2 & ${SF_SELECTED}
+  IntCmp $2 ${SF_SELECTED} 0 NoVSCode
+
+  Push 1
+  Call DetectVSCodeCPPExtension
+  StrCmp $0 "0" NoVSCode
+
+    CreateDirectory "$PROFILE\.cppvsdbg\extensions"
+    FileOpen $0 "$PROFILE\.cppvsdbg\extensions\mago.link" "w"
+    FileWrite $0 "$INSTDIR\mago\vscode$\r$\n"
+    FileClose $0
+
+  NoVSCode:
+
+${MementoSectionEnd}
+
 !endif
 
 SectionGroupEnd ; Components
@@ -1225,6 +1252,7 @@ SectionEnd
 !ifdef MAGO
   LangString DESC_SecMago ${LANG_ENGLISH} "Mago is a debug engine especially designed for the D-Language."
   LangString DESC_SecMago2 ${LANG_ENGLISH} "$\r$\nMago is written by Aldo Nunez. Distributed under the Apache License Version 2.0. See www.dsource.org/projects/mago_debugger"
+  LangString DESC_SecMagoVSCode ${LANG_ENGLISH} "Intergrate Mago with the VSCode Microsoft cpptool debug engine."
 !endif  
 !ifdef MSBUILD
   LangString DESC_SecMSBuild ${LANG_ENGLISH} "MSBuild integration into VC++ projects in VS 2013/15/17/19/22"
@@ -1267,6 +1295,7 @@ SectionEnd
 !endif
 !ifdef MAGO
     !insertmacro MUI_DESCRIPTION_TEXT ${SecMago} $(DESC_SecMago)$(DESC_SecMago2)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecMagoVSCode} $(DESC_SecMagoVSCode)
 !endif
 !ifdef MSBUILD
     !insertmacro MUI_DESCRIPTION_TEXT ${SecMSBuild} $(DESC_SecMSBuild)
@@ -1454,6 +1483,10 @@ Section "Uninstall"
 
 ;  Push ${VS2017_REGISTRY_KEY}
 ;  Call un.RegisterMago
+
+  Delete "$PROFILE\.cppvsdbg\extensions\mago.link"
+  RMDir "$PROFILE\.cppvsdbg\extensions"
+  RMDir "$PROFILE\.cppvsdbg"
 
 !endif
 
@@ -1652,6 +1685,13 @@ Function .onInit
   Installed_VS2026:
     SectionSetText ${SecVS2026} "Install in $2"
   Done_VS2026:
+!endif
+
+!ifdef MAGO
+  Call DetectVSCodeCPPExtension
+  StrCmp $0 "0" 0 Installed_VSCode
+    SectionSetFlags ${SecMagoVSCode} ${SF_RO}
+  Installed_VSCode:
 !endif
 
 !ifdef EXPRESS
@@ -2419,7 +2459,7 @@ Function DetectVS
         StrCmp $0 0 0 no_vswhere
         StrCmp $1 "" no_vswhere
         StrCpy $VSVersion "VS2017+" ; value not used, but only checked if empty
-	no_vswhere:
+    no_vswhere:
 
 FunctionEnd
 
@@ -2503,4 +2543,33 @@ Function DetectVC
     StrCpy $VCVersion $1
     done:
 
+FunctionEnd
+
+Function DetectVSCodeCPPExtension
+    Push $1
+    Push $2
+
+    ; VS Code extensions directory
+    StrCpy $1 "$PROFILE\.vscode\extensions"
+
+    ; Default return value = 0 (not found)
+    StrCpy $0 "0"
+
+    ; Check if directory exists
+    IfFileExists "$1\*.*" 0 done
+
+    FindFirst $2 $R0 "$1\ms-vscode.cpptools*"
+    ${If} $2 == ""
+        ; Nothing found yet
+    ${Else}
+        ; Found at least one extension
+        StrCpy $0 "1"
+        FindClose $2
+        Goto done
+    ${EndIf}
+
+done:
+    Pop $2
+    Pop $1
+    ; Return value in $0
 FunctionEnd
