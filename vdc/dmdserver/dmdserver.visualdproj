@@ -2443,6 +2443,7 @@
    <File path="dmd\compiler\src\dmd\targetcompiler.d" />
    <File path="dmd\compiler\src\dmd\templateparamsem.d" />
    <File path="dmd\compiler\src\dmd\templatesem.d" />
+   <File path="dmd\compiler\src\dmd\timetrace.d" />
    <File path="dmd\compiler\src\dmd\tokens.d" />
    <File path="dmd\compiler\src\dmd\traits.d" />
    <File path="dmd\compiler\src\dmd\typesem.d" />
@@ -2471,7 +2472,6 @@ if exist &quot;%WindowsSdkDir%\bin\%WindowsSDKVersion%x86\rc.exe&quot; set rc=&q
   <File path="..\ivdserver.d" />
   <File path="semanalysis.d" />
   <File path="semvisitor.d" />
-  <File path="dmd\compiler\src\dmd\timetrace.d" />
   <File path="..\..\tools\tracegc.d" />
   <File path="..\vdserverfactory.d" />
  </Folder>

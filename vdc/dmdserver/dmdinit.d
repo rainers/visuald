@@ -73,7 +73,9 @@ enum string[2][] dmdStatics =
 	// 2.111
 //	["_D3dmd4func15FuncDeclaration8genCfuncRPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifierEQEw8astenums3STCZ2stCQFr7dsymbol12DsymbolTable", "DsymbolTable"],
 	// 2.111.1
-	["_D3dmd4func15FuncDeclaration8genCfuncFPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifierEQEw8astenums3STCZ2stCQFr7dsymbol12DsymbolTable", "DsymbolTable"],
+//	["_D3dmd4func15FuncDeclaration8genCfuncFPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifierEQEw8astenums3STCZ2stCQFr7dsymbol12DsymbolTable", "DsymbolTable"],
+	// 2.112.0
+	["_D3dmd7funcsem8genCfuncFPSQy4root5array__T5ArrayTCQBw5mtype9ParameterZQBcCQCuQy4TypeCQDf10identifier10IdentifierEQEh8astenums3STCZ2stCQFc7dsymbol12DsymbolTable", "DsymbolTable"],
 
 	// 2.091
 //	["_D3dmd7typesem12typeSemanticRCQBc5mtype4TypeSQBr7globals3LocPSQCi6dscope5ScopeZ11visitAArrayMFCQDpQCn10TypeAArrayZ3feqCQEn4func15FuncDeclaration", "FuncDeclaration"],
@@ -140,7 +142,10 @@ enum string[2][] dmdStatics =
 	["_D3dmd10dsymbolsem18loadCoreStdcConfigFZ16core_stdc_configCQCf7dmodule6Module", "Module"],
 
 	// EscapeState.reset not accessible in package dmd
-	["_D3dmd6escape11EscapeState17scopeInferFailureHiCQBu10rootobject10RootObject", "EscapeInfer" ],
+	// to 2.111
+	// ["_D3dmd6escape11EscapeState17scopeInferFailureHiCQBu10rootobject10RootObject", "EscapeInfer" ],
+	// 2.112
+	["_D3dmd6escape11EscapeState16scopeInferReasonHiCQBt10rootobject10RootObject", "EscapeInfer" ],
 
 	// 2.10x
 	["_D3dmd7typesem21getComplexLibraryTypeFSQBl8location3LocPSQCd6dscope5ScopeEQCu8astenums2TYZ13complex_floatCQEa5mtype4Type", "Type" ],
@@ -264,7 +269,7 @@ struct Options
 	bool mixinAnalysis;
 	bool UFCSExpansions;
 
-	bool predefineDefaultVersions;
+	bool predefineDefaultVersions = true;
 	int versionLevel;
 	string[] versionIds;
 	int debugLevel;
@@ -420,7 +425,6 @@ void dmdSetupParams(const ref Options opts)
 	// Add in command line versions
 	foreach (charz; *versionids)
 	{
-		global.versionids.push(new Identifier(charz));
 		auto ident = charz[0 .. strlen(charz)];
 		if (VersionCondition.isReserved(ident))
 			VersionCondition.addPredefinedGlobalIdent(ident);
@@ -430,7 +434,13 @@ void dmdSetupParams(const ref Options opts)
 
 	if (opts.predefineDefaultVersions)
 		addDefaultVersionIdentifiers(global.params, target);
-
+	if (opts.ldcCompiler || opts.gdcCompiler)
+	{
+		size_t idx = global.versionids.find(Identifier.idPool("DigitalMars"));
+		if (idx != size_t.max)
+			global.versionids.remove(idx);
+		VersionCondition.addPredefinedGlobalIdent(opts.ldcCompiler ? "LDC" : "GNU");
+	}
 	// always enable for tooltips
 	global.params.ddoc.doOutput = true;
 
