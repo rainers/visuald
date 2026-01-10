@@ -37,7 +37,7 @@ jobs:
       - name: Prepare D compiler
         uses: dlang-community/setup-dlang@v1
         with:
-          compiler: dmd-$DMD_VER
+          compiler: dmd-${{ env.DMD_VER }}
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
       - name: Setup VS environment
@@ -45,10 +45,10 @@ jobs:
       - name: Download Visual D
         uses: supplypike/setup-bin@v1
         with:
-          uri: 'https://github.com/dlang/visuald/releases/download/v$VISUALD_VER/VisualD-v$VISUALD_VER.exe'
-          name: 'VisualD-v$VISUALD_VER.exe'
-          version: '$VISUALD_VER'
-          command: ./VisualD-v$VISUALD_VER.exe /S
+          uri: 'https://github.com/dlang/visuald/releases/download/v$VISUALD_VER/VisualD-v${{ env.VISUALD_VER }}.exe'
+          name: 'VisualD-v${{ env.VISUALD_VER }}.exe'
+          version: '${{ env.VISUALD_VER }}'
+          command: ./VisualD-v${{ env.VISUALD_VER }}.exe /S
       - name: Register visuald
         run: |
           reg add "HKLM\SOFTWARE\DMD" /v "InstallationDir" /t REG_SZ /d "c:\hostedtoolcache\windows\dc\dmd-$DMD_VER\x64" /reg:32 /f
