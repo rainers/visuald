@@ -45,7 +45,7 @@ jobs:
       - name: Download Visual D
         uses: supplypike/setup-bin@v1
         with:
-          uri: 'https://github.com/dlang/visuald/releases/download/v$VISUALD_VER/VisualD-v${{ env.VISUALD_VER }}.exe'
+          uri: 'https://github.com/dlang/visuald/releases/download/v${{ env.VISUALD_VER }}/VisualD-v${{ env.VISUALD_VER }}.exe'
           name: 'VisualD-v${{ env.VISUALD_VER }}.exe'
           version: '${{ env.VISUALD_VER }}'
           command: ./VisualD-v${{ env.VISUALD_VER }}.exe /S
