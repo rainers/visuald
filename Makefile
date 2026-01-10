@@ -79,6 +79,7 @@ dmdserver:
 
 dmdserver_test:
 	devenv /Project "dmdserver" /Build "TestDebug|x64" visuald_vs10.sln
+	bin\TestDebug\x64\dmdserver.exe
 
 dparser:
 	cd vdc\abothe && $(MSBUILD15) vdserver.sln /p:Configuration=Release;Platform="Any CPU" /p:TargetFrameworkVersion=4.5.2 /p:DefineConstants=NET40 $(MSBUILD_REBUILD)

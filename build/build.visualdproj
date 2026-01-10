@@ -2108,17 +2108,21 @@ if errorlevel 1 goto reportError
 $(DMDInstallDir)\windows\bin\dmd -g -map &quot;$(IntDir)\$(InputName).map&quot; &quot;-of$(OutDir)\$(InputName).dll&quot; &quot;-od$(IntDir)&quot; -defaultlib=user32.lib -m32mscoff -L/SUBSYSTEM:CONSOLE -L/ENTRY:DllMain@12 $(InputPath) kernel32.lib user32.lib" outfile="$(OutDir)\$(InputName).dll" path="..\tools\filemonitor.d" tool="Custom" />
   <File path="..\tools\largeadr.d" />
   <File customcmd="echo Compiling $(InputPath)...
+set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist &quot;%ldmd%&quot; set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
 if exist &quot;$(VSINSTALLDIR)\Common7\Tools\vsvars32.bat&quot; call &quot;$(VSINSTALLDIR)\Common7\Tools\vsvars32.bat&quot;
 if exist &quot;$(VCINSTALLDIR)\Auxiliary\Build\vcvars32.bat&quot; ( pushd . &amp;&amp; call &quot;$(VCINSTALLDIR)\Auxiliary\Build\vcvars32.bat&quot; &amp;&amp; popd )
 if errorlevel 1 goto reportError
-$(LDCInstallDir)\bin\ldmd2 -m32 -i=std &quot;-of$(OutDir)\$(InputName).exe&quot; $(InputPath) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d user32.lib -L/SUBSYSTEM:CONSOLE,5.01" dependencies="..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d" outfile="$(OutDir)\$(InputName).exe" path="..\tools\mb2utf16.d" tool="Custom" />
+&quot;%ldmd%&quot; -m32 -i=std &quot;-of$(OutDir)\$(InputName).exe&quot; $(InputPath) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d user32.lib -L/SUBSYSTEM:CONSOLE,5.01" dependencies="..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d" outfile="$(OutDir)\$(InputName).exe" path="..\tools\mb2utf16.d" tool="Custom" />
   <File customcmd="echo Compiling $(InputPath)...
+set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist &quot;%ldmd%&quot; set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
 if exist &quot;$(VSINSTALLDIR)\Common7\Tools\vsvars32.bat&quot; call &quot;$(VSINSTALLDIR)\Common7\Tools\vsvars32.bat&quot;
 if exist &quot;$(VCINSTALLDIR)\Auxiliary\Build\vcvars32.bat&quot; ( pushd . &amp;&amp; call &quot;$(VCINSTALLDIR)\Auxiliary\Build\vcvars32.bat&quot; &amp;&amp; popd )
 if errorlevel 1 goto reportError
-$(LDCInstallDir)\bin\ldmd2 -m32 -i=std -version=pipeLink &quot;-of$(OutDir)\pipelink.exe&quot; $(InputPath) ..\tools\nostacktrace.d  ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01
+&quot;%ldmd%&quot; -m32 -i=std -version=pipeLink &quot;-of$(OutDir)\pipelink.exe&quot; $(InputPath) ..\tools\nostacktrace.d  ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01
 if errorlevel 1 goto reportError
-$(LDCInstallDir)\bin\ldmd2 -m32 -i=std &quot;-of$(OutDir)\$(InputName).exe&quot; $(InputPath) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01" dependencies="..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d" outfile="$(OutDir)\$(InputName).exe" path="..\tools\pipedmd.d" tool="Custom" />
+&quot;%ldmd%&quot; -m32 -i=std &quot;-of$(OutDir)\$(InputName).exe&quot; $(InputPath) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01" dependencies="..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d" outfile="$(OutDir)\$(InputName).exe" path="..\tools\pipedmd.d" tool="Custom" />
   <File customcmd="if exist &quot;$(VSINSTALLDIR)\Common7\Tools\vsvars32.bat&quot; call &quot;$(VSINSTALLDIR)\Common7\Tools\vsvars32.bat&quot;
 if exist &quot;$(VCINSTALLDIR)\Auxiliary\Build\vcvars32.bat&quot; ( pushd . &amp;&amp; call &quot;$(VCINSTALLDIR)\Auxiliary\Build\vcvars32.bat&quot; &amp;&amp; popd )
 if errorlevel 1 goto reportError
@@ -2159,6 +2163,6 @@ call $(InputPath) &quot;$(OutDir)\vsi2d.exe&quot; &quot;$(IntDir)\sdk_libs.succe
   <File customcmd="if exist &quot;$(VSINSTALLDIR)\Common7\Tools\vsvars32.bat&quot; call &quot;$(VSINSTALLDIR)\Common7\Tools\vsvars32.bat&quot;
 if exist &quot;$(VCINSTALLDIR)\Auxiliary\Build\vcvars32.bat&quot; ( pushd . &amp;&amp; call &quot;$(VCINSTALLDIR)\Auxiliary\Build\vcvars32.bat&quot; &amp;&amp; popd )
 if errorlevel 1 goto reportError
-$(DMDInstallDir)\windows\bin\dmd -d -m32mscoff -map &quot;$(IntDir)\$(InputName).map&quot; &quot;-of$(OutDir)\$(InputName).exe&quot; &quot;-od$(IntDir)&quot; $(InputPath) user32.lib oleaut32.lib uuid.lib" outfile="$(OutDir)\$(InputName).exe" path="..\tools\tlb2idl.d" tool="Custom" />
+&quot;$(DMDInstallDir)\windows\bin\dmd&quot; -d -m32mscoff -map &quot;$(IntDir)\$(InputName).map&quot; &quot;-of$(OutDir)\$(InputName).exe&quot; &quot;-od$(IntDir)&quot; $(InputPath) user32.lib oleaut32.lib uuid.lib" outfile="$(OutDir)\$(InputName).exe" path="..\tools\tlb2idl.d" tool="Custom" />
  </Folder>
 </DProject>
