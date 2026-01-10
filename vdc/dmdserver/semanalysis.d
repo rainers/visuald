@@ -528,13 +528,17 @@ extern(C) int _CrtDumpMemoryLeaks();
 extern(C) void dumpGC();
 extern(Windows) void OutputDebugStringA(const(char)* lpOutputString);
 
+bool hasPhobos;
+
 string[] guessImportPaths()
 {
 	import std.file;
 
 	string druntime = std.path.dirName(__FILE_FULL_PATH__) ~ r"\dmd\druntime\src";
 	assert(std.file.exists(druntime ~ r"\object.d"));
-	return [ druntime, r"c:\s\d\dlang\phobos" ]; // must have version matching compiler and runtime
+	string phobos = r"c:\s\d\dlang\phobos"; // must have version matching compiler and runtime
+	hasPhobos = std.file.exists(phobos ~ r"\std\stdio.d");
+	return [ druntime, phobos ];
 
 	foreach(patch; '0'..'3')
 	{
@@ -553,6 +557,18 @@ string[] guessImportPaths()
 	if (std.file.exists(r"c:\s\d\rainers\druntime\import\object.d"))
 		return [ r"c:\s\d\rainers\druntime\import", r"c:\s\d\rainers\phobos" ];
 	return [ r"c:\d\dmd2\src\druntime\import", r"c:\s\d\rainers\src\phobos" ];
+}
+
+string import_stdio() { return hasPhobos ? "import std.stdio;" : ""; }
+string def_writeln() { return hasPhobos ? "" : q{
+	void writeln(T...)(T args)
+	{
+		// infer same attributes
+		static bool x;
+		x = true;
+		if (x) throw new Exception(null);
+	}
+};
 }
 
 unittest
@@ -727,26 +743,39 @@ void do_unittests()
 	};
 	m = checkErrors(source, "4,10,4,11:Error: undefined identifier `abc`\n");
 
-	source = q{
-		import std.stdio;
+	bool hasPhobos = false;
+	string import_stdio = hasPhobos ? "import std.stdio;" : "";
+	string def_writeln = hasPhobos ? "" : q{
+		void writeln(T...)(T args)
+		{
+			// infer same attributes
+			static bool x;
+			x = true;
+			if (x) throw new Exception(null);
+		};
+	};
+
+	source = "\n" ~ import_stdio ~ q{
 		int main(string[] args)
 		{
 			int xyz = 7;                // Line 5
 			writeln(1, 2, 3);
 			return xyz;
 		}
-	};
+	} ~ def_writeln;
 	m = checkErrors(source, "");
 
+	string stdio = hasPhobos ? "std.stdio" : "source";
 	checkTip(m, 5, 8, "(local variable) `int xyz`");
 	checkTip(m, 5, 10, "(local variable) `int xyz`");
-	checkTip(m, 6, 4, "`void std.stdio.writeln!(int, int, int)(int __param_0, int __param_1, int __param_2) @safe`\n...");
+	checkTip(m, 6, 4, "`void " ~ stdio ~ ".writeln!(int, int, int)(int __param_0, int __param_1, int __param_2) @safe`...");
 	checkTip(m, 5, 11, "");
-	checkTip(m, 6, 8, "`void std.stdio.writeln!(int, int, int)(int __param_0, int __param_1, int __param_2) @safe`\n...");
+	checkTip(m, 6, 8, "`void " ~ stdio ~ ".writeln!(int, int, int)(int __param_0, int __param_1, int __param_2) @safe`...");
 	checkTip(m, 7, 11, "(local variable) `int xyz`");
 
 	checkDefinition(m, 7, 11, "source.d", 5, 8); // xyz
-	checkDefinition(m, 2, 14, opts.importDirs[1] ~ r"\std\stdio.d", 0, 1); // std.stdio
+	if (hasPhobos)
+		checkDefinition(m, 2, 14, opts.importDirs[1] ~ r"\std\stdio.d", 0, 1); // std.stdio
 
 	//checkTypeIdentifiers(source);
 
@@ -1370,12 +1399,15 @@ void do_unittests()
 			return sum;
 		}
 	};
-	m = checkErrors(source, "");
-	//dumpAST(m);
+	if (hasPhobos)
+	{
+		m = checkErrors(source, "");
+		//dumpAST(m);
 
-	checkTip(m, 6, 12, "(local variable) `int i`");
-	checkTip(m, 7, 5, "(local variable) `int sum`");
-	checkTip(m, 7, 12, "(local variable) `int i`");
+		checkTip(m, 6, 12, "(local variable) `int i`");
+		checkTip(m, 7, 5, "(local variable) `int sum`");
+		checkTip(m, 7, 12, "(local variable) `int i`");
+	}
 
 	source = q{
 		import std.array;
@@ -1385,10 +1417,13 @@ void do_unittests()
 			auto t = split(
 		}
 	};
-	m = checkErrors(source, "<ignore>");
-	// todo: deal with "ditto"
-	checkTip(m, 5, 13, "`string[] std.array.split!(string, string)(string range, string sep) pure nothrow @safe`\n\nditto");
-	checkTip(m, 6, 13, "(template function) `std.array.split(S)(S s) if (isSomeString!S)`");
+	if (hasPhobos)
+	{
+		m = checkErrors(source, "<ignore>");
+		// todo: deal with "ditto"
+		checkTip(m, 5, 13, "`string[] std.array.split!(string, string)(string range, string sep) pure nothrow @safe`\n\nditto");
+		checkTip(m, 6, 13, "(template function) `std.array.split(S)(S s) if (isSomeString!S)`");
+	}
 
 	source = q{                          // Line 1
 		enum TOK : ubyte
@@ -1497,9 +1532,12 @@ void do_unittests()
 			cast(void)readln();          // Line 5
 		}
 	};
-	m = checkErrors(source, "");
-	checkTip(m, 5,  14, "`string std.stdio.readln!string(dchar terminator = '\\n') @system`"
-			 ~ "\n\nRead line from `stdin`...");
+	if (hasPhobos)
+	{
+		m = checkErrors(source, "");
+		checkTip(m, 5,  14, "`string std.stdio.readln!string(dchar terminator = '\\n') @system`"
+				 ~ "\n\nRead line from `stdin`...");
+	}
 
 	// string expressions with concat
 	source = q{
@@ -2504,7 +2542,7 @@ void test_ana_dmd()
 		{
 			filename = __FILE_FULL_PATH__;
 			source = cast(string)std.file.read(filename);
-			if (i & 1)
+			if (!hasPhobos || i & 1)
 			{
 				import std.array;
 				source = replace(source, "std", "stdx");
@@ -2586,7 +2624,8 @@ void test_ana_dmd()
 		};
 		Module m = checkErrors(source, "");
 	}
-	test_std();
+	if (hasPhobos)
+		test_std();
 }
 
 unittest

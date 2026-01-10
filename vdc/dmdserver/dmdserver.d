@@ -1281,20 +1281,20 @@ unittest
 	version(traceGC)
 		dumpGC();
 
+	string stdio = hasPhobos ? "std.stdio" : "source";
 	for (int i = 0; i < 2; i++)
 	{
 		srv.mModules = null;
 		//clearDmdStatics ();
 
-		source = q{
-			import std.stdio;
+		source = "\n" ~ import_stdio ~ q{
 			int main(string[] args)
 			{
 				int xyz = 7;
 				writeln(1, 2, 3);
 				return xyz;
 			}
-		};
+		} ~ def_writeln;
 		checkErrors(source, "");
 
 		version(traceGC)
@@ -1307,7 +1307,7 @@ unittest
 	}
 
 	checkTip(5, 9, "(local variable) `int xyz`");
-	checkTip(6, 9, "`void std.stdio.writeln!(int, int, int)(int __param_0, int __param_1, int __param_2) @safe`...");
+	checkTip(6, 9, "`void " ~ stdio ~ ".writeln!(int, int, int)(int __param_0, int __param_1, int __param_2) @safe`...");
 	checkTip(7, 12, "(local variable) `int xyz`");
 
 	version(traceGC)
