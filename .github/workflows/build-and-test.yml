@@ -10,6 +10,8 @@ env:
   BUILD_CONFIGURATION: Release
   BUILD_PLATFORM: x64
   BUILD_PLATFORM_TOOLSET: v142
+  DMD_VER: 2.111.0
+  VISUALD_VER: 1.4.1
 
 jobs:
   build:
@@ -35,7 +37,7 @@ jobs:
       - name: Prepare D compiler
         uses: dlang-community/setup-dlang@v1
         with:
-          compiler: dmd-2.111.0
+          compiler: dmd-$DMD_VER
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
       - name: Setup VS environment
@@ -43,14 +45,14 @@ jobs:
       - name: Download Visual D
         uses: supplypike/setup-bin@v1
         with:
-          uri: 'https://github.com/dlang/visuald/releases/download/v1.4.1/VisualD-v1.4.1.exe'
-          name: 'VisualD-v1.4.1.exe'
-          version: '1.4.1'
-          command: ./VisualD-v1.4.1.exe /S
+          uri: 'https://github.com/dlang/visuald/releases/download/v$VISUALD_VER/VisualD-v$VISUALD_VER.exe'
+          name: 'VisualD-v$VISUALD_VER.exe'
+          version: '$VISUALD_VER'
+          command: ./VisualD-v$VISUALD_VER.exe /S
       - name: Register visuald
         run: |
-          reg add "HKLM\SOFTWARE\DMD" /v "InstallationDir" /t REG_SZ /d "c:\hostedtoolcache\windows\dc\dmd-2.098.1\x64" /reg:32 /f
-          reg add "HKLM\SOFTWARE\VisualD" /v "DMDInstallDir" /t REG_SZ /d "c:\hostedtoolcache\windows\dc\dmd-2.098.1\x64\dmd2" /reg:32 /f
+          reg add "HKLM\SOFTWARE\DMD" /v "InstallationDir" /t REG_SZ /d "c:\hostedtoolcache\windows\dc\dmd-$DMD_VER\x64" /reg:32 /f
+          reg add "HKLM\SOFTWARE\VisualD" /v "DMDInstallDir" /t REG_SZ /d "c:\hostedtoolcache\windows\dc\dmd-$DMD_VER\x64\dmd2" /reg:32 /f
       - name: Build visuald
         working-directory: visuald/trunk
         run: nmake d_modules dmdserver_test
