@@ -136,8 +136,6 @@
       <CodeGeneration Condition="'$(Platform)' == 'ARM64'">ARM64</CodeGeneration>
       <CodeGeneration Condition="'$(Platform)' != 'Win32' and '$(Platform)' != 'X64' and '$(Platform)' != 'ARM64'">echo DMD not supported on this platform
 exit 1</CodeGeneration>
-    
-  
-  </DCompile>
+    </DCompile>
   </ItemDefinitionGroup>
 </Project>

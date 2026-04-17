@@ -972,7 +972,7 @@ namespace dbuild
 
         public string ToolName
         {
-            get { return _compiler + ".exe"; }
+            get { return "CompileD"; }
         }
 
         public string TrackerLogDirectory

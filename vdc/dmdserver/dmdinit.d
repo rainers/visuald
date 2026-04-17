@@ -24,7 +24,7 @@ import dmd.dmodule;
 import dmd.dstruct;
 import dmd.dsymbol;
 import dmd.dtemplate;
-import dmd.templatesem;
+import dmd.errors;
 import dmd.escape;
 import dmd.expression;
 import dmd.func;
@@ -33,6 +33,7 @@ import dmd.id;
 import dmd.identifier;
 import dmd.location;
 import dmd.mtype;
+import dmd.templatesem;
 import dmd.typesem;
 import dmd.objc;
 import dmd.rootobject;
@@ -151,6 +152,8 @@ enum string[2][] dmdStatics =
 	["_D3dmd7typesem21getComplexLibraryTypeFSQBl8location3LocPSQCd6dscope5ScopeEQCu8astenums2TYZ13complex_floatCQEa5mtype4Type", "Type" ],
 	["_D3dmd7typesem21getComplexLibraryTypeFSQBl8location3LocPSQCd6dscope5ScopeEQCu8astenums2TYZ14complex_doubleCQEb5mtype4Type", "Type" ],
 	["_D3dmd7typesem21getComplexLibraryTypeFSQBl8location3LocPSQCd6dscope5ScopeEQCu8astenums2TYZ12complex_realCQDz5mtype4Type", "Type" ],
+
+	["_D3dmd11templatesem17emptyArrayElementCQBl10expression10Expression", "Expression"],
 ];
 
 string cmangled(string s)
@@ -188,6 +191,12 @@ extern __gshared FuncDeclaration* statementsem_fdapply;
 pragma(mangle, "_D3dmd12statementsem15applyAssocArrayFCQBl9statement16ForeachStatementCQCr10expression10ExpressionCQDt5mtype4TypeZ6fldeTyPCQErQy12TypeDelegate")
 extern __gshared TypeDelegate* statementsem_fldeTy;
 
+bool vdFatalErrorHandler() nothrow
+{
+	import core.exception;
+	onAssertErrorMsg(__FILE__, __LINE__, "fatal error");
+	return true;
+}
 
 void clearSemanticStatics()
 {
@@ -206,7 +215,6 @@ void clearSemanticStatics()
 	// statementsem_fldeTy[0]  = statementsem_fldeTy[1] = null;
 
 	// dmd.dtemplate
-	emptyArrayElement = null;
 	TemplateValueParameter.edummies = null;
 	TemplateTypeParameter.tdummy = null;
 	TemplateAliasParameter.sdummy = null;
@@ -235,6 +243,8 @@ void dmdInit()
 	version(CRuntime_Microsoft)
 		initFPU();
 
+	import std.functional;
+	fatalErrorHandler = toDelegate(&vdFatalErrorHandler);
 	setTargetBuildDefaults(target);
 	global._init();
 	//Token._init();

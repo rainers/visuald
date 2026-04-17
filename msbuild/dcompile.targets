@@ -15,6 +15,7 @@
     <DbuildCompileDDLLPath Condition="'$(DbuildCompileDDLLPath)' == ''">$(MSBuildThisFileDirectory)dbuild.$(DBuildVersion).dll</DbuildCompileDDLLPath>
     <!-- using Microsoft.Build.CPPTasks.Common.Base.dll doesn't work because it does not mix with the non-base-version ? -->
     <CPPTaskPath Condition="'$(CPPTaskPath)' == ''">$(_VCTargetsPathForToolset)\Microsoft.Build.CPPTasks.Common.dll</CPPTaskPath>
+    <DCompileDebugTracking>false</DCompileDebugTracking>
   </PropertyGroup>
 
   <!-- load CPPTasks Assembly before dbuild, so that it doesn't have to be found as an implicit dependency -->
@@ -68,7 +69,7 @@
 
     <!-- extract package name from relative dir, avoid parent folder and drive names in package name -->
     <ItemGroup>
-      <DCompile>
+      <DCompile Update="@DCompile">
         <PackageName>$([System.String]::Copy('%(RelativeDir)|').Replace('\|','').Replace('|','').Replace('..','__').Replace(':','_').Replace('\','.'))</PackageName>
       </DCompile>
     </ItemGroup>
@@ -126,46 +127,216 @@
       </DCompile>
     </ItemGroup>
 
+    <ItemGroup>
+      <DCompile Update="@(DCompile)">
+        <CompileUnit>$([System.IO.Path]::GetFileNameWithoutExtension('%(ObjectFileName)'))</CompileUnit>
+      </DCompile>
+    </ItemGroup>
+
     <!-- <Message Text="POST:  %(DCompile.Identity)  CompilationModel:%(DCompile.CompilationModel) ObjFile:%(DCompile.ObjectFileName)" Importance="high" />
     -->
     
   </Target>
 
+  <Target Name="_sanitizeOptions" BeforeTargets="_DMD;ComputeDCompileOutput">
+    <ItemGroup>
+      <DCompile Update="@(DCompile)">
+        <_DebugFull Condition="'$(DCompiler)' == 'LDC'">false</_DebugFull>
+        <_DebugFull Condition="'$(DCompiler)' != 'LDC'"></_DebugFull>
+      </DCompile>
+      <DCompile Update="@(DCompile)" Condition="%(DCompile.DebugInfo) == 'None'">
+        <_DebugFull>false</_DebugFull>
+      </DCompile>
+      <DCompile Update="@(DCompile)" Condition="%(DCompile._DebugFull) == ''">
+        <_DebugFull>%(DebugFull)</_DebugFull>
+      </DCompile>
+      <DCompile Update="@(DCompile)" Condition="%(DCompile._DebugFull) != 'true'">
+        <_DebugFull>false</_DebugFull>
+      </DCompile>
+    </ItemGroup>
+
+    <PropertyGroup>
+      <_clLanguage>%(ClCompile->Metadata('LanguageStandard')->Distinct())</_clLanguage>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <DCompile Update="@(DCompile)">
+        <_CppStandard>%(CppStandard)</_CppStandard>
+      </DCompile>
+      <DCompile Update="@(DCompile)" Condition="%(DCompile.CppStandard) == 'fromCpp'">
+        <_CppStandard Condition="'$(_clLanguage)' == 'stdcpp14'">cpp14</_CppStandard>
+        <_CppStandard Condition="'$(_clLanguage)' == 'stdcpp17'">cpp17</_CppStandard>
+        <_CppStandard Condition="'$(_clLanguage)' == 'stdcpplatest'">cpp17</_CppStandard>
+        <_CppStandard Condition="'$(_clLanguage)' == 'Default'">cpp17</_CppStandard>
+        <_CppStandard Condition="'$(_clLanguage)' == ''">default</_CppStandard> <!-- for older VS -->
+      </DCompile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <DCompile Update="@(DCompile)">
+		<_AllOptions>
+			%(DCompile.ImportPaths);
+			%(DCompile.ImportCPaths);
+			%(DCompile.ImportCDefines);
+			%(DCompile.StringImportPaths);
+			%(DCompile.VersionIdentifiers);
+			%(DCompile.DebugIdentifiers);
+			%(DCompile.ObjectFileName);
+			%(DCompile.PreserveSourcePath);
+			%(DCompile.DRuntimeLibrary);
+			%(DCompile.CRuntimeLibrary);
+
+			%(DCompile.Profile)
+			%(DCompile.ProfileGC)
+			%(DCompile.Coverage)
+			%(DCompile.MinCoverage)
+			%(DCompile.Unittest)
+			%(DCompile.Optimizer)
+			%(DCompile.Inliner)
+			%(DCompile.StackFrame)
+			%(DCompile.StackStomp)
+			%(DCompile.AllInst)
+			%(DCompile.Main)
+			%(DCompile.CPUArchitecture)
+			%(DCompile.DebugCode)
+			%(DCompile.DebugInfo)
+			%(DCompile._DebugFull)
+			%(DCompile.DebugMixin)
+			%(DCompile.BoundsCheck)
+			%(DCompile.PerformSyntaxCheckOnly)
+
+			%(DCompile.BetterC)
+			%(DCompile._CppStandard)
+			%(DCompile.DIP25)
+			%(DCompile.DIP1000)
+			%(DCompile.DIP1008)
+			%(DCompile.DIP1021)
+			%(DCompile.RevertImport)
+			%(DCompile.PreviewDtorFields)
+			%(DCompile.PreviewIntPromote)
+			%(DCompile.PreviewFixAliasThis)
+			%(DCompile.PreviewRvalueRefParam)
+			%(DCompile.PreviewNoSharedAccess)
+			%(DCompile.PreviewMarkdown)
+			%(DCompile.PreviewIn)
+			%(DCompile.PreviewInclusiveInContracts)
+			%(DCompile.TransitionVMarkdown)
+			%(DCompile.TransitionField)
+			%(DCompile.TransitionCheckImports)
+			%(DCompile.TransitionComplex)
+			%(DCompile.Warnings)
+			%(DCompile.Deprecations)
+			%(DCompile.Verbose)
+			%(DCompile.ShowTLS)
+			%(DCompile.ShowGC)
+			%(DCompile.IgnorePragma)
+			%(DCompile.ShowDependencies)
+			%(DCompile.LowMem)
+			%(DCompile.DocDir)
+			%(DCompile.DocFile)
+			%(DCompile.DepFile)
+			%(DCompile.HeaderDir)
+			%(DCompile.HeaderFile)
+			%(DCompile.CppHeaderFile)
+			%(DCompile.JSONFile)
+		</_AllOptions>
+       </DCompile>
+       <DCompile Update="@(DCompile)">
+         <_OptionsHash>$([System.Math]::Abs($([System.String]::Concat('%(DCompile._AllOptions)').GetHashCode())))</_OptionsHash>
+      </DCompile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <_Objs Include="@(DCompile)">
+        <Key>%(ObjectFileName)</Key>
+        <Hash>%(_OptionsHash)</Hash>
+      </_Objs>
+    </ItemGroup>
+    <ItemGroup>
+      <_Conflicting Include="@(_Objs)" Condition="@(_Objs->'%(Hash)'->Distinct()->Count()) &gt; 1" />
+    </ItemGroup>
+	  
+    <ItemGroup>
+      <DCompile Update="@(_Conflicting)" Condition="'@(_Conflicting)' != ''">
+        <CompileUnit>%(CompileUnit)_%(_OptionsHash)</CompileUnit>
+      </DCompile>
+    </ItemGroup>
+    <ItemGroup>
+      <DCompile Update="@(_Conflicting)"  Condition="'@(_Conflicting)' != ''">
+        <ObjectFileName>$([System.IO.Path]::GetDirectoryName('%(ObjectFileName)'))\%(CompileUnit)$([System.IO.Path]::GetExtension('%(ObjectFileName)'))</ObjectFileName>
+      </DCompile>
+    </ItemGroup>
+
+    <Message Condition="$(DCompileDebugTracking)" Text="Conflicting='@(_Conflicting)'" Importance="high" />
+    <Message Condition="$(DCompileDebugTracking)" Text="CompileUnit='%(DCompile.CompileUnit)'" Importance="high" />
+	  
+    <ItemGroup>
+      <DCompile Update="@(DCompile)">
+        <SanitizedObjectFileName>$([System.IO.Path]::GetDirectoryName('%(DCompile.ObjectFileName)'))\%(DCompile.CompileUnit)$([System.IO.Path]::GetExtension('%(DCompile.ObjectFileName)'))</SanitizedObjectFileName>
+      </DCompile>
+    </ItemGroup>
+
+  </Target>
+
+  <!-- generate tlog files into separate folder -->
+  <Target Name="_setTracking" BeforeTargets="_DMD">
+    <ItemGroup>
+      <DCompile Update="@(DCompile)">
+        <TrackFileAccess>true</TrackFileAccess>
+        <TrackerLogDirectory>$(TLogLocation)\%(CompileUnit).tlog</TrackerLogDirectory>
+        <TLogReadFiles>$(TLogLocation)\%(CompileUnit).tlog\dmd.read.1.tlog</TLogReadFiles>
+        <TLogWriteFiles>$(TLogLocation)\%(CompileUnit).tlog\dmd.write.1.tlog</TLogWriteFiles>
+      </DCompile>
+    </ItemGroup>
+  </Target>
+
+  <!-- copy .tlog files into common root tlog folder where the VC project build
+       system looks for them for the "Fast Up To Date Check" -->
+  <Target Name="_copyTLogFile" AfterTargets="_DMD">
+    <ItemGroup>
+      <CompileUnit Include="@(DCompile->'%(CompileUnit)'->Distinct())" />
+    </ItemGroup>
+    <Message Condition="$(DCompileDebugTracking)" Text="CompileUnit ='@(CompileUnit)'" Importance="high" />
+    <ItemGroup>
+      <!-- All .tlog files in source folder -->
+      <TLogFiles Include="$(TLogLocation)\%(CompileUnit.Identity).tlog\*.tlog">
+		  <CompileUnit>%(CompileUnit.Identity)</CompileUnit>
+      </TLogFiles>
+      <TLogFiles Update="@(TLogFiles)">
+        <DestFile>$(TLogLocation)\%(CompileUnit)_%(Filename)%(Extension)</DestFile>
+      </TLogFiles>
+    </ItemGroup>
+    <Message Condition="$(DCompileDebugTracking)" Text="TLogFiles='@(TLogFiles)'" Importance="high" />
+    <Message Condition="$(DCompileDebugTracking)" Text="DestFiles=@(TLogFiles->'%(DestFile)')" Importance="high" />
+    <Copy SourceFiles="@(TLogFiles)"
+          DestinationFiles="@(TLogFiles->'%(DestFile)')" />
+  </Target>
+
+  <!-- no Inputs/Outputs to avoid skipping build if only an included file changes -->
   <Target Name="_DMD"
+    Condition="'@(DCompile)' != '' and '$(DCompiler)' != 'None'"
     BeforeTargets="$(DCompileBeforeTargets)"
     AfterTargets="$(DCompileAfterTargets)"
-    Condition="'@(DCompile)' != '' and '$(DCompiler)' != 'None'"
-    DependsOnTargets="_collectDFiles;_replacePackageName">
-    
+    DependsOnTargets="_collectDFiles;_replacePackageName;_sanitizeOptions;_setTracking">
+
+    <Message Condition="$(DCompileDebugTracking)" Text="Inputs='@(DCompile)'" Importance="high" />
+    <Message Condition="$(DCompileDebugTracking)" Text="Outputs='@(DCompile->'%(SanitizedObjectFilename)'->Distinct())'" Importance="high" />
+    <Message Condition="$(DCompileDebugTracking)" Text="ObjFile='%(DCompile.ObjectFilename)'" Importance="high" />
+    <Message Condition="$(DCompileDebugTracking)" Text="TLogDir='%(DCompile.TrackerLogDirectory)'" Importance="high" />
+    <Message Condition="$(DCompileDebugTracking)" Text="OptHash='%(DCompile._OptionsHash)'" Importance="high" />
+
     <VCMessage Condition="$(MSBuildVersion_Major) == '17'" Type="Message" Code="MSB8034" Importance="low" Arguments="CPPTaskPath;$(CPPTaskPath)"/>
 
     <ItemGroup Condition="'@(dcompile_SelectedFiles)' != ''">
       <DCompile Remove="@(DCompile)" Condition="'%(Identity)' != '@(dcompile_SelectedFiles)'" />
     </ItemGroup>
-    
+
     <PropertyGroup>
       <_ToolExe Condition="'$(DCompiler)' == 'LDC'">$(LDCBinDir)ldmd2.exe</_ToolExe>
       <_ToolExe Condition="'$(DCompiler)' != 'LDC'">$(DMDBinDir)dmd.exe</_ToolExe>
     </PropertyGroup>
 
     <PropertyGroup>
-      <_DebugFull Condition="'$(DCompiler)' == 'LDC'">false</_DebugFull>
-      <_DebugFull Condition="'$(_DebugFull)' == '' and '@(DCompile->Metadata('DebugInfo')->Distinct())' == 'None'">false</_DebugFull>
-      <_DebugFull Condition="'$(_DebugFull)' == ''">@(DCompile->Metadata('DebugFull')->Distinct())</_DebugFull>
-      <_DebugFull Condition="'$(_DebugFull)' != 'true' and '$(_DebugFull)' != 'false'">false</_DebugFull>
-    </PropertyGroup>
-
-    <PropertyGroup>
-      <_CppStandard Condition="'$(_CppStandard)' == ''">@(DCompile->Metadata('CppStandard')->Distinct())</_CppStandard>
-      <_clLanguage  Condition="'$(_CppStandard)' == 'fromCpp'">@(ClCompile->Metadata('LanguageStandard')->Distinct())</_clLanguage>
-      <_CppStandard Condition="'$(_CppStandard)' == 'fromCpp' and '$(_clLanguage)' == 'stdcpp14'">cpp14</_CppStandard>
-      <_CppStandard Condition="'$(_CppStandard)' == 'fromCpp' and '$(_clLanguage)' == 'stdcpp17'">cpp17</_CppStandard>
-      <_CppStandard Condition="'$(_CppStandard)' == 'fromCpp' and '$(_clLanguage)' == 'stdcpplatest'">cpp17</_CppStandard>
-      <_CppStandard Condition="'$(_CppStandard)' == 'fromCpp' and '$(_clLanguage)' == 'Default'">cpp17</_CppStandard>
-      <_CppStandard Condition="'$(_CppStandard)' == 'fromCpp'">default</_CppStandard> <!-- for older VS -->
-    </PropertyGroup>
-
-	<PropertyGroup>
       <ClMultiToolTaskMinimalRebuild>true</ClMultiToolTaskMinimalRebuild>
       <ClMultiToolTaskMinimalRebuild Condition="'$(_BuildActionType)' != 'Build' or '$(ForceRebuild)' == 'true'">false</ClMultiToolTaskMinimalRebuild>
       <ProcessorNumber Condition="'$(ProcessorNumber)' == ''">$(CL_MPCount)</ProcessorNumber>
@@ -190,12 +361,13 @@
     </MultiToolTaskVisualD>
 
     <CompileD Condition="'@(DCompile)' != '' and '%(DCompile.UseMultiToolTask)' != 'true'"
-              TrackerLogDirectory="$(TLogLocation)"
+              TrackerLogDirectory="%(DCompile.TrackerLogDirectory)"
               ShowCommandLine="%(DCompile.ShowCommandLine)"
               AdditionalOptions="%(DCompile.AdditionalOptions)"
               Compiler="$(DCompiler)"
               ToolExe="$(_ToolExe)"
               Sources="@(DCompile)"
+              MinimalRebuildFromTracking="$(ClMultiToolTaskMinimalRebuild)"
               
               DoNotLink="%(DCompile.DoNotLink)"
               CodeGeneration="%(DCompile.CodeGeneration)"
@@ -206,7 +378,7 @@
               StringImportPaths="%(DCompile.StringImportPaths)"
               VersionIdentifiers="%(DCompile.VersionIdentifiers)"
               DebugIdentifiers="%(DCompile.DebugIdentifiers)"
-              ObjectFileName="%(DCompile.ObjectFileName)"
+              ObjectFileName="%(DCompile.SanitizedObjectFilename)"
               PreserveSourcePath="%(DCompile.PreserveSourcePath)"
               DRuntimeLibrary="%(DCompile.DRuntimeLibrary)"
               CRuntimeLibrary="%(DCompile.CRuntimeLibrary)"
@@ -225,13 +397,13 @@
               CPUArchitecture="%(DCompile.CPUArchitecture)"
               DebugCode="%(DCompile.DebugCode)"
               DebugInfo="%(DCompile.DebugInfo)"
-              DebugFull="$(_DebugFull)"
+              DebugFull="%(DCompile._DebugFull)"
               DebugMixin="%(DCompile.DebugMixin)"
               BoundsCheck="%(DCompile.BoundsCheck)"
               PerformSyntaxCheckOnly="%(DCompile.PerformSyntaxCheckOnly)"
               
               BetterC="%(DCompile.BetterC)"
-              CppStandard="$(_CppStandard)"
+              CppStandard="%(DCompile._CppStandard)"
               DIP25="%(DCompile.DIP25)"
               DIP1000="%(DCompile.DIP1000)"
               DIP1008="%(DCompile.DIP1008)"
@@ -277,11 +449,11 @@
 
   <Target Name="ComputeDCompileOutput"
     Condition="'@(DCompile)' != ''"
-    DependsOnTargets="_collectDFiles">
+    DependsOnTargets="_collectDFiles;_sanitizeOptions">
 
     <ItemGroup>
-      <Link Include="@(DCompile->Metadata('ObjectFileName')->Distinct()->ClearMetadata())" />
-      <Lib Include="@(DCompile->Metadata('ObjectFileName')->Distinct()->ClearMetadata())" />
+      <Link Include="@(DCompile->Metadata('SanitizedObjectFilename')->Distinct()->ClearMetadata())" />
+      <Lib Include="@(DCompile->Metadata('SanitizedObjectFilename')->Distinct()->ClearMetadata())" />
     </ItemGroup>
 
   </Target>

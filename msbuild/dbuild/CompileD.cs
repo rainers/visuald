@@ -186,6 +186,7 @@ namespace dbuild
 
         private string TLogPrefix
         {
+            // get { return Compiler == "LDC" ? "ldmd2-ldc2" : "dmd"; }
             get { return Compiler == "LDC" ? "ldmd2-ldc2" : "dmd"; }
         }
 
@@ -193,8 +194,8 @@ namespace dbuild
         {
             get {
 				return new string[2] {
-					TLogPrefix + ".read.1.tlog",
-					TLogPrefix + "-cl.read.1.tlog",
+					TLogPrefix + ".read.*.tlog",
+					TLogPrefix + "-*.read.*.tlog",
 				};
 			}
         }
@@ -203,15 +204,26 @@ namespace dbuild
         {
             get {
 				return new string[2] {
-					TLogPrefix + ".write.1.tlog",
-					TLogPrefix + "-cl.write.1.tlog",
+					TLogPrefix + ".write.*.tlog",
+					TLogPrefix + "-*.write.*.tlog",
 	            };
 			}
         }
 
+        protected override string[] DeleteTLogNames
+        {
+            get
+            {
+                return new string[2] {
+                    TLogPrefix + ".delete.*.tlog",
+                    TLogPrefix + "-*.delete.*.tlog",
+	            };
+            }
+        }
+
         protected override string CommandTLogName
         {
-            get { return "dcompile.command.1.tlog"; }
+            get { return TLogPrefix + ".command.1.tlog"; }
         }
 
         protected override string TrackerIntermediateDirectory

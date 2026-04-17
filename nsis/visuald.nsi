@@ -29,7 +29,7 @@
 
 ; define DMD source path to include dmd installation
 ; !define DMD 
-!define DMD_VERSION "2.111.0"
+!define DMD_VERSION "2.112.0"
 !define DMD_SRC c:\d\dmd-${DMD_VERSION}
 
 ; define LDC to include ldc installation
@@ -389,6 +389,7 @@ Section "Visual Studio package" SecPackage
 !ifdef VS2026
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.0.dll
   ${File} ..\bin\dbuild\release-v18_1\obj\ dbuild.18.1.dll
+  ${File} ..\bin\dbuild\release-v18_3\obj\ dbuild.18.3.dll
 !endif
   WriteRegStr HKLM "Software\${APPNAME}" "msbuild" $INSTDIR\msbuild
 !endif
