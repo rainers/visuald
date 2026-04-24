@@ -644,8 +644,8 @@ class idl2d
 			return 1;
 
 		// SDK 10.0.26100.0
-		case "WINVER":
-			return 1;
+		// case "WINVER":
+		// 	return 1;
 
 		default:
 			break;
@@ -1439,10 +1439,10 @@ version(all)
 		replaceTokenSequence(tokens, "#ifdef UNICODE\nreturn $_identW(\n#else\nreturn $_identA(\n#endif\n",
 			"    return $_identW(", false);
 
-		if(currentModule == "winuser") // SDK 10.0.16100.0
+		if(currentModule == "winuser") // SDK 10.0.26100.0
 		{
-			replaceTokenSequence(tokens, ["#endif /* __cplusplus */"], ["#endif"], false);
-			replaceTokenSequence(tokens, ["#endif  /* __cplusplus */"], ["#endif\n}\n"], false); // bad workaround for missing brace
+			replaceTokenSequence(tokens, "#if defined(__cplusplus) && !defined(SORTPP_PASS)\n$ifcode\n#else\n$elsecode TOUCHPAD_PARAMETERS_V1;\n#endif",
+								 "$elsecode TOUCHPAD_PARAMETERS_V1 v1;", false);
 		}
 		replaceTokenSequence(tokens, "#ifdef __cplusplus\nextern \"C\" {\n#endif\n", "extern \"C\" {\n", false);
 		replaceTokenSequence(tokens, "#ifdef defined(__cplusplus)\nextern \"C\" {\n#endif\n", "extern \"C\" {\n", false);
