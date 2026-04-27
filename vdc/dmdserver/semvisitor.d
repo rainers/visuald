@@ -31,8 +31,10 @@ import dmd.dstruct;
 import dmd.dsymbol;
 import dmd.dsymbolsem;
 import dmd.dtemplate;
+import dmd.templatesem;
 import dmd.errors;
 import dmd.expression;
+import dmd.expressionsem;
 import dmd.func;
 import dmd.globals;
 import dmd.hdrgen;
@@ -902,7 +904,8 @@ extern(C++) class FindASTVisitor : ASTVisitor
 			if (matchIdentifier(td.loc, td.ident))
 				foundNode(td);
 
-		foreach(ti; td.instances)
+		auto instances = cast(TemplateInstance[TemplateInstanceBox])td.instances;
+		foreach(ti; instances)
 			if (!stop)
 				visit(ti);
 
@@ -2875,7 +2878,7 @@ Expression isAALenCall(Expression expr)
 	// unpack first argument of _aaLen(aa)
 	if (auto ce = expr.isCallExp())
 		if (auto ve = ce.e1.isVarExp())
-			if (ve.var.ident is Id.aaLen)
+			if (ve.var.ident is Id._d_aaLen)
 				if (ce.arguments && ce.arguments.dim > 0)
 					return (*ce.arguments)[0];
 	return null;

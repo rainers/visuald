@@ -3963,7 +3963,26 @@ class Config :	DisposingComObject,
 					cp.QueryInterface(&IVsCfgProvider2.iid, cast(void**)&cp2);
 					if(cp2)
 					{
-						cp2.GetCfgOfName(_toUTF16z(mName), _toUTF16z(mPlatform), &cfg);
+						string cfgname = mName;
+						string platform = mPlatform;
+						if(auto sbm5 = qi_cast!IVsSolutionBuildManager5(solutionBuildManager))
+						{
+							GUID uid;
+							pHier[i].GetGuidProperty(VSITEMID_ROOT, VSHPROPID_ProjectIDGuid, &uid);
+							ScopedBSTR cfgCanonicalName;
+							if (sbm5.FindActiveProjectCfgName(&uid, &cfgCanonicalName.bstr) == S_OK)
+							{
+								string name = cfgCanonicalName.detach();
+								auto names = name.split('|');
+								if (names.length == 2)
+								{
+									cfgname = names[0];
+									platform = names[1];
+								}
+							}
+							release(sbm5);
+						}
+						cp2.GetCfgOfName(_toUTF16z(cfgname), _toUTF16z(platform), &cfg);
 						if(!cfg)
 							cp2.GetCfgs(1, &cfg, null, null); // TODO: find a "similar" config?
 						if(cfg)
