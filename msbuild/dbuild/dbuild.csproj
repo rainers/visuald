@@ -511,6 +511,28 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <TargetVer>18.3</TargetVer>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-v18_6|AnyCPU'">
+    <OutputPath>bin\Release-v18_6\</OutputPath>
+    <DefineConstants>TRACE;TOOLS_V17</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <TargetVer>18.6</TargetVer>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug-v18_6|AnyCPU'">
+    <OutputPath>bin\Debug-v18_6\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;TOOLS_V17</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>false</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <TargetVer>18.6</TargetVer>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -564,7 +586,7 @@
        or '$(TargetVer)' == '17.7' or '$(TargetVer)' == '17.8' or '$(TargetVer)' == '17.9'
        or '$(TargetVer)' == '17.10' or '$(TargetVer)' == '17.11' or '$(TargetVer)' == '17.12'
 	   or '$(TargetVer)' == '17.13' or '$(TargetVer)' == '17.14' or '$(TargetVer)' == '18.0'
-	   or '$(TargetVer)' == '18.1' or '$(TargetVer)' == '18.3'">v4.7.2</TargetFrameworkVersion>
+	   or '$(TargetVer)' == '18.1' or '$(TargetVer)' == '18.3' or '$(TargetVer)' == '18.6'">v4.7.2</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
@@ -967,7 +989,7 @@
     </Reference>
   </ItemGroup>
   <!-- VS2026 -->
-  <ItemGroup Condition="'$(TargetVer)' == '18.0' or '$(TargetVer)' == '18.1' or '$(TargetVer)' == '18.3'">
+  <ItemGroup Condition="'$(TargetVer)' == '18.0' or '$(TargetVer)' == '18.1' or '$(TargetVer)' == '18.3' or '$(TargetVer)' == '18.6'">
     <Reference Include="Microsoft.Build">
       <HintPath>assemblies\v18\Microsoft.Build.dll</HintPath>
       <Private>False</Private>
@@ -1012,6 +1034,12 @@
   <ItemGroup Condition="'$(TargetVer)' == '18.3'">
     <Reference Include="Microsoft.Build.CPPTasks.Common">
       <HintPath>assemblies\v18_3\Microsoft.Build.CPPTasks.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetVer)' == '18.6'">
+    <Reference Include="Microsoft.Build.CPPTasks.Common">
+      <HintPath>assemblies\v18_6\Microsoft.Build.CPPTasks.Common.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

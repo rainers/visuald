@@ -210,6 +210,7 @@ namespace dbuild
 			}
         }
 
+#if TOOLS_V17
         protected override string[] DeleteTLogNames
         {
             get
@@ -220,7 +221,7 @@ namespace dbuild
 	            };
             }
         }
-
+#endif
         protected override string CommandTLogName
         {
             get { return TLogPrefix + ".command.1.tlog"; }

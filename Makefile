@@ -201,7 +201,10 @@ dbuild18_1:
 dbuild18_3:
 	cd msbuild\dbuild && $(MSBUILD) dbuild.csproj /p:Configuration=Release-v18_3;Platform=AnyCPU $(MSBUILD_REBUILD)
 
-dbuild18_all: dbuild18_0 dbuild18_1 dbuild18_3
+dbuild18_6:
+	cd msbuild\dbuild && $(MSBUILD) dbuild.csproj /p:Configuration=Release-v18_6;Platform=AnyCPU $(MSBUILD_REBUILD)
+
+dbuild18_all: dbuild18_0 dbuild18_1 dbuild18_3 dbuild18_6
 
 mago:
 	cd ..\..\mago && devenv /Build "Release|Win32" /Project "MagoNatDE" magodbg_2010.sln

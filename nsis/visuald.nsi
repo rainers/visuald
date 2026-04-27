@@ -390,6 +390,7 @@ Section "Visual Studio package" SecPackage
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.0.dll
   ${File} ..\bin\dbuild\release-v18_1\obj\ dbuild.18.1.dll
   ${File} ..\bin\dbuild\release-v18_3\obj\ dbuild.18.3.dll
+  ${File} ..\bin\dbuild\release-v18_6\obj\ dbuild.18.6.dll
 !endif
   WriteRegStr HKLM "Software\${APPNAME}" "msbuild" $INSTDIR\msbuild
 !endif
