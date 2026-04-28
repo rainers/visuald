@@ -736,6 +736,11 @@ void do_unittests()
 	string source;
 	Module m;
 	source = q{
+		__VERSION__
+	};
+	m = checkErrors(source, "2,2,2,3:Error: declaration expected, not `2113L`\n");
+
+	source = q{
 		int main()
 		{
 			return abc;
@@ -2026,9 +2031,12 @@ void do_unittests()
 		}
 	};
 	m = checkErrors(source,
-					"5,3,5,4:Deprecation: function `source.dep` is deprecated\n" ~
-					"6,10,6,11:Deprecation: function `source.dep` is deprecated\n" ~
-					"6,10,6,11:Deprecation: function `source.dep` is deprecated\n");
+					"5,3,5,4:Deprecation: function `source.dep` is deprecated" ~
+					"\asource.d(2): `dep` is declared here\n" ~
+					"6,10,6,11:Deprecation: function `source.dep` is deprecated" ~
+					"\asource.d(2): `dep` is declared here\n" ~
+					"6,10,6,11:Deprecation: function `source.dep` is deprecated" ~
+					"\asource.d(2): `dep` is declared here\n");
 	//dumpAST(m);
 
 	// type references
