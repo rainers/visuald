@@ -1478,7 +1478,7 @@ Version history
 2026-04-xx version 1.5.0-rc1
   * full installer now bundled with DMD 2.112.0 and LDC 1.41.0
   * dmdserver:
-    - updated to dmd 2.112 (current master)
+    - updated to dmd 2.112 (master @ 2026/01/09)
     - dmdserver executable selected by installed dmd version (2.110, 2.111, 2.112)
   * mago-mi executable added
   * mago native debug engine now also works in VS2022 (mago concord extension for
@@ -1489,3 +1489,9 @@ Version history
   * dbuild: fixed building if source files are compiled with different settings
   * improved msbuild integration with the "Fast Up To Date Check" of VS
   * installer: can now also add mago as an extension for cppvsdbg in VSCode
+  
+2026-06-xx version 1.5.0-rc2
+  * full installer now bundled with LDC 1.42.0
+  * dmdserver:
+    - updated to dmd 2.113 (stable @ 2026/04/28)
+  * dbuild: generic support for VS 2026 18.1-18.9

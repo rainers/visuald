@@ -195,16 +195,40 @@ dbuild17_all: dbuild17_0 dbuild17_1 dbuild17_2 dbuild17_3 dbuild17_4 dbuild17_5 
 dbuild18_0:
 	cd msbuild\dbuild && $(MSBUILD) dbuild.csproj /p:Configuration=Release-v18_0;Platform=AnyCPU $(MSBUILD_REBUILD)
 
-dbuild18_1:
-	cd msbuild\dbuild && $(MSBUILD) dbuild.csproj /p:Configuration=Release-v18_1;Platform=AnyCPU $(MSBUILD_REBUILD)
+ASSEMBLYPATCHER = bin\AssemblyPatcher\Release\net10.0\AssemblyPatcher.exe
+DBUILD18_BIN = bin\dbuild\Release-v18_0\obj
 
-dbuild18_3:
-	cd msbuild\dbuild && $(MSBUILD) dbuild.csproj /p:Configuration=Release-v18_3;Platform=AnyCPU $(MSBUILD_REBUILD)
+$(ASSEMBLYPATCHER):
+	cd msbuild\dbuild\AssemblyPatcher && dotnet build -c Release
 
-dbuild18_6:
-	cd msbuild\dbuild && $(MSBUILD) dbuild.csproj /p:Configuration=Release-v18_6;Platform=AnyCPU $(MSBUILD_REBUILD)
+dbuild18_1: dbuild18_0 $(ASSEMBLYPATCHER)
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.1.0.0 $(DBUILD18_BIN)\dbuild.18.1.dll
 
-dbuild18_all: dbuild18_0 dbuild18_1 dbuild18_3 dbuild18_6
+dbuild18_2: dbuild18_0 $(ASSEMBLYPATCHER)
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.2.0.0 $(DBUILD18_BIN)\dbuild.18.2.dll
+
+dbuild18_3: dbuild18_0 $(ASSEMBLYPATCHER)
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.3.0.0 $(DBUILD18_BIN)\dbuild.18.3.dll
+
+dbuild18_4: dbuild18_0 $(ASSEMBLYPATCHER)
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.4.0.0 $(DBUILD18_BIN)\dbuild.18.4.dll
+
+dbuild18_5: dbuild18_0 $(ASSEMBLYPATCHER)
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.5.0.0 $(DBUILD18_BIN)\dbuild.18.5.dll
+
+dbuild18_6: dbuild18_0 $(ASSEMBLYPATCHER)
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.6.0.0 $(DBUILD18_BIN)\dbuild.18.6.dll
+
+dbuild18_7: dbuild18_0 $(ASSEMBLYPATCHER)
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.7.0.0 $(DBUILD18_BIN)\dbuild.18.7.dll
+	
+dbuild18_8: dbuild18_0 $(ASSEMBLYPATCHER)
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.8.0.0 $(DBUILD18_BIN)\dbuild.18.8.dll
+
+dbuild18_9: dbuild18_0 $(ASSEMBLYPATCHER)
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.9.0.0 $(DBUILD18_BIN)\dbuild.18.9.dll
+
+dbuild18_all: dbuild18_0 dbuild18_1 dbuild18_2 dbuild18_3 dbuild18_4 dbuild18_5 dbuild18_6 dbuild18_7 dbuild18_8 dbuild18_9
 
 mago:
 	cd ..\..\mago && devenv /Build "Release|Win32" /Project "MagoNatDE" magodbg_2010.sln
