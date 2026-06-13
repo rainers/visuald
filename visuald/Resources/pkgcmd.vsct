@@ -46,6 +46,9 @@
         <Group guid="g_commandSetCLSID" id="IDG_VD_WEB" priority="0x0005">
             <Parent guid="g_packageCLSID" id="IDM_VISUALD"/>
         </Group>
+        <Group guid="g_commandSetCLSID" id="IDG_VD_DEBUG" priority="0x0006">
+            <Parent guid="g_packageCLSID" id="IDM_VISUALD"/>
+        </Group>
     </Groups>
     
     <Buttons>
@@ -214,16 +217,6 @@
                 <LocCanonicalName>DeleteCoverageFiles</LocCanonicalName>
             </Strings>
         </Button>
-        <Button guid="g_commandSetCLSID" id="CmdDelLstFiles" priority="0xF301" type="Button">
-            <Parent guid="g_commandSetCLSID" id="IDG_VD_BUILD"/>
-            <Strings>
-                <ButtonText>Delete Coverage Files</ButtonText>
-                <MenuText>Delete Coverage Files</MenuText>
-                <ToolTipText>Delete Coverage Files</ToolTipText>
-                <CanonicalName>DeleteCoverageFiles</CanonicalName>
-                <LocCanonicalName>DeleteCoverageFiles</LocCanonicalName>
-            </Strings>
-        </Button>
         <Button guid="g_commandSetCLSID" id="CmdConvWizard" priority="0xF300" type="Button">
             <Parent guid="g_commandSetCLSID" id="IDG_VD_CONVERSION"/>
             <Strings>
@@ -263,6 +256,16 @@
                 <ToolTipText>Open Visual D Website</ToolTipText>
                 <CanonicalName>OpenWebsite</CanonicalName>
                 <LocCanonicalName>OpenWebsite</LocCanonicalName>
+            </Strings>
+        </Button>
+        <Button guid="g_commandSetCLSID" id="CmdStepOverForeach" priority="0xF100" type="Button">
+            <Parent guid="g_commandSetCLSID" id="IDG_VD_DEBUG"/>
+            <Strings>
+                <ButtonText>Step Over Foreach</ButtonText>
+                <MenuText>Step Over Foreach</MenuText>
+                <ToolTipText>Step Over D foreach loop (F10)</ToolTipText>
+                <CanonicalName>StepOverForeach</CanonicalName>
+                <LocCanonicalName>StepOverForeach</LocCanonicalName>
             </Strings>
         </Button>
  
@@ -416,6 +419,7 @@
       <IDSymbol name="IDG_VD_CONVERSION" value="0x0104" />
       <IDSymbol name="IDG_VD_OUTLINE"    value="0x0105" />
       <IDSymbol name="IDG_VD_INTELLISENSE" value="0x0106" />
+      <IDSymbol name="IDG_VD_DEBUG"      value="0x0107" />
 
       <!--
       <IDSymbol name="IDG_TESTBMP"       value="0x0106" />

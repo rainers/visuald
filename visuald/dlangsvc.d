@@ -533,14 +533,6 @@ class LanguageService : DisposingComObject,
 		return E_NOTIMPL;
 	}
 
-	// IVsDebuggerEvents //////////////////////////////////////
-	override HRESULT OnModeChange(const DBGMODE dbgmodeNew)
-	{
-		mixin(LogCallMix2);
-		mDbgMode = dbgmodeNew;
-		return S_OK;
-	}
-
 	// IVsFormatFilterProvider //////////////////////////////////////
 	override HRESULT CurFileExtensionFormat(const BSTR bstrFileName, uint* pdwExtnIndex)
 	{
@@ -855,8 +847,80 @@ class LanguageService : DisposingComObject,
 		return null;
 	}
 
+	// IVsDebuggerEvents //////////////////////////////////////
+	string getCurrentStackFunction(dte2.Debugger debugger)
+	{
+		dte2.Thread thread;
+		if (debugger.get_CurrentThread(&thread) != S_OK || !thread)
+			return null;
+		scope(exit) release(thread);
+
+		dte2.StackFrames stackFrames;
+		if (thread.get_StackFrames(&stackFrames) != S_OK || !stackFrames)
+			return null;
+		scope(exit) release(stackFrames);
+
+		int count;
+		if (stackFrames.get_Count(&count) != S_OK || count == 0)
+			return null;
+
+		dte2.StackFrame frame;
+		VARIANT v;
+		v.vt = VT_I4;
+		v.lVal = 1;
+		if (stackFrames.Item(v, &frame) != S_OK || !frame)
+			return null;
+		scope(exit) release(frame);
+
+		ScopedBSTR functionName;
+		if (frame.get_FunctionName(&functionName.bstr) != S_OK)
+			return null;
+
+		return to_string(functionName.bstr);
+	}
+
+	bool stepOutOfApply()
+	{
+		// Get the debugger
+		dte2.DTE2 dte_ = GetDTE();
+		if (!dte_)
+			return false;
+		scope(exit) release(dte_);
+
+		dte2.Debugger debugger;
+		if (dte_.get_Debugger(&debugger) != S_OK || !debugger)
+			return false;
+		scope(exit) release(debugger);
+
+		string funcname = getCurrentStackFunction(debugger);
+		if (!funcname.endsWith(".opApply()") && !funcname.endsWith(".opApplyReverse()") &&
+			funcname != "_d_aaApply()" && funcname != "_d_aaApply2()")
+			return false;
+
+		debugger.StepOut(false);
+		return true;
+	}
+
+	override HRESULT OnModeChange(const DBGMODE dbgmodeNew)
+	{
+		mixin(LogCallMix2);
+		mDbgMode = dbgmodeNew;
+		if ((mDbgMode & ~ DBGMODE_EncMask) != DBGMODE_Run)
+		{
+			if (mTempBreakpoints.length > 0)
+			{
+				if (!stepOutOfApply())
+					setTemporaryBreakpoints(null);
+			}
+		}
+		return S_OK;
+	}
+
 	void setDebugger(IVsDebugger debugger)
 	{
+		if (debugger is mDebugger)
+			return;
+
 		if(mCookieDebuggerEvents && mDebugger)
 		{
 			mDebugger.UnadviseDebuggerEvents(mCookieDebuggerEvents);
@@ -866,12 +930,112 @@ class LanguageService : DisposingComObject,
 
 		mDebugger = addref(debugger);
 		if(mDebugger)
+		{
 			mDebugger.AdviseDebuggerEvents(this, &mCookieDebuggerEvents);
+			mDebugger.GetMode(&mDbgMode);
+		}
+		else
+			mDbgMode = DBGMODE_Design;
 	}
 
 	bool IsDebugging()
 	{
 		return (mDbgMode & ~ DBGMODE_EncMask) != DBGMODE_Design;
+	}
+
+	static import dte2 = sdk.vsi.dte80;
+
+	void setTemporaryBreakpoints(dte2.Breakpoints[] tmpbps)
+	{
+		foreach(ref bps; mTempBreakpoints)
+		{
+			int count;
+			HRESULT hr = bps.get_Count(&count);
+			if (!FAILED(hr))
+			{
+				for (int i = 0; i < count; i++)
+				{
+					dte2.Breakpoint bp;
+					VARIANT v;
+					v.vt = VT_I4;
+					v.lVal = i + 1;
+					hr = bps.Item(v, &bp);
+					if (!FAILED(hr) && bp)
+					{
+						bp.Delete();
+						bp.release();
+					}
+				}
+			}
+			bps = release(bps);
+		}
+		if (!mDebugger)
+		{
+			auto pIVsDebugger = queryService!(IVsDebugger);
+			if (!pIVsDebugger)
+				return;
+			scope(exit) release(pIVsDebugger);
+
+			setDebugger(pIVsDebugger);
+		}
+		mTempBreakpoints = tmpbps;
+	}
+
+	HRESULT ExecuteStepOverForeach()
+	{
+		static import dte = sdk.vsi.dte80a;
+		static import dte2 = sdk.vsi.dte80;
+
+		// Get the debugger
+		dte2.DTE2 dte_ = GetDTE();
+		if (!dte_)
+			return E_FAIL;
+		scope(exit) release(dte_);
+
+		dte2.Debugger debugger;
+		HRESULT hr = dte_.get_Debugger(&debugger);
+		if (FAILED(hr))
+			return E_FAIL;
+		scope(exit) release(debugger);
+
+		dte.dbgDebugMode mode;
+		debugger.get_CurrentMode(&mode);
+		if (mode == dte.dbgBreakMode)
+		{
+			dte2.Breakpoints bps;
+			hr = debugger.get_Breakpoints(&bps);
+			if (FAILED(hr))
+				return E_FAIL;
+			scope(exit) release(bps);
+
+			getCurrentStackFunction(debugger); // update inspection context in MagoNatCC
+
+			// Get the MagoNatCC service
+			HANDLE mod = GetModuleHandleA("MagoNatCC.dll");
+			alias fntype = extern(C) HRESULT function(UINT32, UINT64*, UINT32*, BSTR*);
+			auto fn = mod ? cast(fntype) GetProcAddress(mod, "GetForeachStepAddresses") : null;
+
+			// Get the foreach body address
+			ScopedBSTR filename;
+			UINT64[] foreachBodyAddr = new UINT64[50];
+			UINT32[] foreachBodyLine = new UINT32[50];
+			if (fn)
+				hr = fn(50, foreachBodyAddr.ptr, foreachBodyLine.ptr, &filename.bstr);
+			if (!FAILED(hr) && foreachBodyAddr[0] == 0)
+				hr = S_FALSE; // No foreach at this address, not an error
+
+			dte2.Breakpoints[] tmpbps;
+			for (size_t i = 0; !FAILED(hr) && i < foreachBodyAddr.length && foreachBodyAddr[i]; ++i)
+			{
+				dte2.Breakpoints bps2;
+				hr = bps.Add(null, filename.bstr, foreachBodyLine[i], 1,
+							 null, dte.dbgBreakpointConditionTypeWhenTrue,
+							 null, null, 0, null, 0, dte.dbgHitCountTypeNone, &bps2);
+				tmpbps ~= bps2;
+			}
+			setTemporaryBreakpoints(tmpbps);
+		}
+		return debugger.StepOver(false);
 	}
 
 	bool GetCoverageData(string filename, uint line, uint* data, uint cnt, float* covPrecent)
@@ -1225,6 +1389,7 @@ private:
 
 	VDServerClient       mVDServerClient;
 	IVsDebugger          mDebugger;
+	dte2.Breakpoints[]   mTempBreakpoints;
 	VSCOOKIE             mCookieDebuggerEvents = VSCOOKIE_NIL;
 	VSCOOKIE             mUpdateSolutionEventsCookie = VSCOOKIE_NIL;
 	UpdateSolutionEvents mUpdateSolutionEvents;

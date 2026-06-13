@@ -634,6 +634,7 @@ version(none)
 				case CmdShowWebsite:
 				case CmdDelLstFiles:
 				case CmdResetVDServer:
+				case CmdStepOverForeach:
 					prgCmds[i].cmdf = OLECMDF_SUPPORTED | OLECMDF_ENABLED;
 					break;
 				default:
@@ -722,6 +723,10 @@ version(none)
 		{
 			VDServerClient.restartServer = true;
 			return S_OK;
+		}
+		if(nCmdID == CmdStepOverForeach)
+		{
+			return Package.GetLanguageService().ExecuteStepOverForeach();
 		}
 		return OLECMDERR_E_NOTSUPPORTED;
 	}
