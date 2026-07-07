@@ -2937,6 +2937,19 @@ Module cloneModule(Module mo)
 				cond.condition = new VersionCondition(ver.loc, m, ver.ident);
 			super.visit(cond);
 		}
+
+		override void visit(ScopeDsymbol scopesym)
+		{
+			if (scopesym.symtab)
+				scopesym.symtab = null;
+			super.visit(scopesym);
+		}
+		override void visit(FuncDeclaration fd)
+		{
+			if (fd.localsymtab)
+				fd.localsymtab = null;
+			super.visit(fd);
+		}
 	}
 
 	import dmd.visitor.permissive;

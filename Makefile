@@ -56,29 +56,29 @@ all: install_vs
 # compile visuald components
 
 prerequisites:
-	devenv /Project "build"     /Build "$(CONFIG)|Win32" visuald_vs10.sln
+	devenv visuald_vs10.sln /Project "build"     /Build "$(CONFIG)|Win32"
 
 visuald_vs:
-	devenv /Project "VisualD"   /Build "$(CONFIG)|Win32" visuald_vs10.sln
+	devenv visuald_vs10.sln /Project "VisualD"   /Build "$(CONFIG)|Win32"
 
 visuald_vs_x64:
-	devenv /Project "VisualD"   /Build "$(CONFIG_X64)|x64" visuald_vs10.sln
+	devenv visuald_vs10.sln /Project "VisualD"   /Build "$(CONFIG_X64)|x64"
 
 visuald_vs_arm64:
-	devenv /Project "VisualD"   /Build "$(CONFIG_ARM64)|x64" visuald_vs10.sln
+	devenv visuald_vs10.sln /Project "VisualD"   /Build "$(CONFIG_ARM64)|x64"
 
 visuald_test:
-	devenv /Project "VisualD"   /Build "TestDebug|Win32" visuald_vs10.sln
+	devenv visuald_vs10.sln /Project "VisualD"   /Build "TestDebug|Win32"
 	bin\TestDebug\VisualD\VisualD.exe
 
 vdserver:
-	devenv /Project "vdserver"  /Build "$(CONFIG)|Win32" visuald_vs10.sln
+	devenv visuald_vs10.sln /Project "vdserver"  /Build "$(CONFIG)|Win32"
 
 dmdserver:
-	devenv /Project "dmdserver" /Build "$(CONFIG_DMDSERVER)|x64" visuald_vs10.sln
+	devenv visuald_vs10.sln /Project "dmdserver" /Build "$(CONFIG_DMDSERVER)|x64"
 
 dmdserver_test:
-	devenv /Project "dmdserver" /Build "TestDebug|x64" visuald_vs10.sln
+	devenv visuald_vs10.sln /Project "dmdserver" /Build "TestDebug|x64"
 	bin\TestDebug\x64\dmdserver.exe
 
 dparser:
@@ -201,8 +201,9 @@ DBUILD18_BIN = bin\dbuild\Release-v18_0\obj
 $(ASSEMBLYPATCHER):
 	cd msbuild\dbuild\AssemblyPatcher && dotnet build -c Release
 
-dbuild18_1: dbuild18_0 $(ASSEMBLYPATCHER)
-	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.1.0.0 $(DBUILD18_BIN)\dbuild.18.1.dll
+dbuild18_all: dbuild18_0 $(ASSEMBLYPATCHER)
+	for %f in (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15) do \
+	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.%f.0.0 $(DBUILD18_BIN)\dbuild.18.%f.dll
 
 dbuild18_2: dbuild18_0 $(ASSEMBLYPATCHER)
 	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.2.0.0 $(DBUILD18_BIN)\dbuild.18.2.dll
@@ -228,12 +229,12 @@ dbuild18_8: dbuild18_0 $(ASSEMBLYPATCHER)
 dbuild18_9: dbuild18_0 $(ASSEMBLYPATCHER)
 	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.9.0.0 $(DBUILD18_BIN)\dbuild.18.9.dll
 
-dbuild18_all: dbuild18_0 dbuild18_1 dbuild18_2 dbuild18_3 dbuild18_4 dbuild18_5 dbuild18_6 dbuild18_7 dbuild18_8 dbuild18_9
+dbuild18_allx: dbuild18_0 dbuild18_1 dbuild18_2 dbuild18_3 dbuild18_4 dbuild18_5 dbuild18_6 dbuild18_7 dbuild18_8 dbuild18_9
 
 mago:
-	cd ..\..\mago && devenv /Build "Release|Win32" /Project "MagoNatDE" magodbg_2010.sln
-	cd ..\..\mago && devenv /Build "Release|x64" /Project "MagoRemote" magodbg_2010.sln
-	cd ..\..\mago && devenv /Build "Release StaticDE|Win32" /Project "MagoNatCC" magodbg_2010.sln
+	cd ..\..\mago && devenv magodbg_2010.sln /Build "Release|Win32" /Project "MagoNatDE"
+	cd ..\..\mago && devenv magodbg_2010.sln /Build "Release|x64" /Project "MagoRemote"
+	cd ..\..\mago && devenv magodbg_2010.sln /Build "Release StaticDE|Win32" /Project "MagoNatCC"
 
 mago_vs15:
 	cd ..\..\mago && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141            /target:DebugEngine\MagoNatDE  /verbosity:quiet MagoDbg_2010.sln
@@ -261,17 +262,17 @@ mago_mi:
 	cd ..\..\mago && msbuild "/p:Configuration=Release StaticDE;Platform=x64;PlatformToolset=v143"   /target:MagoMI\mago-mi         /verbosity:quiet MagoDbg_2010.sln
 
 magogc:
-	cd ..\..\mago && devenv /Build "Release|Win32" /Project "MagoGC" magodbg_2010.sln
-	cd ..\..\mago && devenv /Build "Release|x64" /Project "MagoGC" magodbg_2010.sln
+	cd ..\..\mago && devenv magodbg_2010.sln /Build "Release|Win32" /Project "MagoGC"
+	cd ..\..\mago && devenv magodbg_2010.sln /Build "Release|x64" /Project "MagoGC"
 
 magogc_ldc:
-	cd ..\..\mago && devenv /Build "Release|Win32"/Project "MagoGC" /projectconfig "Release LDC|Win32" magodbg_2010.sln
-	cd ..\..\mago && devenv /Build "Release|x64"  /Project "MagoGC" /projectconfig "Release LDC|x64"   magodbg_2010.sln
+	cd ..\..\mago && devenv magodbg_2010.sln /Build "Release|Win32"/Project "MagoGC" /projectconfig "Release LDC|Win32"
+	cd ..\..\mago && devenv magodbg_2010.sln /Build "Release|x64"  /Project "MagoGC" /projectconfig "Release LDC|x64"
 
 cv2pdb:
-	cd ..\..\cv2pdb\trunk && devenv /Project "cv2pdb"      /Build "Release|Win32" src\cv2pdb_vs12.sln
-	cd ..\..\cv2pdb\trunk && devenv /Project "dviewhelper" /Build "Release|Win32" src\cv2pdb_vs12.sln
-	cd ..\..\cv2pdb\trunk && devenv /Project "dumplines"   /Build "Release|Win32" src\cv2pdb_vs12.sln
+	cd ..\..\cv2pdb\trunk && devenv src\cv2pdb_vs12.sln /Project "cv2pdb"      /Build "Release|Win32"
+	cd ..\..\cv2pdb\trunk && devenv src\cv2pdb_vs12.sln /Project "dviewhelper" /Build "Release|Win32"
+	cd ..\..\cv2pdb\trunk && devenv src\cv2pdb_vs12.sln /Project "dumplines"   /Build "Release|Win32"
 
 cv2pdb_vs15:
 	cd ..\..\cv2pdb\trunk && msbuild /p:Configuration=Release;Platform=Win32;PlatformToolset=v141 /verbosity:quiet src\cv2pdb.vcxproj

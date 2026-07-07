@@ -137,7 +137,15 @@ void reinitSemanticModules()
 	import core.memory;
 	auto stats = GC.stats();
 	if (stats.usedSize > stats.freeSize)
+	{
 		GC.collect();
+		version(traceGC)
+		{
+			bool dump = false; // to be modified in the debugger
+			if (dump)
+				dumpGC();
+		}
+	}
 }
 
 alias Mod = void*;
@@ -519,6 +527,30 @@ debug
 			return S(t.msg.ptr, 0, 0);
 		}
 	}
+}
+
+ModuleInfo* findModuleInfo(const(char)[] filename)
+{
+	if (!lastContext)
+		return null;
+	int idx = lastContext.findModuleInfo(filename);
+	if (idx < 0)
+		return null;
+	return &lastContext.modules[idx];
+}
+
+Module findParsedModule(const(char)[] filename)
+{
+	if (auto mi = findModuleInfo(filename))
+		return mi.parsedModule;
+	return null;
+}
+
+Module findAnalyzedModule(const(char)[] filename)
+{
+	if (auto mi = findModuleInfo(filename))
+		return mi.semanticModule;
+	return null;
 }
 
 ////////////////////////////////////////////////////////////////

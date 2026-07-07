@@ -98,7 +98,7 @@ extern (D) char[] xarraydup(const(char)[] s) nothrow pure
     if (!s)
         return null;
 
-    auto p = cast(char*)mem.xmalloc(s.length + 1);
+    auto p = cast(char*)mem.xmalloc_noscan(s.length + 1);
     char[] a = p[0 .. s.length];
     a[] = s[0 .. s.length];
     p[s.length] = 0;    // preserve 0 terminator semantics

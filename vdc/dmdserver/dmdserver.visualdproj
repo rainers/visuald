@@ -1227,7 +1227,7 @@
   <versionlevel>0</versionlevel>
   <versionids>MARS NoBackend GC LanguageServer</versionids>
   <dump_source>0</dump_source>
-  <mapverbosity>0</mapverbosity>
+  <mapverbosity>1</mapverbosity>
   <createImplib>0</createImplib>
   <debuglib>0</debuglib>
   <defaultlibname />
@@ -2347,7 +2347,7 @@
    <File path="dmd\compiler\src\dmd\astbase.d" tool="None" />
    <File path="dmd\compiler\src\dmd\astcodegen.d" />
    <File path="dmd\compiler\src\dmd\astenums.d" />
-   <File path="dmd\compiler\src\dmd\asttypename.d" tool="None" />
+   <File path="dmd\compiler\src\dmd\asttypename.d" />
    <File path="dmd\compiler\src\dmd\attrib.d" />
    <File path="dmd\compiler\src\dmd\attribsem.d" />
    <File path="dmd\compiler\src\dmd\blockexit.d" />
@@ -2450,6 +2450,16 @@
    <File path="dmd\compiler\src\dmd\typinf.d" />
    <File path="dmd\compiler\src\dmd\utils.d" />
    <File path="dmd\compiler\src\dmd\vsoptions.d" />
+  </Folder>
+  <Folder name="druntime">
+   <Folder name="gc">
+    <File path="..\..\..\..\rainers\import\core\internal\gc\bits.d" />
+    <File path="..\..\..\..\rainers\import\core\internal\gc\blkcache.d" />
+    <File path="..\..\..\..\rainers\import\core\internal\gc\blockmeta.d" />
+    <File path="..\..\..\..\rainers\import\core\internal\gc\impl\conservative\gc.d" />
+    <File path="..\..\..\..\rainers\import\core\internal\gc\os.d" />
+    <File path="..\..\..\..\rainers\import\core\internal\gc\pooltable.d" />
+   </Folder>
   </Folder>
   <File path="dmderrors.d" />
   <File path="dmdinit.d" />

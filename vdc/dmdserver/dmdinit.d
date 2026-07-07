@@ -133,6 +133,8 @@ enum string[2][] dmdStatics =
 	["_D3dmd10identifier10Identifier9newSuffixFNbZ1ik", "size_t"],
 	// 2.111
 	// ["_D3dmd10identifier10Identifier17generateIdWithLocFNbAyaSQCc8location3LocQuZ8countersHSQDgQDfQCwQCnFNbQBxQBxQCdZ3Keyk", "countersType"],
+	// 2.112
+	["_D3dmd10identifier10Identifier17generateIdWithLocFNbAyaSQCc8location3LocxPvZ8countersHSQDhQDgQCxQCoFNbQByQByxQBkZ3Keyk", "countersType"],
 
 	// 2.106
 	["_D3dmd7arrayop7arrayOpFCQw10expression6BinExpPSQBt6dscope5ScopeZQByCQCo9dtemplate19TemplateDeclaration", "TemplateDeclaration"],

@@ -397,6 +397,12 @@ Section "Visual Studio package" SecPackage
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.7.dll
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.8.dll
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.9.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.10.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.11.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.12.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.13.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.14.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.15.dll
 !endif
   WriteRegStr HKLM "Software\${APPNAME}" "msbuild" $INSTDIR\msbuild
 !endif

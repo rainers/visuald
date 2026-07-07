@@ -296,7 +296,7 @@ class GCTraceProxy : GC
 		gc.collect();
 	}
 
-	static if(__VERSION__ < 2_111)
+	static if(__VERSION__ < 2_109)
 		void collectNoStack() nothrow
 		{
 			gc.collectNoStack();
@@ -325,28 +325,28 @@ class GCTraceProxy : GC
 	void* malloc(size_t size, uint bits, const TypeInfo ti) nothrow
 	{
 		void* p = gc.malloc(size, bits, ti);
-		traceAlloc(p);
+		traceAlloc(p, size, bits);
 		return p;
 	}
 
 	BlkInfo qalloc(size_t size, uint bits, scope const TypeInfo ti) nothrow
 	{
 		BlkInfo bi = gc.qalloc(size, bits, ti);
-		traceAlloc(bi.base);
+		traceAlloc(bi.base, size, bits);
 		return bi;
 	}
 
 	void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
 	{
 		void* p = gc.calloc(size, bits, ti);
-		traceAlloc(p);
+		traceAlloc(p, size, bits);
 		return p;
 	}
 
 	void* realloc(void* p, size_t size, uint bits, const TypeInfo ti) nothrow
 	{
 		void* q = gc.realloc(p, size, bits, ti);
-		traceAlloc(q);
+		traceAlloc(q, size, bits);
 		return q;
 	}
 
@@ -709,9 +709,13 @@ void removeGCTracer()
 }
 +/
 
-void traceAlloc(void* addr) nothrow
+void traceAlloc(void* addr, size_t size, uint bits) nothrow
 {
 	size_t[15] buf;
+	static if(__VERSION__ >= 2_111)
+		if (bits & BlkAttr.APPENDABLE)
+			if (size > 2046)
+				addr -= 0x10;
 
 	auto backtraceLength = RtlCaptureStackBackTrace(2, cast(ULONG)buf.length, cast(void**)buf.ptr, null);
 
@@ -810,7 +814,11 @@ __gshared void** ifacedeclvtbl;
 __gshared void** enumdeclvtbl;
 __gshared void** enummembervtbl;
 __gshared void** tmpldeclvtbl;
-__gshared void** tmplinstvtbl; // package
+__gshared void** tmplinstvtbl;
+__gshared void** rootobjectvtbl;
+
+import dmd.rootobject;
+import dmd.asttypename;
 
 shared static this()
 {
@@ -834,6 +842,7 @@ shared static this()
 	enummembervtbl = getVtbl!EnumMember;
 	tmpldeclvtbl   = getVtbl!TemplateDeclaration;
 	tmplinstvtbl   = getVtbl!TemplateInstance;
+	rootobjectvtbl = getVtbl!RootObject;
 }
 
 char[] dumpExtra(void* p)
@@ -896,7 +905,21 @@ char[] dumpExtra(void* p)
 					return buf[0..len];
 			}
 		}
+		else if (isInImage(vtbl))
+		{
+			try
+			{
+				if (*vtbl is *rootobjectvtbl)
+				{
+					auto ro = cast(RootObject)p;
+					return cast(char[])astTypeName(ro);
+				}
+			}
+			catch (Throwable)
+			{
 
+			}
+		}
 	}
 	return null;
 }
@@ -1552,6 +1575,7 @@ void dumpGC(GC _gc)
 	cgc.gcLock.unlock();
 
 	findRoot(null);
+	printBlockInfo(null);
 }
 
 shared static this()
@@ -1590,16 +1614,20 @@ const(char)[] dmdident(ConservativeGC cgc, void* p)
 bool isInImage(void* p)
 {
 	import core.internal.traits : externDFunc;
-	static if(__VERSION__ < 2_111)
+	__gshared void[] dataSection;
+	if (!dataSection.length)
 	{
-		alias findImageSection = externDFunc!("rt.sections_win64.findImageSection", void[] function(string) nothrow @nogc);
-		void[] dataSection = findImageSection(".data");
-	}
-	else
-	{
-		alias findImageSection = externDFunc!("rt.sections_win64.findImageSection", void[] function(void*, string) nothrow @nogc);
-		void* handle = GetModuleHandle(null); // only executables
-		void[] dataSection = findImageSection(handle, ".data");
+		static if(__VERSION__ < 2_111)
+		{
+			alias findImageSection = externDFunc!("rt.sections_win64.findImageSection", void[] function(string) nothrow @nogc);
+			dataSection = findImageSection(".data");
+		}
+		else
+		{
+			alias findImageSection = externDFunc!("rt.sections_win64.findImageSection", void[] function(void*, string) nothrow @nogc);
+			void* handle = GetModuleHandle(null); // only executables
+			dataSection = findImageSection(handle, ".data");
+		}
 	}
 
 	if (p - dataSection.ptr < dataSection.length)
@@ -1627,6 +1655,32 @@ const(char)[] dmdtype(ConservativeGC cgc, void* p)
 	__gshared char[256] buf;
 	int len = sprintf(buf.ptr, "type %s %s", type.kind(), type.deco);
 	return buf[0..len];
+}
+
+void printBlockInfo(void* addr)
+{
+	if (!addr)
+		return;
+	auto cgc = cast(ConservativeGC) tracer.gc;
+	auto bi = cgc.query(addr);
+	void*  base;
+	size_t size;
+	uint   attr;
+
+	xtrace_printf("%p: blkinfo .base=%p .size=%zu .attr=%x\n", addr, bi.base, bi.size, bi.attr);
+
+	int age = 0;
+	foreach_reverse (ref rng; tracer.traceBuffer._p[0..tracer.traceBuffer._length])
+		foreach_reverse (ref te; rng._entries[0..rng._length])
+			if (te.addr == addr)
+			{
+				if (StackAddrInfo* ai = te.resolve())
+				{
+					const(char)* filename = stringBuffer.ptr + ai.filenameOff;
+					xtrace_printf("%s(%d): %d\n", filename, ai.line, age);
+				}
+				age++;
+			}
 }
 
 void** sobj_in_nongc_mem;
