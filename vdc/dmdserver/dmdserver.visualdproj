@@ -2451,16 +2451,6 @@
    <File path="dmd\compiler\src\dmd\utils.d" />
    <File path="dmd\compiler\src\dmd\vsoptions.d" />
   </Folder>
-  <Folder name="druntime">
-   <Folder name="gc">
-    <File path="..\..\..\..\rainers\import\core\internal\gc\bits.d" />
-    <File path="..\..\..\..\rainers\import\core\internal\gc\blkcache.d" />
-    <File path="..\..\..\..\rainers\import\core\internal\gc\blockmeta.d" />
-    <File path="..\..\..\..\rainers\import\core\internal\gc\impl\conservative\gc.d" />
-    <File path="..\..\..\..\rainers\import\core\internal\gc\os.d" />
-    <File path="..\..\..\..\rainers\import\core\internal\gc\pooltable.d" />
-   </Folder>
-  </Folder>
   <File path="dmderrors.d" />
   <File path="dmdinit.d" />
   <File path="dmdlib.d" />
