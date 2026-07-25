@@ -770,7 +770,8 @@ void do_unittests()
 	source = q{
 		__VERSION__
 	};
-	m = checkErrors(source, "2,2,2,3:Error: declaration expected, not `2113L`\n");
+	string ver = select_by_version("", "2112L", "2.113", "2113L");
+	m = checkErrors(source, "2,2,2,3:Error: declaration expected, not `" ~ver ~ "`\n");
 
 	source = q{
 		int main()
@@ -2062,13 +2063,11 @@ void do_unittests()
 			source.dep();
 		}
 	};
+	string decl_here = select_by_version("", "\n", "2.112", "\asource.d(2): `dep` is declared here\n");
 	m = checkErrors(source,
-					"5,3,5,4:Deprecation: function `source.dep` is deprecated" ~
-					"\asource.d(2): `dep` is declared here\n" ~
-					"6,10,6,11:Deprecation: function `source.dep` is deprecated" ~
-					"\asource.d(2): `dep` is declared here\n" ~
-					"6,10,6,11:Deprecation: function `source.dep` is deprecated" ~
-					"\asource.d(2): `dep` is declared here\n");
+					"5,3,5,4:Deprecation: function `source.dep` is deprecated" ~ decl_here ~
+					"6,10,6,11:Deprecation: function `source.dep` is deprecated" ~ decl_here ~
+					"6,10,6,11:Deprecation: function `source.dep` is deprecated" ~ decl_here);
 	//dumpAST(m);
 
 	// type references

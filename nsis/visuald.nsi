@@ -314,6 +314,7 @@ Section "Visual Studio package" SecPackage
   ${SetOutPath} "$INSTDIR\dmdserver"
   ${File} "..\..\binaries\" dmdserver-2.110.exe
   ${File} "..\..\binaries\" dmdserver-2.111.exe
+  ${File} "..\..\binaries\" dmdserver-2.112.exe
 !endif
 
 !ifdef DPARSER

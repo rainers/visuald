@@ -52,6 +52,16 @@ alias countersType = uint[uint]; // actually uint[Key]
 alias EscapeInfer = RootObject[int];
 enum uint_1 : uint { initValue = 1 }
 
+enum build_for_version = "2.113";
+
+string select_by_version(string[] sel...)
+{
+	for (size_t i = 0; i < sel.length; i += 2)
+		if (sel[i] >= build_for_version)
+			return sel[i + 1];
+	return sel[$-1];
+}
+alias sbv = select_by_version;
 
 enum string[2][] dmdStatics =
 [
@@ -70,13 +80,11 @@ enum string[2][] dmdStatics =
 	["_D3dmd10dsymbolsem14loadCoreAtomicFZ11core_atomicCQBw7dmodule6Module", "Module"],
 
 	// up to 2.110
-//	["_D3dmd4func15FuncDeclaration8genCfuncRPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifiermZ2stCQFb7dsymbol12DsymbolTable", "DsymbolTable"],
-	// 2.111
-//	["_D3dmd4func15FuncDeclaration8genCfuncRPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifierEQEw8astenums3STCZ2stCQFr7dsymbol12DsymbolTable", "DsymbolTable"],
-	// 2.111.1
-//	["_D3dmd4func15FuncDeclaration8genCfuncFPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifierEQEw8astenums3STCZ2stCQFr7dsymbol12DsymbolTable", "DsymbolTable"],
-	// 2.112.0
-	["_D3dmd7funcsem8genCfuncFPSQy4root5array__T5ArrayTCQBw5mtype9ParameterZQBcCQCuQy4TypeCQDf10identifier10IdentifierEQEh8astenums3STCZ2stCQFc7dsymbol12DsymbolTable", "DsymbolTable"],
+	[sbv("",        "_D3dmd4func15FuncDeclaration8genCfuncRPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifiermZ2stCQFb7dsymbol12DsymbolTable",
+	     "2.111",   "_D3dmd4func15FuncDeclaration8genCfuncRPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifierEQEw8astenums3STCZ2stCQFr7dsymbol12DsymbolTable",
+	     "2.111.1", "_D3dmd4func15FuncDeclaration8genCfuncFPSQBm4root5array__T5ArrayTCQCl5mtype9ParameterZQBcCQDjQy4TypeCQDu10identifier10IdentifierEQEw8astenums3STCZ2stCQFr7dsymbol12DsymbolTable",
+		 "2.113",   "_D3dmd7funcsem8genCfuncFPSQy4root5array__T5ArrayTCQBw5mtype9ParameterZQBcCQCuQy4TypeCQDf10identifier10IdentifierEQEh8astenums3STCZ2stCQFc7dsymbol12DsymbolTable"),
+	 "DsymbolTable"],
 
 	// 2.091
 //	["_D3dmd7typesem12typeSemanticRCQBc5mtype4TypeSQBr7globals3LocPSQCi6dscope5ScopeZ11visitAArrayMFCQDpQCn10TypeAArrayZ3feqCQEn4func15FuncDeclaration", "FuncDeclaration"],
@@ -145,10 +153,11 @@ enum string[2][] dmdStatics =
 	["_D3dmd10dsymbolsem18loadCoreStdcConfigFZ16core_stdc_configCQCf7dmodule6Module", "Module"],
 
 	// EscapeState.reset not accessible in package dmd
-	// to 2.111
-	// ["_D3dmd6escape11EscapeState17scopeInferFailureHiCQBu10rootobject10RootObject", "EscapeInfer" ],
-	// 2.112
-	["_D3dmd6escape11EscapeState16scopeInferReasonHiCQBt10rootobject10RootObject", "EscapeInfer" ],
+	[sbv("",      "_D3dmd6escape11EscapeState17scopeInferFailureHiCQBu10rootobject10RootObject",
+		 "2.113", "_D3dmd6escape11EscapeState16scopeInferReasonHiCQBt10rootobject10RootObject"),
+	 "EscapeInfer" ],
+	// 2.113
+//	["_D3dmd6escape11EscapeState16scopeInferReasonHiCQBt10rootobject10RootObject", "EscapeInfer" ],
 
 	// 2.10x
 	["_D3dmd7typesem21getComplexLibraryTypeFSQBl8location3LocPSQCd6dscope5ScopeEQCu8astenums2TYZ13complex_floatCQEa5mtype4Type", "Type" ],
