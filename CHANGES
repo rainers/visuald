@@ -1494,5 +1494,6 @@ Version history
   * full installer now bundled with LDC 1.42.0
   * dmdserver:
     - updated to dmd 2.113 (stable @ 2026/04/28)
+    - fixed a couple of false pointer memory leaks
   * dbuild: generic support for VS 2026 18.1-18.15
   * added command "Step Over Foreach"

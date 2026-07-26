@@ -56,10 +56,11 @@ enum build_for_version = "2.113";
 
 string select_by_version(string[] sel...)
 {
+	string sym;
 	for (size_t i = 0; i < sel.length; i += 2)
-		if (sel[i] >= build_for_version)
-			return sel[i + 1];
-	return sel[$-1];
+		if (sel[i] <= build_for_version)
+			sym = sel[i + 1];
+	return sym;
 }
 alias sbv = select_by_version;
 
