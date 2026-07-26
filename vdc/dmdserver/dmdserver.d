@@ -1042,7 +1042,12 @@ class DMDServer : ComObject, IVDServer
 	Module ensureAnalyzed(ModuleData* modData)
 	{
 		if (auto m = findAnalyzedModule(modData.filename))
+		{
+			import dmd.dsymbol;
+			if (m.semanticRun < PASS.semantic3done)
+				runModuleSemantic(m);
 			return m;
+		}
 		if (!findParsedModule(modData.filename))
 			return null;
 		if (modData.state == ModuleState.Analyzing)

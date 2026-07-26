@@ -50,7 +50,7 @@ struct ModuleInfo
 		if (semanticModule)
 			return semanticModule;
 		Module m = cloneModule(parsedModule);
-		m.importedFrom = m;
+		m.importedFrom = m; // make module a root module
 		semanticModule = m;
 		if (resolve)
 		{
@@ -87,7 +87,7 @@ class AnalysisContext
 	{
 		// only called if module not found in Module.amodules
 	L_nextMod:
-		foreach (mi; modules)
+		foreach (ref mi; modules)
 		{
 			if (mi.parsedModule.ident != ident)
 				continue L_nextMod;
@@ -309,6 +309,18 @@ bool invalidateDependents(AnalysisContext ctxt, Module mod)
 	return true;
 }
 
+void runModuleSemantic(Module m)
+{
+	Module.rootModule = m;
+	m.importAll(null);
+	m.dsymbolSemantic(null);
+	runDeferredSemantic();
+	m.semantic2(null);
+	runDeferredSemantic2();
+	m.semantic3(null);
+	runDeferredSemantic3();
+}
+
 //
 Module analyzeModule(Module parsedModule, const ref Options opts)
 {
@@ -408,16 +420,6 @@ Module analyzeModule(Module parsedModule, const ref Options opts)
 
 	Module.loadModuleHandler = &ctxt.loadModuleHandler;
 
-	void semantic(Module m)
-	{
-		m.dsymbolSemantic(null);
-		runDeferredSemantic();
-		m.semantic2(null);
-		runDeferredSemantic2();
-		m.semantic3(null);
-		runDeferredSemantic3();
-	}
-
 	if (needsReinit)
 	{
 		reinitSemanticModules();
@@ -450,9 +452,7 @@ Module analyzeModule(Module parsedModule, const ref Options opts)
 	}
 
 	auto mi = ctxt.modules[rootModuleIndex];
-	Module.rootModule = mi.semanticModule;
-	mi.semanticModule.importAll(null);
-	semantic(mi.semanticModule);
+	runModuleSemantic(mi.semanticModule);
 
 	version(none)
 	{

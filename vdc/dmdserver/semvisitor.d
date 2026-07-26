@@ -317,10 +317,16 @@ extern(C++) class ASTVisitor : StoppableVisitor
 						if (!stop)
 							d.accept(this);
 			}
-			else if (auto inc = decl.include(null))
-				foreach(d; *inc)
-					if (!stop)
-						d.accept(this);
+			else
+			{
+				auto oldErrors = decl.errors;
+				scope(exit) decl.errors = oldErrors;
+				decl.errors = false; // ignore errors on members
+				if (auto inc = decl.include(null))
+					foreach(d; *inc)
+						if (!stop)
+							d.accept(this);
+			}
 		}
 	}
 
