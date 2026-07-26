@@ -174,9 +174,6 @@ enum ModuleState
 struct ModuleData
 {
 	string filename;
-	Module parsedModule;
-	Module analyzedModule;
-
 	ModuleState state;
 	string parseErrors;
 	string analyzeErrors;
@@ -390,8 +387,6 @@ class DMDServer : ComObject, IVDServer
 			synchronized(gDMDSync)
 			{
 				reinitSemanticModules();
-				foreach (i, m; mModules)
-					m.analyzedModule = null;
 
 				version(traceGC)
 				{
@@ -627,23 +622,26 @@ class DMDServer : ComObject, IVDServer
 		string sexpr = to_string(expr);
 		void _calcExpansions()
 		{
-			string[] symbols;
-			try
+			synchronized(gDMDSync)
 			{
-				if (auto m = ensureAnalyzed(md))
-					symbols = findExpansions(m, line, idx + 1 - cast(int) stok.length, stok);
+				string[] symbols;
+				try
+				{
+					if (auto m = ensureAnalyzed(md))
+						symbols = findExpansions(m, line, idx + 1 - cast(int) stok.length, stok);
+				}
+				catch(OutOfMemoryError e)
+				{
+					version(DebugServer) if(dbgfh) dbglog("  GetSemanticExpansions: out of memory");
+					throw e; // terminate
+				}
+				catch(Throwable t)
+				{
+					version(DebugServer) if(dbgfh) dbglog("  GetSemanticExpansions: exception " ~ t.toString());
+				}
+				mSemanticExpansionsRunning = false;
+				mLastSymbols = symbols;
 			}
-			catch(OutOfMemoryError e)
-			{
-				version(DebugServer) if(dbgfh) dbglog("  GetSemanticExpansions: out of memory");
-				throw e; // terminate
-			}
-			catch(Throwable t)
-			{
-				version(DebugServer) if(dbgfh) dbglog("  GetSemanticExpansions: exception " ~ t.toString());
-			}
-			mSemanticExpansionsRunning = false;
-			mLastSymbols = symbols;
 		}
 		version(DebugServer) if(dbgfh) dbglog(dbghdr("GetSemanticExpansions", fname, line, idx) ~ stok);
 		mLastSymbols = null;
@@ -697,11 +695,11 @@ class DMDServer : ComObject, IVDServer
 
 		synchronized(gErrorSync)
 		{
-			ModuleData* md = findModule(fname, false);
-			if (!md || !md.parsedModule)
+			Module parsedModule = findParsedModule(fname);
+			if (!parsedModule)
 				return S_FALSE;
 
-			string[] outlines = getModuleOutline(md.parsedModule, 4);
+			string[] outlines = getModuleOutline(parsedModule, 4);
 			string joined = outlines.join("\n");
 			*outline = allocBSTR(joined);
 		}
@@ -713,15 +711,15 @@ class DMDServer : ComObject, IVDServer
 		// array of pairs of DWORD
 		string fname = makeFilenameCanonical(to_string(filename), null);
 
-		ModuleData* md;
+		Module parsedModule;
 		synchronized(gErrorSync)
 		{
-			md = findModule(fname, false);
-			if (!md || !md.parsedModule)
+			parsedModule = findParsedModule(fname);
+			if (!parsedModule)
 				return S_FALSE;
 		}
 
-		Loc[] locData = findBinaryIsInLocations(md.parsedModule);
+		Loc[] locData = findBinaryIsInLocations(parsedModule);
 
 		SAFEARRAY *sa = SafeArrayCreateVector(VT_INT, 0, 2 * cast(ULONG) locData.length);
 		if(!sa)
@@ -874,7 +872,7 @@ class DMDServer : ComObject, IVDServer
 			{
 				try
 				{
-					if (auto m = md.analyzedModule)
+					if (auto m = findAnalyzedModule(md.filename))
 					{
 						auto res = findIdentifierTypes(m);
 						identiferTypes = findIdentifierTypesResultToString(res);
@@ -922,18 +920,18 @@ class DMDServer : ComObject, IVDServer
 		// array of pairs of DWORD
 		string fname = makeFilenameCanonical(to_string(filename), null);
 
-		ModuleData* md;
+		Module analyzedModule;
 		synchronized(gErrorSync)
 		{
-			md = findModule(fname, false);
-			if (!md || !md.analyzedModule)
+			analyzedModule = findAnalyzedModule(fname);
+			if (!analyzedModule)
 			{
 				version(DebugServer) if(dbgfh) dbglog(dbghdr("GetParameterStorageLocs", fname) ~ " not found");
 				return S_FALSE;
 			}
 		}
 
-		auto stcLoc = findParameterStorageClass(md.analyzedModule);
+		auto stcLoc = findParameterStorageClass(analyzedModule);
 
 		SAFEARRAY *sa = SafeArrayCreateVector(VT_INT, 0, 3 * cast(ULONG) stcLoc.length);
 		if(!sa)
@@ -991,7 +989,7 @@ class DMDServer : ComObject, IVDServer
 	}
 
 	// call under gDMDSync lock, do not parse if fname is null
-	void analyzeModules(ModuleData* modData, string fname, string text)
+	Module analyzeModules(ModuleData* modData, string fname, string text)
 	{
 		string combinedErrorMessages()
 		{
@@ -1010,42 +1008,51 @@ class DMDServer : ComObject, IVDServer
 			return msgs;
 		}
 
+		Module parsedModule;
 		if (fname)
 		{
 			tryExec("  parseModule", ()
 			{
 				initErrorMessages(fname);
-				modData.parsedModule = createModuleFromText(fname, text);
+				parsedModule = createModuleFromText(fname, text);
 			});
 			modData.parseErrors = combinedErrorMessages();
 		}
+		else
+			parsedModule = findParsedModule(modData.filename);
 
 		modData.state = ModuleState.Analyzing;
 
+		Module analyzedModule;
 		tryExec("  analyzeModule", ()
 		{
-			if (modData.parsedModule)
+			if (parsedModule)
 			{
-				initErrorMessages(modData.parsedModule.srcfile.toString().idup);
+				initErrorMessages(parsedModule.srcfile.toString().idup);
 				// clear all other semantic modules?
-				modData.analyzedModule = analyzeModule(modData.parsedModule, mOptions);
+				analyzedModule = analyzeModule(parsedModule, mOptions);
 			}
 		});
 		modData.analyzeErrors = combinedErrorMessages();
 		modData.state = ModuleState.Done;
+		return analyzedModule;
 	}
 
 	// call under gDMDSync lock
 	Module ensureAnalyzed(ModuleData* modData)
 	{
-		if (modData.analyzedModule)
-			return modData.analyzedModule;
-		if (!modData.parsedModule)
+		if (auto m = findAnalyzedModule(modData.filename))
+		{
+			import dmd.dsymbol;
+			if (m.semanticRun < PASS.semantic3done)
+				runModuleSemantic(m);
+			return m;
+		}
+		if (!findParsedModule(modData.filename))
 			return null;
 		if (modData.state == ModuleState.Analyzing)
 			return null;
-		analyzeModules(modData, null, null);
-		return modData.analyzedModule;
+		return analyzeModules(modData, null, null);
 	}
 
 private:

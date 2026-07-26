@@ -18,6 +18,8 @@ import c2d.tokenizer;
 import c2d.tokutil;
 import c2d.dgutil;
 
+import stdext.file;
+
 import std.string;
 import std.file;
 import std.path;
@@ -2754,7 +2756,7 @@ version(remove_pp) {} else
 		{
 			Source src = new Source;
 			src.filename = file;
-			src.text = fromMBSz (cast(immutable(char)*)(cast(char[]) read(file) ~ "\0").ptr);
+			src.text = fromMBSz (cast(immutable(char)*)(cast(char[]) readUtf8(file) ~ "\0").ptr);
 			try
 			{
 				// bad qquoting in VS2019 SDK

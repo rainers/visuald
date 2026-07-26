@@ -34,7 +34,7 @@
 
 ; define LDC to include ldc installation
 ; !define LDC
-!define LDC_VERSION "1.41.0"
+!define LDC_VERSION "1.42.0"
 !define LDC_SRC c:\d\ldc2-${LDC_VERSION}-windows-multilib
 
 ; define VS2019 to include VS2019 support
@@ -314,6 +314,7 @@ Section "Visual Studio package" SecPackage
   ${SetOutPath} "$INSTDIR\dmdserver"
   ${File} "..\..\binaries\" dmdserver-2.110.exe
   ${File} "..\..\binaries\" dmdserver-2.111.exe
+  ${File} "..\..\binaries\" dmdserver-2.112.exe
 !endif
 
 !ifdef DPARSER
@@ -388,9 +389,21 @@ Section "Visual Studio package" SecPackage
 !endif
 !ifdef VS2026
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.0.dll
-  ${File} ..\bin\dbuild\release-v18_1\obj\ dbuild.18.1.dll
-  ${File} ..\bin\dbuild\release-v18_3\obj\ dbuild.18.3.dll
-  ${File} ..\bin\dbuild\release-v18_6\obj\ dbuild.18.6.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.1.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.2.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.3.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.4.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.5.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.6.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.7.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.8.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.9.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.10.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.11.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.12.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.13.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.14.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.15.dll
 !endif
   WriteRegStr HKLM "Software\${APPNAME}" "msbuild" $INSTDIR\msbuild
 !endif

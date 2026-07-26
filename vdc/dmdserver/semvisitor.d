@@ -317,10 +317,16 @@ extern(C++) class ASTVisitor : StoppableVisitor
 						if (!stop)
 							d.accept(this);
 			}
-			else if (auto inc = decl.include(null))
-				foreach(d; *inc)
-					if (!stop)
-						d.accept(this);
+			else
+			{
+				auto oldErrors = decl.errors;
+				scope(exit) decl.errors = oldErrors;
+				decl.errors = false; // ignore errors on members
+				if (auto inc = decl.include(null))
+					foreach(d; *inc)
+						if (!stop)
+							d.accept(this);
+			}
 		}
 	}
 
@@ -2936,6 +2942,19 @@ Module cloneModule(Module mo)
 			else if (auto ver = cond.condition.isVersionCondition())
 				cond.condition = new VersionCondition(ver.loc, m, ver.ident);
 			super.visit(cond);
+		}
+
+		override void visit(ScopeDsymbol scopesym)
+		{
+			if (scopesym.symtab)
+				scopesym.symtab = null;
+			super.visit(scopesym);
+		}
+		override void visit(FuncDeclaration fd)
+		{
+			if (fd.localsymtab)
+				fd.localsymtab = null;
+			super.visit(fd);
 		}
 	}
 

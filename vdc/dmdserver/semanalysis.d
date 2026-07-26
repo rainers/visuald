@@ -50,7 +50,7 @@ struct ModuleInfo
 		if (semanticModule)
 			return semanticModule;
 		Module m = cloneModule(parsedModule);
-		m.importedFrom = m;
+		m.importedFrom = m; // make module a root module
 		semanticModule = m;
 		if (resolve)
 		{
@@ -87,7 +87,7 @@ class AnalysisContext
 	{
 		// only called if module not found in Module.amodules
 	L_nextMod:
-		foreach (mi; modules)
+		foreach (ref mi; modules)
 		{
 			if (mi.parsedModule.ident != ident)
 				continue L_nextMod;
@@ -137,7 +137,15 @@ void reinitSemanticModules()
 	import core.memory;
 	auto stats = GC.stats();
 	if (stats.usedSize > stats.freeSize)
+	{
 		GC.collect();
+		version(traceGC)
+		{
+			bool dump = false; // to be modified in the debugger
+			if (dump)
+				dumpGC();
+		}
+	}
 }
 
 alias Mod = void*;
@@ -301,6 +309,18 @@ bool invalidateDependents(AnalysisContext ctxt, Module mod)
 	return true;
 }
 
+void runModuleSemantic(Module m)
+{
+	Module.rootModule = m;
+	m.importAll(null);
+	m.dsymbolSemantic(null);
+	runDeferredSemantic();
+	m.semantic2(null);
+	runDeferredSemantic2();
+	m.semantic3(null);
+	runDeferredSemantic3();
+}
+
 //
 Module analyzeModule(Module parsedModule, const ref Options opts)
 {
@@ -400,16 +420,6 @@ Module analyzeModule(Module parsedModule, const ref Options opts)
 
 	Module.loadModuleHandler = &ctxt.loadModuleHandler;
 
-	void semantic(Module m)
-	{
-		m.dsymbolSemantic(null);
-		runDeferredSemantic();
-		m.semantic2(null);
-		runDeferredSemantic2();
-		m.semantic3(null);
-		runDeferredSemantic3();
-	}
-
 	if (needsReinit)
 	{
 		reinitSemanticModules();
@@ -442,9 +452,7 @@ Module analyzeModule(Module parsedModule, const ref Options opts)
 	}
 
 	auto mi = ctxt.modules[rootModuleIndex];
-	Module.rootModule = mi.semanticModule;
-	mi.semanticModule.importAll(null);
-	semantic(mi.semanticModule);
+	runModuleSemantic(mi.semanticModule);
 
 	version(none)
 	{
@@ -519,6 +527,30 @@ debug
 			return S(t.msg.ptr, 0, 0);
 		}
 	}
+}
+
+ModuleInfo* findModuleInfo(const(char)[] filename)
+{
+	if (!lastContext)
+		return null;
+	int idx = lastContext.findModuleInfo(filename);
+	if (idx < 0)
+		return null;
+	return &lastContext.modules[idx];
+}
+
+Module findParsedModule(const(char)[] filename)
+{
+	if (auto mi = findModuleInfo(filename))
+		return mi.parsedModule;
+	return null;
+}
+
+Module findAnalyzedModule(const(char)[] filename)
+{
+	if (auto mi = findModuleInfo(filename))
+		return mi.semanticModule;
+	return null;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -735,6 +767,12 @@ void do_unittests()
 
 	string source;
 	Module m;
+	source = q{
+		__VERSION__
+	};
+	string ver = select_by_version("", "2112L", "2.113", "2113L");
+	m = checkErrors(source, "2,2,2,3:Error: declaration expected, not `" ~ver ~ "`\n");
+
 	source = q{
 		int main()
 		{
@@ -2025,10 +2063,11 @@ void do_unittests()
 			source.dep();
 		}
 	};
+	string decl_here = select_by_version("", "\n", "2.112", "\asource.d(2): `dep` is declared here\n");
 	m = checkErrors(source,
-					"5,3,5,4:Deprecation: function `source.dep` is deprecated\n" ~
-					"6,10,6,11:Deprecation: function `source.dep` is deprecated\n" ~
-					"6,10,6,11:Deprecation: function `source.dep` is deprecated\n");
+					"5,3,5,4:Deprecation: function `source.dep` is deprecated" ~ decl_here ~
+					"6,10,6,11:Deprecation: function `source.dep` is deprecated" ~ decl_here ~
+					"6,10,6,11:Deprecation: function `source.dep` is deprecated" ~ decl_here);
 	//dumpAST(m);
 
 	// type references

@@ -70,3 +70,4 @@
 #define CmdDubRefresh    0x125
 
 #define CmdResetVDServer 0x126
+#define CmdStepOverForeach 0x127
