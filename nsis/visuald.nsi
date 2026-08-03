@@ -470,7 +470,7 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoSection} "Install in VS.NET" SecVS_NET
 
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS_NET_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS_NET_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS_NET_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   ${RegisterWin32Exception} ${VS_NET_REGISTRY_KEY} "Win32 Exceptions\D Exception"
   
@@ -480,7 +480,7 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoSection} "Install in VS 2005" SecVS2005
 
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2005_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2005_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS2005_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   ${RegisterWin32Exception} ${VS2005_REGISTRY_KEY} "Win32 Exceptions\D Exception"
   
@@ -489,7 +489,7 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoSection} "Install in VS 2008" SecVS2008
 
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2008_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2008_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS2008_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir 
   ${RegisterWin32Exception} ${VS2008_REGISTRY_KEY} "Win32 Exceptions\D Exception"
 
@@ -498,13 +498,13 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoSection} "Install in VS 2010" SecVS2010
 
-  ;ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2010_REGISTRY_KEY}'
+  ;ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2010_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS2010_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   ${RegisterWin32Exception} ${VS2010_REGISTRY_KEY} "Win32 Exceptions\D Exception"
 
   ReadRegStr $1 ${VS_REGISTRY_ROOT} "${VS2010_REGISTRY_KEY}" InstallDir
   RMDir /r '$1${EXTENSION_DIR_APP}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2010_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2010_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
   ${AddItem} "$1${EXTENSION_DIR}\visuald.pkgdef"
 
   ${SetOutPath} "$1${EXTENSION_DIR}"
@@ -525,13 +525,13 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoSection} "Install in VS 2012" SecVS2012
 
-  ;ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2012_REGISTRY_KEY}'
+  ;ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2012_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS2012_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   ${RegisterWin32Exception} ${VS2012_REGISTRY_KEY} "Win32 Exceptions\D Exception"
 
   ReadRegStr $1 ${VS_REGISTRY_ROOT} "${VS2012_REGISTRY_KEY}" InstallDir
   RMDir /r '$1${EXTENSION_DIR_APP}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2012_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2012_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
   ${AddItem} "$1${EXTENSION_DIR}\visuald.pkgdef"
 
   ${SetOutPath} "$1${EXTENSION_DIR}"
@@ -558,13 +558,13 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoSection} "Install in VS 2013" SecVS2013
 
-  ;ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2013_REGISTRY_KEY}'
+  ;ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2013_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS2013_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   ${RegisterWin32Exception} ${VS2013_REGISTRY_KEY} "Win32 Exceptions\D Exception"
 
   ReadRegStr $1 ${VS_REGISTRY_ROOT} "${VS2013_REGISTRY_KEY}" InstallDir
   RMDir /r '$1${EXTENSION_DIR_APP}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2013_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2013_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
   ${AddItem} "$1${EXTENSION_DIR}\visuald.pkgdef"
   
   ${SetOutPath} "$1${EXTENSION_DIR}"
@@ -599,13 +599,13 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoSection} "Install in VS 2015" SecVS2015
 
-  ;ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2015_REGISTRY_KEY}'
+  ;ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2015_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS2015_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   ${RegisterWin32Exception} ${VS2015_REGISTRY_KEY} "Win32 Exceptions\D Exception"
 
   ReadRegStr $1 ${VS_REGISTRY_ROOT} "${VS2015_REGISTRY_KEY}" InstallDir
   RMDir /r '$1${EXTENSION_DIR_APP}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2015_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2015_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
   ${AddItem} "$1${EXTENSION_DIR}\visuald.pkgdef"
 
   ${SetOutPath} "$1${EXTENSION_DIR}"
@@ -640,14 +640,14 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoSection} "Install in VS 2017" SecVS2017
 
-  ;ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2017_REGISTRY_KEY}'
+  ;ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2017_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS2017_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   ;${RegisterWin32Exception} ${VS2017_REGISTRY_KEY} "Win32 Exceptions\D Exception"
 
   ReadRegStr $1 ${VS_REGISTRY_ROOT} "${VS2017_INSTALL_KEY}" "15.0"
   StrCpy $1 "$1Common7\IDE\"
   RMDir /r '$1${EXTENSION_DIR_APP}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2017_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2017_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
   ${AddItem} "$1${EXTENSION_DIR}\visuald.pkgdef"
 
   ${SetOutPath} "$1${EXTENSION_DIR}"
@@ -686,7 +686,7 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoSection} "Install in VS 2019" SecVS2019
 
-  ;ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2019_REGISTRY_KEY}'
+  ;ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2019_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS2019_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   ;${RegisterWin32Exception} ${VS2019_REGISTRY_KEY} "Win32 Exceptions\D Exception"
 
@@ -695,7 +695,7 @@ ${MementoSection} "Install in VS 2019" SecVS2019
 
   StrCpy $1 "$1Common7\IDE\"
   RMDir /r '$1${EXTENSION_DIR_APP}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2019_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2019_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
   ${AddItem} "$1${EXTENSION_DIR}\visuald.pkgdef"
 
   ${SetOutPath} "$1${EXTENSION_DIR}"
@@ -790,7 +790,7 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoUnselectedSection} "Install in VC-Express 2008" SecVCExpress2008
 
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VCEXP2008_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VCEXP2008_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VCEXP2008_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   
 ${MementoSectionEnd}
@@ -798,7 +798,7 @@ ${MementoSectionEnd}
 ;--------------------------------
 ${MementoUnselectedSection} "Install in VC-Express 2010" SecVCExpress2010
 
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VCEXP2010_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VCEXP2010_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VCEXP2010_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   
 ${MementoSectionEnd}
@@ -861,7 +861,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V180_GENERAL_XML "$1\MsBuild\Microsoft\VC\v180\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V180_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.18.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V180_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.18.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general_d.18.0.xml"
   NoVS2026:
 !endif
@@ -881,7 +881,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V170_GENERAL_XML "$1\MsBuild\Microsoft\VC\v170\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.17.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.17.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general_d.17.0.xml"
   NoVS2022:
 
@@ -899,7 +899,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V170_GENERAL_XML_2 "$1\MsBuild\Microsoft\VC\v170\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170_GENERAL_XML_2};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general2_d.17.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170_GENERAL_XML_2};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general2_d.17.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general2_d.17.0.xml"
   NoVS2022_2:
 
@@ -917,7 +917,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V170_GENERAL_XML_3 "$1\MsBuild\Microsoft\VC\v170\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170_GENERAL_XML_3};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general3_d.17.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170_GENERAL_XML_3};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general3_d.17.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general3_d.17.0.xml"
   NoVS2022_3:
 
@@ -935,7 +935,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V170_GENERAL_XML_4 "$1\MsBuild\Microsoft\VC\v170\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170_GENERAL_XML_4};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general4_d.17.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170_GENERAL_XML_4};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general4_d.17.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general4_d.17.0.xml"
   NoVS2022_4:
 
@@ -952,7 +952,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V170BT_GENERAL_XML "$1\Common7\IDE\VC\VCTargets\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170BT_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.17bt.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V170BT_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.17bt.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general_d.17bt.0.xml"
 
   NoVS2022BT:
@@ -972,7 +972,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V160_GENERAL_XML "$1\MsBuild\Microsoft\VC\v160\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V160_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.16.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V160_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.16.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general_d.16.0.xml"
 
   NoVS2019:
@@ -989,7 +989,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V160BT_GENERAL_XML "$1\Common7\IDE\VC\VCTargets\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V160BT_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.16bt.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V160BT_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.16bt.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general_d.16bt.0.xml"
 
   NoVS2019BT:
@@ -1008,7 +1008,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V150BT_GENERAL_XML "$1\Common7\IDE\VC\VCTargets\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V150BT_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.15bt.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V150BT_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.15bt.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general_d.15bt.0.xml"
 
   NoVS2017BT:
@@ -1025,7 +1025,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V150_GENERAL_XML "$1\Common7\IDE\VC\VCTargets\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V150_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.15.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V150_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.15.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general_d.15.0.xml"
 
   NoVS2017:
@@ -1042,7 +1042,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V140_GENERAL_XML "$1\Microsoft.Cpp\v4.0\V140\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V140_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.14.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V140_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.14.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general_d.14.0.xml"
 
   NoMSBuild14:
@@ -1059,7 +1059,7 @@ ${MementoSection} "MSBuild integration" SecMSBuild
 
     !define V120_GENERAL_XML "$1\Microsoft.Cpp\v4.0\V120\1033\general.xml"
 
-    ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V120_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.12.0.xml'
+    ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" GenerateGeneralXML ${V120_GENERAL_XML};$INSTDIR\msbuild\general_d.snippet;$INSTDIR\msbuild\general_d.12.0.xml'
     ${AddItem} "$INSTDIR\msbuild\general_d.12.0.xml"
 
   NoMSBuild12:
@@ -1151,7 +1151,7 @@ ${MementoSection} "mago" SecMago
   ${File} ${MAGO_SOURCE}\bin\x64\Release\ MagoNatDE.dll
   ${File} "$%VSINSTALLDIR%\DIA SDK\bin\amd64\" msdia140.dll
 
-  ExecWait 'regsvr32 /s "$INSTDIR\Mago\MagoNatDE.dll"'
+  ExecWait '$SYSDIR\regsvr32 /s "$INSTDIR\Mago\MagoNatDE.dll"'
   ${If} ${RunningX64}
     ${DisableX64FSRedirection}
     ExecWait '"$SYSDIR\regsvr32.exe" /s "$INSTDIR\Mago\x64\MagoNatDE.dll"'
@@ -1262,7 +1262,7 @@ SectionEnd
 !endif
 !ifdef CV2PDB
   LangString DESC_SecCv2pdb ${LANG_ENGLISH} "cv2pdb is necessary to debug Win32 executables in Visual Studio."
-  LangString DESC_SecCv2pdb2 ${LANG_ENGLISH} "$\r$\nYou might not want to install it, if you have already installed it elsewhere."
+  LangString DESC_SecCv2pdb2 ${LANG_ENGLISH} "$\r$\nOnly necessary for legacy versions of DMD."
 !endif  
 !ifdef MAGO
   LangString DESC_SecMago ${LANG_ENGLISH} "Mago is a debug engine especially designed for the D-Language."
@@ -1270,7 +1270,7 @@ SectionEnd
   LangString DESC_SecMagoVSCode ${LANG_ENGLISH} "Intergrate Mago with the VSCode Microsoft cpptool debug engine."
 !endif  
 !ifdef MSBUILD
-  LangString DESC_SecMSBuild ${LANG_ENGLISH} "MSBuild integration into VC++ projects in VS 2013/15/17/19/22"
+  LangString DESC_SecMSBuild ${LANG_ENGLISH} "MSBuild integration into VC++ projects in VS 2013-2026"
 !endif  
 
   ;Assign language strings to sections
@@ -1324,18 +1324,18 @@ SectionEnd
 Section "Uninstall"
 
 !ifdef VS_NET
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS_NET_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS_NET_REGISTRY_KEY}'
 !endif
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2005_REGISTRY_KEY}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2008_REGISTRY_KEY}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2010_REGISTRY_KEY}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2012_REGISTRY_KEY}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2013_REGISTRY_KEY}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2015_REGISTRY_KEY}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2017_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2005_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2008_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2010_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2012_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2013_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2015_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VS2017_REGISTRY_KEY}'
 !ifdef EXPRESS
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VCEXP2008_REGISTRY_KEY}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VCEXP2010_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VCEXP2008_REGISTRY_KEY}'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLUnregister ${VCEXP2010_REGISTRY_KEY}'
 !endif
 
 !ifdef VS2026
@@ -1471,7 +1471,7 @@ Section "Uninstall"
   ; DeleteRegKey ${VS_REGISTRY_ROOT}   "${VS2019_REGISTRY_KEY}\${WIN32_EXCEPTION_KEY}\Win32 Exceptions\D Exception"
 
 !ifdef MAGO
-  ExecWait 'regsvr32 /u /s "$INSTDIR\Mago\MagoNatDE.dll"'
+  ExecWait '$SYSDIR\regsvr32 /u /s "$INSTDIR\Mago\MagoNatDE.dll"'
   
 !ifdef VS_NET
   Push ${VS_NET_REGISTRY_KEY}
@@ -1919,7 +1919,7 @@ enabled:
       !insertmacro InsertToFile "$1${AutoExpPath}" "[Visualizer]" "$INSTDIR\cv2pdb\autoexp.visualizer" NoBackup
     SkipVisualizer:
     
-    ;;; ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" VerifyMSObj $1'
+    ;;; ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" VerifyMSObj $1'
     
   NoInstall:
 
@@ -2339,7 +2339,7 @@ Function InstallForVS2022
 
   Exch $1 ; argument Index
 
-  ;ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2022_REGISTRY_KEY}'
+  ;ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" RunDLLRegister ${VS2022_REGISTRY_KEY}'
   ;WriteRegStr ${VS_REGISTRY_ROOT} "${VS2022_REGISTRY_KEY}${VDSETTINGS_KEY}" "DMDInstallDir" $DMDInstallDir
   ;${RegisterWin32Exception} ${VS2022_REGISTRY_KEY} "Win32 Exceptions\D Exception"
 
@@ -2349,7 +2349,7 @@ Function InstallForVS2022
 
   StrCpy $1 "$1Common7\IDE\"
   RMDir /r '$1${EXTENSION_DIR_APP}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2022_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2022_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
   ${AddItem} "$1${EXTENSION_DIR}\visuald.pkgdef"
 
   ${SetOutPath} "$1${EXTENSION_DIR}"
@@ -2424,7 +2424,7 @@ Function InstallForVS2026
 
   StrCpy $1 "$1Common7\IDE\"
   RMDir /r '$1${EXTENSION_DIR_APP}'
-  ExecWait 'rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2026_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
+  ExecWait '$SYSDIR\rundll32 "$INSTDIR\${DLLNAME}" WritePackageDef ${VS2026_REGISTRY_KEY} $1${EXTENSION_DIR}\visuald.pkgdef'
   ${AddItem} "$1${EXTENSION_DIR}\visuald.pkgdef"
 
   ${SetOutPath} "$1${EXTENSION_DIR}"
