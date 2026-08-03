@@ -463,7 +463,9 @@ void dmdSetupParams(const ref Options opts)
 			global.versionids.remove(idx);
 		VersionCondition.addPredefinedGlobalIdent(opts.ldcCompiler ? "LDC" : "GNU");
 	}
-	// always enable for tooltips
+	VersionCondition.addGlobalIdent("VisualDServer");
+
+	// always enable docs for tooltips
 	global.params.ddoc.doOutput = true;
 
 	// global.params.debuglevel = opts.debugLevel;

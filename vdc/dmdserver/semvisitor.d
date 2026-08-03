@@ -193,18 +193,24 @@ extern(C++) class ASTVisitor : StoppableVisitor
 		super.visit(expr);
 	}
 
-	override void visit(TraitsExp te)
+	void visitArgs(Objects* args)
 	{
-		if (te.args)
+		if (args)
 		{
-			foreach(a; (*te.args))
+			foreach(a; (*args))
 				if (auto t = a.isType())
 					visitType(t);
 				else if (auto e = a.isExpression())
 					visitExpression(e);
-				//else if (auto s = a.isSymbol())
-				//	visitSymbol(s);
+			//else if (auto s = a.isSymbol())
+			//	visitSymbol(s);
 		}
+	}
+
+	override void visit(TraitsExp te)
+	{
+		visitArgs(te.args);
+		visitArgs(te.parsedArgs);
 
 		super.visit(te);
 	}
@@ -213,10 +219,9 @@ extern(C++) class ASTVisitor : StoppableVisitor
 	{
 		if (ti.tiargs && ti.parsedArgs)
 		{
-			size_t args = min(ti.tiargs.dim, ti.parsedArgs.dim);
-			for (size_t a = 0; a < args; a++)
-				if (Type tip = (*ti.parsedArgs)[a].isType())
-					visitType(tip);
+			//size_t args = min(ti.tiargs.dim, ti.parsedArgs.dim);
+			visitArgs(ti.tiargs);
+			visitArgs(ti.parsedArgs);
 		}
 	}
 

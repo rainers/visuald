@@ -1751,6 +1751,15 @@ void do_unittests()
 	checkTip(m,  2, 44, "(local variable) `object.Object o`");
 	checkTip(m,  3, 47, "(class) `object.Object`\n...");
 
+	source = q{
+		enum sz = __traits(classInstanceSize, Object);
+	};
+	m = checkErrors(source, "");
+
+	checkTip(m,  2, 41, "(class) `object.Object`\n...");
+	version(D_LP64)
+		checkTip(m,  2, 8, "(constant) `ulong source.sz = 16LU`");
+
 	// check for semantics in unittest
 	source = q{
 		unittest
@@ -2397,6 +2406,22 @@ void do_unittests()
 		checkTip(tmpl_m, 4, 11, "(parameter) `int x`");
 		//checkTip(tmpl_m, 8, 11, "(parameter) `T x`");
 	}
+
+	source = q{
+		template Templ(T, int n)
+		{
+			struct Templ
+			{
+				T[n] payload;
+			}
+		}
+		version(VisualDServer) Templ!(int, 3) a;
+	};
+	m = checkErrors(source, "");
+
+	checkTip(tmpl_m, 6, 10, "(field) `int[3] payload`");
+
+	m = null;
 }
 
 unittest
@@ -2672,6 +2697,7 @@ unittest
 	test_ana_dmd();
 }
 
+//version = test;
 version(test):
 
 // https://issues.dlang.org/show_bug.cgi?id=20253
@@ -2692,7 +2718,7 @@ void dummy()
 	enum z3 = size_t.stringof;
 	enum z4 = size_t.mangleof;
 	cfloat flt = cfloat.nan;
-	auto q = [flt.sizeof, flt.init, flt.epsilon, flt.mant_dig, flt.infinity,
+	auto q = [cast(cfloat)flt.sizeof, flt.init, flt.epsilon, flt.mant_dig, flt.infinity,
 			  flt.re, flt.im, flt.min_normal, flt.min_10_exp];
 	//auto ti = Object.classinfo;
 }
@@ -2718,6 +2744,9 @@ template Templ(T, int n)
 	{
 		T payload;
 	}
+}
+version(VisualDServer) { struct T {}
+		Templ!(T, 3) a;
 }
 
 import vdc.dmdserver.dmdinit;
