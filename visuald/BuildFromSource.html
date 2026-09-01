@@ -143,13 +143,15 @@
 <p>Visual D consists of a number of components that need to be built separately:</p>
 <ul>
   <li><a href="https://github.com/dlang/visuald">visuald</a>: the core package loaded as a language service by Visual Studio: visuald_vs10.sln</li>
-  <li><a href="https://github.com/rainers/D_Parser/tree/visuald">dparser</a>: the semantic engine
-    integrated as a sub module: vdc/abothe/VDServer.sln. Needs VS 2017 or later</li>
   <li>vdextensions: some extensions to visuald only accessible via C#: vdextensions/vdextensions.csproj</li>
+  <li><a href="https://github.com/rainers/dmd/tree/dmdserver">dmdserver</a>: semantic engine based on the dmd frontend.
+    Integrated as a sub module at vdc/dmdserver/dmd.</li>
   <li>dbuild: MSBuild integration: msbuild/dbuild/dbuild.csproj</li>
   <li><a href="https://github.com/rainers/mago">mago</a>: the debug engine: ../../mago/MagoDbg_2010.sln</li>
   <li><a href="https://github.com/rainers/cv2pdb">cv2pdb</a>: conversion of CodeView 4 debug information
     into PDB file: ../../trunk/cv2pdb/src/cv2pdb_vs12.sln</li>
+  <li><a href="https://github.com/rainers/D_Parser/tree/visuald">dparser</a>: the legacy semantic engine
+    for 32-bit host OS. Integrated as a sub module: vdc/abothe/VDServer.sln. Needs VS 2017 or later</li>
   <li>pipedmd, dcxxfilt: additional command line tools in the "tools" folder</li>
 </ul>
 
@@ -159,7 +161,7 @@
 
 <p>You need the following tools to build main package of Visual D:</p>
 <ul>
-  <li>Visual Studio 2013/2015/2017/2019</li>
+  <li>Visual Studio 2013 - 2026</li>
   <li>a recent version of Visual D</li>
   <li>Visual Studio Integration SDK for VS2013 or later (enable it during VS installation.)</li>
   <li>Windows SDK 6.0A or later (tested with most versions up to 10.0.17763.0)</li>
@@ -178,7 +180,8 @@
 
 <p>There is an <a href="https://ci.appveyor.com/project/rainers/visuald">AppVeyor project</a>
 that verifies recent changes to the development
-branch of Visual D. This can also be used as a reference for the build process.</p>
+branch of Visual D. See also the build checks via GitHub actions.
+This can be used as a reference for the build process.</p>
 
 <p>The Visual D source code is usually updated to work with the latest release version
 of DMD (2.086.0 as of now), so you should use this release of the compiler when using
@@ -203,7 +206,7 @@ somewhere in your PATH. Use Configuration "Debug OMF|Win32" in that case.</p>
 branch in the registry, so it does not interfere with your working
 environment.</p>
 
-$(UL
+<ul>
  <li>VS2010-VS2019: The mechanism has changed with VS2010, as the non-standard registry settings are rebuilt
    on every start of Visual Studio.
   <ul>
@@ -212,43 +215,44 @@ $(UL
    <li>Start the IDE with the new settings branch via
     <pre>devenv /RootSuffix D</pre>
     This will create a new set of settings to be used for debugging.
-   <li>Copy the files from <span class="d_inlinecode donthyphenate notranslate">$(VSINSTALLDIR)\Common7\IDE\Extensions\Rainer Schuetze\VisualD</span> into the folder
-     <span class="d_inlinecode donthyphenate notranslate">$(APPDATA)\Local\Microsoft\VisualStudio\12.0\Extensions\VisualD</span> (replace 12.0 with 15.0_<span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span>
-     for VS2017 with <span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span> some identifier generated during VS installation)</li>
-   <li>Move the files from <span class="d_inlinecode donthyphenate notranslate">$(VSINSTALLDIR)\Common7\IDE\Extensions\Rainer Schuetze\VisualD</span> into the folder
-     <span class="d_inlinecode donthyphenate notranslate">$(APPDATA)\Local\Microsoft\VisualStudio\12.0D\Extensions\VisualD</span> (replace 12.0D with 15.0_<span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span>D
-     for VS2017 with <span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span> some identifier generated during VS installation)</li>
-   <li>in <span class="d_inlinecode donthyphenate notranslate">$(APPDATA)\Local\Microsoft\VisualStudio\12.0D\Extensions\VisualD\visuald.pkgdef</span>,
-     replace the path "C:\Program Files (x86)\Visual D\visuald.dll" with your debug build output path.</li>
-   <li>Modify a line in `$(VSINSTALLDIR)\Common7\IDE\devenv.pkgdef:
-     <pre>-"PkgDefSearchPath" = "$ApplicationExtensionsFolder$;$RootFolder$\Common7\IDE\CommonExtensions;$RootFolder$\Common7\IDE\devenv.admin.pkgdef;"</pre>
-     <pre>+"PkgDefSearchPath" = "$ApplicationExtensionsFolder$;$RootFolder$\Common7\IDE\CommonExtensions;$AppDataLocalFolder$\Extensions;$RootFolder$\Common7\IDE\devenv.admin.pkgdef;"</pre>
-    </li>
-   <li>for VS2015 or earlier delete these hives in the registry:
-    <ul>
-     <li><span class="d_inlinecode donthyphenate notranslate">HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\14.0D</span></li>
-     <li><span class="d_inlinecode donthyphenate notranslate">HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\14.0D_Config</span></li>
-   </ul></li>
-   <li>Start the IDE with the new settings branch via</li>
-    <pre>devenv /RootSuffix D</pre>
-   <li>Visual D will now be shown in the Extension Manager where it might have to be enabled.</li>
-  </li>
- </ul>
- <p></p>
- <li>VS2008: To create a configuration named "D"
-  <ul>
-   <li>As administrator, execute from the command line:
-    <pre>&lt;path-to-visual-studio-sdk&gt;\VisualStudioIntegration\Tools\Bin\VSRegEx.exe getorig 9.0 D</pre>
-   </li>
-   <li>and register the compiled debug plugin with
-    <pre>trunk\nsis\register.bat</pre>
-   </li>
-   <li>The IDE can then be started with the new settings branch via
-    <pre>devenv /RootSuffix D</pre>
+    <li>Copy the files from <span class="d_inlinecode donthyphenate notranslate">$(VSINSTALLDIR)\Common7\IDE\Extensions\Rainer Schuetze\VisualD</span> into the folder
+      <span class="d_inlinecode donthyphenate notranslate">$(APPDATA)\Local\Microsoft\VisualStudio\12.0\Extensions\VisualD</span> (replace 12.0 with 15.0_<span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span>
+      for VS2017 with <span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span> some identifier generated during VS installation)</li>
+    <li>Move the files from <span class="d_inlinecode donthyphenate notranslate">$(VSINSTALLDIR)\Common7\IDE\Extensions\Rainer Schuetze\VisualD</span> into the folder
+      <span class="d_inlinecode donthyphenate notranslate">$(APPDATA)\Local\Microsoft\VisualStudio\12.0D\Extensions\VisualD</span> (replace 12.0D with 15.0_<span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span>D
+      for VS2017 with <span class="d_inlinecode donthyphenate notranslate">&lt;id&gt;</span> some identifier generated during VS installation)</li>
+    <li>in <span class="d_inlinecode donthyphenate notranslate">$(APPDATA)\Local\Microsoft\VisualStudio\12.0D\Extensions\VisualD\visuald.pkgdef</span>,
+      replace the path "C:\Program Files (x86)\Visual D\visuald.dll" with your debug build output path.</li>
+    <li>Modify a line in `$(VSINSTALLDIR)\Common7\IDE\devenv.pkgdef:
+      <pre>-"PkgDefSearchPath" = "$ApplicationExtensionsFolder$;$RootFolder$\Common7\IDE\CommonExtensions;$RootFolder$\Common7\IDE\devenv.admin.pkgdef;"</pre>
+      <pre>+"PkgDefSearchPath" = "$ApplicationExtensionsFolder$;$RootFolder$\Common7\IDE\CommonExtensions;$AppDataLocalFolder$\Extensions;$RootFolder$\Common7\IDE\devenv.admin.pkgdef;"</pre>
+     </li>
+    <li>for VS2015 or earlier delete these hives in the registry:
+     <ul>
+      <li><span class="d_inlinecode donthyphenate notranslate">HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\14.0D</span></li>
+      <li><span class="d_inlinecode donthyphenate notranslate">HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\14.0D_Config</span></li>
+    </ul></li>
+    <li>Start the IDE with the new settings branch via</li>
+     <pre>devenv /RootSuffix D</pre>
+    <li>Visual D will now be shown in the Extension Manager where it might have to be enabled.</li>
    </li>
   </ul>
+  <p></p>
+  <li>VS2008: To create a configuration named "D"
+   <ul>
+    <li>As administrator, execute from the command line:
+     <pre>&lt;path-to-visual-studio-sdk&gt;\VisualStudioIntegration\Tools\Bin\VSRegEx.exe getorig 9.0 D</pre>
+    </li>
+    <li>and register the compiled debug plugin with
+     <pre>trunk\nsis\register.bat</pre>
+    </li>
+    <li>The IDE can then be started with the new settings branch via
+     <pre>devenv /RootSuffix D</pre>
+    </li>
+   </ul>
+  </li>
  </li>
-</li>
+</ul>
 
 <h3>Building the installer</h3>
 
@@ -271,7 +275,7 @@ top of the Makefile and adjust them to the installation directories on your syst
 
 
         <div class="smallprint" id="copyright">Copyright &copy; 1999-2026 by the <a href="https://www.dlang.org/foundation_overview.html">D Language Foundation</a> | Page generated by
-<a href="https://www.dlang.org/spec/ddoc.html">Ddoc</a> on Tue Sep  1 09:22:15 2026
+<a href="https://www.dlang.org/spec/ddoc.html">Ddoc</a> on Tue Sep  1 20:57:37 2026
  </div>
     </div>
 </div>
