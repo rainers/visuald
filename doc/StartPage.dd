@@ -4,7 +4,7 @@ $(TABLE_NOBORDER
 $(TD $(IMG images/vd_logo.png))
 $(TD
 $(P Visual D is a Visual Studio package providing project management, language services and debugger integration.
-It works with Visual Studio 2008 - 2022 including Professional and Community versions.
+It works with Visual Studio 2008 - 2026 including Professional and Community versions.
 See the $(LINK2 Installation.html, Installation) instructions, especially if using older versions
 of Visual Studio.)
 
@@ -18,14 +18,14 @@ $(TABLE_NOBORDER
  )
  $(TR
   $(TD If you are just starting with the D programming language and don't have a compiler installed then this download
-  provides you with everything to get you started with writing D program in Visual Studio including the reference
+  provides you with everything you need to get you started with writing D programs in Visual Studio including the reference
   compiler DMD $(DMD_VERSION) and the LLVM-based compiler LDC $(LDC_VERSION):)
   $(TD
   <span>
   <div align="right">
   $(LINK2 https://github.com/dlang/visuald/releases/download/v$(VERSION)/VisualD-v$(VERSION)-dmd-$(DMD_VERSION)-ldc2-$(LDC_VERSION).exe, $(IMG images/download_with_dmdldc2.png))
   </div>
-  <div align="right"><small>download size approx 88 MB</small></div>
+  <div align="right"><small>download size approx 110 MB</small></div>
   </span>
  ))
  $(TR
@@ -35,10 +35,10 @@ $(TABLE_NOBORDER
   <div align="right">
   $(LINK2 https://github.com/dlang/visuald/releases/download/v$(VERSION)/VisualD-v$(VERSION).exe, $(IMG images/download_extension2.png))
   </div>
-  <div align="right"><small>download size approx 6 MB</small></div>
+  <div align="right"><small>download size approx 12 MB</small></div>
  ))
  $(TR
-  $(TD Cutting edge prereleases if you want to try the most recent improvements to Visual D:)
+  $(TD Cutting-edge prereleases if you want to try the most recent improvements to Visual D:)
   $(TD
   <div align="right">
   $(P $(LINK2 https://github.com/dlang/visuald/releases, Beta releases))
@@ -49,30 +49,30 @@ $(TABLE_NOBORDER
 
 $(H2 Overview)
 
-$(P Use the navigation bar on the left to take a tour of Visual D including a lot of screen shots.)
+$(P Use the navigation bar on the left to take a tour of Visual D including a lot of screenshots.)
 
 $(TABLE_NOBORDER
 $(TD
 $(UL
  $(LI Project management with all DMD options available through the UI)
- $(LI seamless VC project integration)
+ $(LI Seamless VC project integration)
  $(LI Syntax highlighting with special version and token string support)
  $(LI Code completion and tooltips from semantic analysis of source code)
- $(LI Underlining of syntactical errors)
- $(LI Goto definition)
+ $(LI Underlining of syntax errors)
+ $(LI Go to definition)
  $(LI Parameter info tooltips)
  $(LI Code outlining)
  $(LI Symbol/File search window)
  $(LI Integration with the Visual Studio debugger through native D expression evaluation
       or custom debug engine $(LINK2 https://github.com/rainers/mago, Mago))
- $(LI Profiler browse window)
- $(LI Code Coverage support)
+ $(LI Profiler browser window)
+ $(LI Code coverage support)
  $(LI Support for Error List, Code Definition window, Object Browser and Class View)
  $(LI C++ to D Conversion Wizard)
  $(LI Support for building with $(LINK2 https://github.com/ldc-developers/ldc, LDC) and
       $(LINK2 https://github.com/D-Programming-GDC/GDC, GDC)
       instead of DMD)
- $(LI Completely written in D)
+ $(LI Written mostly in D)
 )
 ) $(TD
 $(LINK2 images/fullvs.png, <img src="images/fullvs.png" width="100%"/>)
@@ -85,6 +85,22 @@ $(H2 News)
 $(P $(LINK2 VersionHistory.html, Full version history and complete details...)
 )
 
+2025-07-15 Version 1.5.0
+ $(UL
+    $(LI installer now supports VS 2026)
+    $(LI full installer now bundled with DMD 2.113.0 and LDC 1.43.0)
+    $(LI dmdserver executable selected by installed dmd version (2.110+ - 2.114-beta1))
+    $(LI VC project integration: generic support for future versions 18.1-18.15)
+ )
+
+2025-07-15 Version 1.4.1
+ $(UL
+  $(LI lots of improvements to the mago debugger extension)
+  $(LI dmdserver updated to frontend of DMD 2.111.0)
+  $(LI full installer now bundled with DMD 2.111.0 and LDC 1.40.1)
+  $(LI VC project integration: added support to build for ARM64 with LDC)
+ )
+
 2025-03-14 Version 1.4.0
  $(UL
   $(LI fixed msbuild integration for VS 2022 17.5 - 17.14)
@@ -92,20 +108,6 @@ $(P $(LINK2 VersionHistory.html, Full version history and complete details...)
   $(LI dmdserver updated to frontend of DMD 2.110.0, improved completion)
   $(LI full installer now bundled with DMD 2.110.0 and LDC 1.40.0)
   $(LI for better responsiveness mago debug extension now executes visualizer calls asynchronously)
- )
-
-2022-10-09 Version 1.3.1
- $(UL
-  $(LI fixed memory leak in dmdserver)
-  $(LI fixed support VC-Project integration for VS 2022 17.3 and 17.4)
-  $(LI full installer now bundled with DMD 2.100.2 and LDC 1.30.0)
- )
-
-2022-06-05 Version 1.3.0
- $(UL
-  $(LI dmdserver updated to frontend of DMD 2.100.0)
-  $(LI fixed support VC-Project integration for VS 2022 17.0 and 17.2)
-  $(LI full installer now bundled with DMD 2.100.0 and LDC 1.29.0)
  )
 
 $(LINK2 VersionHistory.html, more...)

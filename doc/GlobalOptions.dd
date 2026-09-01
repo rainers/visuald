@@ -50,7 +50,7 @@ $(UL
    according to the most recent Visual C++ installation and Windows SDK installation directories. This is necessary
    to allow building Win64 executables from the command line without having additional environment variables set.
    Unfortunately this makes it difficult to use libraries from the current Visual C++ installation if you have
-   multiple Visaul Studio versions installed.
+   multiple Visual Studio versions installed.
    )
    $(P Enabling this option allows to override the linker settings from sc.ini. At the same time the
     library search paths are added to the command line.
@@ -61,12 +61,12 @@ $(UL
 $(P Available text replacements: )
 $(UL
  $(LI $(DOLLAR)(DMDINSTALLDIR): DMD Install path from the "DMD directories page" )
- $(LI $(DOLLAR)(DMDINSTALLDIR): GDC Install path from the "GDC directories page" )
- $(LI $(DOLLAR)(DMDINSTALLDIR): LDC Install path from the "LDC directories page" )
+ $(LI $(DOLLAR)(GDCINSTALLDIR): GDC Install path from the "GDC directories page" )
+ $(LI $(DOLLAR)(LDCINSTALLDIR): LDC Install path from the "LDC directories page" )
  $(LI $(DOLLAR)(WINDOWSSDKDIR): Windows SDK Directory )
  $(LI $(DOLLAR)(DEVENVDIR): Directory of Visual Studio executable devenv.exe )
  $(LI $(DOLLAR)(VSINSTALLDIR): Root directory of Visual Studio installation )
- $(LI $(DOLLAR)(VCINSTALLDIR): The directory of the Visual C installation that comes with the running Visual Studio)
+ $(LI $(DOLLAR)(VCINSTALLDIR): The directory of the Visual C++ installation that comes with the running Visual Studio)
  $(LI $(DOLLAR)(VISUALDINSTALLDIR): Installation folder of Visual D )
  $(LI any variable from the system environment enclosed in $(DOLLAR)() )
 )

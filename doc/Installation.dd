@@ -1,10 +1,10 @@
 Ddoc
 
-$(P Visual D works with all Visual Studio versions from 2008 to 2022. Please make sure to
-have the $(B C++ development tools) aswell as a $(B Windows SDK) included in the Visual Studio installation.)
+$(P Visual D works with all Visual Studio versions from 2008 to 2026. Please make sure to
+have the $(B C++ development tools) as well as a $(B Windows SDK) included in the Visual Studio installation.)
 
 $(P The click-through-installer will guide you through the installation process. The installer lets you select the
-Visual Studio Version for which you want Visual D to be installed. It will always install
+Visual Studio version for which you want Visual D to be installed. It will always install
 for all users, not only for a single user.)
 
 $(P To compile your application, you must have $(LINK2 http://www.digitalmars.com/d/download.html, DMD),
@@ -13,10 +13,10 @@ installed.)
 
 $(H2 Using DMD)
 
-$(P DMD is a the reference D compiler. It has the latest features of D implemented first, and
+$(P DMD is the reference D compiler. It has the latest features of D implemented first, and
 usually provides the fastest compilation times for debug builds.)
 
-$(P Not all functionality of Visual D has been adopted to GDC and LDC, so having DMD available is recommended.)
+$(P Not all functionality of Visual D has been implemented for GDC and LDC, so having DMD available is recommended.)
 It is also used as the default in most options, e.g. when creating new projects.
 
 $(P You can change the DMD installation path at the global
@@ -36,7 +36,7 @@ $(H2 Using GDC)
 
 $(P GDC is a D compiler using the GNU compiler suite backend. It can produce more efficient code than DMD.)
 
-$(B As there is currently no uptodate build of GDC available for Windows, support for it has
+$(B As there is currently no up-to-date build of GDC available for Windows, support for it has
 fallen behind and is untested. With GDC being included with the GCC compiler suite in May 2019, this might change in the
 near future.)
 
@@ -65,7 +65,7 @@ commercial editions, the Express versions do not support loading third party ext
 
 $(H3 Visual Studio Shell)
 
-$(P A $(B free) alternative to the commercial releases are the integrated $(B Visual Studio Shell) distributions, that can be downloaded
+$(P A $(B free) alternative to the commercial releases is the integrated $(B Visual Studio Shell) distributions, that can be downloaded
 from Microsoft (see below for links). The shells are identical with the Visual Studio IDE, but stripped of any language support. It
 still contains the native debugger that can be used to debug D applications.)
 

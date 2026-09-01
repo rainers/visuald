@@ -1,6 +1,6 @@
-VERSION = 1.4.0
-DMD_VERSION = 2.110.0
-LDC_VERSION = 1.40.0
+VERSION = 1.5.0
+DMD_VERSION = 2.113.0
+LDC_VERSION = 1.43.0
 ROOT_DIR = https://www.dlang.org/
 ROOT = https://www.dlang.org
 BODYCLASS = visuald

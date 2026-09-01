@@ -13,7 +13,7 @@ $(UL
   $(LI VISUALDINSTALLDIR: Installation folder of Visual D)
   $(LI PLATFORMNAME: always Win32)
   $(LI CONFIGURATIONNAME)
-  $(LI OUTDIR: Ouptut path)
+  $(LI OUTDIR: Output path)
   $(LI INTDIR: Intermediate path)
   $(LI INPUTPATH/DIR/FILENAME/EXT/NAME: input file/project file components)
   $(LI PROJECTPATH/DIR/FILENAME/EXT/NAME: project file components)

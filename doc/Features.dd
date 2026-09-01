@@ -3,19 +3,19 @@ Ddoc
  $(UL
   $(LI Project management
    $(UL
-    $(LI all DMD command line options accessible)
+    $(LI all DMD command-line options accessible)
     $(LI support for GDC and LDC)
     $(LI support for resource compiler)
     $(LI custom build commands)
-    $(LI pre/post custom build steps)
+    $(LI custom pre-/post-build steps)
     $(LI automatic dependency generation)
     $(LI automatic link between dependent projects)
     $(LI new project templates)
-    $(LI msbuild integration with VC projects)
+    $(LI MSBuild integration with VC projects)
    )
   )
 
-  $(LI Project management
+  $(LI Debugger integration
    $(UL
     $(LI integrates cv2pdb and mago for seamless debugger integration)
     $(LI or plugs into the VS debug engine as a language extension)
@@ -24,10 +24,10 @@ Ddoc
   $(LI Language Service
    $(UL
     $(LI syntax highlighting with special version/debug and token string support)
-    $(LI underlining of syntactical errors)
+    $(LI underlining of syntax errors)
     $(LI word-completion through semantic analysis, buffer, or JSON compile info)
     $(LI import statement completion)
-    $(LI goto definition (using semantic analysis or JSON file from compilation))
+    $(LI go to definition (using semantic analysis or JSON file from compilation))
     $(LI parameter info tooltips)
     $(LI smart indentation)
     $(LI automatic brace completion)
@@ -53,7 +53,7 @@ Ddoc
     $(LI Dustmite integration)
    )
   )
-  $(LI Supported Visual Studio versions: VS 2008 - VS 2022 Community/Professional/Enterprise
+  $(LI Supported Visual Studio versions: VS 2008 - VS 2026 Community/Professional/Enterprise
   )
   $(LI sources include tools to
    $(UL
@@ -67,7 +67,7 @@ Ddoc
   )
   $(LI Completely written in D
    $(UL
-    $(LI source code available on github)
+    $(LI source code available on GitHub)
    )
   )
  )
