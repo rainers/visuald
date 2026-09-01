@@ -26,7 +26,7 @@ $(H2 Documentation generation using CanDyDOC)
 
 If you want to use $(LINK2 http://www.dsource.org/projects/helix/wiki/CandyDoc, CanDyDOC) for documentation generation, 
 you need to create a ddoc file that contains the list of modules. Visual D can automatically create this file. 
-Here is how you can setup a project:
+Here is how you can set up a project:
 $(UL
   $(LI Create the documentation directory and copy the candydoc directory from the distribution into the documentation directory.)
   $(LI Add the file candy.ddoc from the candydoc directory to the project.)

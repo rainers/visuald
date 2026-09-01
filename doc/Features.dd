@@ -3,11 +3,11 @@ Ddoc
  $(UL
   $(LI Project management
    $(UL
-    $(LI all DMD command-line options accessible)
+    $(LI all DMD command line options accessible)
     $(LI support for GDC and LDC)
     $(LI support for resource compiler)
     $(LI custom build commands)
-    $(LI custom pre-/post-build steps)
+    $(LI custom pre/post build steps)
     $(LI automatic dependency generation)
     $(LI automatic link between dependent projects)
     $(LI new project templates)

@@ -20,7 +20,7 @@ $(BR)
 $(IMG_CENTER images/projectwizard.png)
 $(BR)
 
-Options GDC and OMF are not available for the Visual C++ project types.
+The GDC and OMF options are not available for the Visual C++ project types.
 
 Macros:
 	TITLE=Project Wizard

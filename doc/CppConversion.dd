@@ -1,6 +1,6 @@
 Ddoc
 
-$(P Visual D can help you converting your C++ code base to D. Even though it is 
+$(P Visual D can help you convert your C++ code base to D. Even though it is 
 capable of some quite extensive reorganization of the code, don't expect to get 
 compilable and runnable code out of the box. Helping the converter with additional
 replacement rules and manual additional editing of the result might be necessary. 
@@ -40,8 +40,8 @@ $(UL
 	  is not specified in the header, a module statement will be prepended to it.)
     $(LI Output dir: the directory where to write output files to.)
     $(LI Write intermediate files: To debug problems during the conversion, 
-	  intermediate files can be written to sub directories "pass1" (after the 
-	  proprocessor handling) and "pass2" (after the code reorganization, but 
+	  intermediate files can be written to subdirectories "pass1" (after the 
+	  preprocessor handling) and "pass2" (after the code reorganization, but 
 	  before the final replacements).)
     $(LI Preprocessor expansions: only the preprocessor identifiers given here 
 	  will be expanded. All other preprocessor directives are translated to 
@@ -59,7 +59,7 @@ $(UL
 	 If you want to span the rule across multiple lines, use the \ line splicing mechanism.
 	)
     $(LI Value/reference types: sometimes the parser or the converter stumbles across 
-	  unknown identifiers that might be types. You can help it specifying them here.
+	  unknown identifiers that might be types. You can help it by specifying them here.
 	  Value or reference semantics determine whether an indirection is removed from
 	  pointer declarations.)
     $(LI Keyword prefix: identifiers that are keywords in D, but not in C++, are 
@@ -75,7 +75,7 @@ select complete declarations, e.g. variable or class declarations and functions.
 Otherwise the parser will stumble.)
 
 $(P This tool is the result of generalizing an attempt to convert the dmd front 
-end code to D, so please don't be surprised to find some unexpected special casings 
+end code to D, so please don't be surprised to find some unexpected special cases 
 from time to time. The result of that attempt was that the converted code was 
 parsable, but did not pass all semantic stages.)
 

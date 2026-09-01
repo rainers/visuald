@@ -1,7 +1,7 @@
 Ddoc
 
 $(P Visual D works with all Visual Studio versions from 2008 to 2026. Please make sure to
-have the $(B C++ development tools) as well as a $(B Windows SDK) included in the Visual Studio installation.)
+have the $(B C++ development tools) aswell as a $(B Windows SDK) included in the Visual Studio installation.)
 
 $(P The click-through-installer will guide you through the installation process. The installer lets you select the
 Visual Studio version for which you want Visual D to be installed. It will always install
@@ -16,7 +16,7 @@ $(H2 Using DMD)
 $(P DMD is the reference D compiler. It has the latest features of D implemented first, and
 usually provides the fastest compilation times for debug builds.)
 
-$(P Not all functionality of Visual D has been implemented for GDC and LDC, so having DMD available is recommended.)
+$(P Not all functionality of Visual D has been adopted to GDC and LDC, so having DMD available is recommended.)
 It is also used as the default in most options, e.g. when creating new projects.
 
 $(P You can change the DMD installation path at the global

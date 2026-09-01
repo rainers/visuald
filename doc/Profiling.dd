@@ -6,7 +6,7 @@ You can enable it on the project configuration page "Code Generation".)
 $(IMG_CENTER images/prop_codegen.png)
 
 $(P Running the executable will create a file named trace.log in the current working 
-directory. Opening the profiler window from the Visual D menu allows browsing the info 
+directory. Opening the profiler window from the Visual D menu allows you to browse the information 
 in this file conveniently. You must specify the full path to the trace.log in the edit 
 field at the top of the window.)
 
@@ -17,7 +17,7 @@ $(UL
   $(LI enable/disable alternate color display for the rows)
   $(LI enable/disable automatic closing of the profiler window if you jump to a function by double-clicking 
     its list entry)
-  $(LI enable/disable display of full type information of the functions)
+  $(LI enable/disable display of full type information for the functions)
   $(LI enable/disable display of function fan in/out, i.e. which functions are called by the selected 
     function and which functions are calling it)
   $(LI guess the location of the trace.log file from the current startup project and its debugging settings)

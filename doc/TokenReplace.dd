@@ -5,16 +5,16 @@ tokenizer used by Visual D for syntax highlighting. The dialog can be opened thr
 
  $(IMG_CENTER images/tokenreplacemenu.png)
 
-$(P A token consists of the actual lexical D element and any preceding white spaces including comments. 
+$(P A token consists of the actual lexical D element and any preceding whitespace, including comments. 
 The search and replacement texts are tokenized according to the D language, matching the result against
 the tokenized source text ignoring syntactically unimportant text like comments and line breaks. Brace
-matching is supported, allowing to match nested expressions nicely.)
+matching is supported, allowing nested expressions to be matched conveniently.)
 
 $(P Here is an example:)
 
  $(IMG_CENTER images/tokenreplace.png)
 
-$(P Executing 'Replace All' will exchange the arguments of all calls and declarations of function 'fun'
+$(P Executing 'Replace All' will replace the arguments of all calls and declarations of function 'fun'
 in the current document, even if the arguments span multiple lines and include nested expressions.)
 
 $(P The search text allows some special $ tokens:)
@@ -32,7 +32,7 @@ $(UL
 $(P NAME can be any alpha numeric identifier.)
 
 $(P Any $(DOLLAR)-token used in the replacement string is replaced with the identically named capture 
-from the matched search string. $(DOLLAR)* is relaced by the the whole matched string.)
+from the matched search string. $(DOLLAR)* is replaced by the whole matched string.)
 
 Macros:
 	TITLE=Token Search and Replace

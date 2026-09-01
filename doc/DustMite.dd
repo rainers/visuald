@@ -13,10 +13,10 @@ DustMite can be tedious, so Visual D can help you for some use cases.
 )
 
 $(P If your build has failed with an unexpected error message or even internal compiler error, you
-can select the relevant error messsage in the Visual Studio build output window or focus the respective
+can select the relevant error message in the Visual Studio build output window or focus the respective
 issue in the error list. Then select "DustMite Build Failure" from the Visual D menu. This will create
 a clean copy of the startup project alongside the project folder (so make sure that all files necessary
-for the build are actually referenced in the project). In addition the generated build script is added.
+for the build are actually referenced in the project). In addition, the generated build script is added.
 )
 
 $(P DustMite will be run against this folder in a new console window, trying to find a minimal source code that still
@@ -26,7 +26,7 @@ it will report the directory with the reduced source code.)
 $(H3 Limitations)
 
 $(UL
- $(LI The DustMite integration does not work with single file compilation as well as compilation of non D files.)
+ $(LI The DustMite integration does not work with single-file compilation or compilation of non-D files.)
  $(LI A crashing compiler might cause messages to popup that have to be closed manually. See
       $(LINK https://github.com/CyberShadow/DustMite/wiki/Useful-test-scripts) for some
       ideas how to deal with this.)

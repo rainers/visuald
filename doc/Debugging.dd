@@ -18,7 +18,7 @@ to a newer version of CodeView written into a PDB file.)
 $(P VS 2008 and VS 2010 have two engines for debugging native code, one mainly targeted at C/C++
 and one for mixed native and managed code. Both understood visualizer descriptions
 in a file named autoexp.dat, that cv2pdb took advantage of to display some D constructs
-in watch windows: slices, strings and associatives arrays. That made debugging
+in watch windows: slices, strings and associative arrays. That made debugging
 D programs quite possible, though debug info from the compiler was very basic. Some
 quirks had to be accepted, e.g. type names must not contain '.' to avoid confusing the
 debugger, so it is replaced with '@'. Expressions need to be specified in C/C++ syntax.)
@@ -50,13 +50,13 @@ newer version of the CodeView debug information from the start. So there is no n
 use a conversion tool for its output. In 2014, DMD got the option to also emit COFF
 files for 32-bit code using the same debug format.)
 
-$(P The visual studio debuggers obviously had 64-bit support, and mago followed suite in
+$(P The Visual Studio debuggers obviously had 64-bit support, and mago followed suit in
 2014 including support for the PDB debug info format.)
 
 $(H2 VS 2012-2013 New debug engine)
 
 $(P Starting with Visual Studio 2012, Microsoft introduced a new debugger that replaced
-the native debug engine. Unfortunately, it had some incompatibilites with the
+the native debug engine. Unfortunately, it had some incompatibilities with the
 preceding debug engine. This includes displaying D variables in the Watch Window and
 interpretation of the visualizer macros in autoexp.dat. The new engine has
 extended visualizer capabilities, but these are targeted to C/C++ and don't work well
@@ -66,7 +66,7 @@ $(P You can switch back to the old debug engine by going to Tools->Options and t
 settings, turn on native edit and continue. This is a global setting and will also affect your
 C++ projects, though.)
 
-$(P Mago is uneffected by this change.
+$(P Mago is unaffected by this change.
 The VS 2013 debugger engine fixed some of the problems with displaying local variables.)
 
 <a id="concord"></a>
@@ -146,7 +146,7 @@ As with other special display functionality, the function evaluation can be disa
 the expression as shown in the watch window.)
 
 $(P While executing these functions for display, the GC is switched to a region allocator that discards all memory
-when excution of the debuggee is resumed (this can be disabled in the global debugger options with setting
+when execution of the debuggee is resumed (this can be disabled in the global debugger options with setting
 "Switch GC while executing debugger functions"). So you should
 not keep references to memory allocated during execution of the __debug* functions.)
 

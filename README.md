@@ -37,7 +37,7 @@ Major Features
 
 * Language Service
   - syntax highlighting with special version/debug and token string support
-  - underlining of syntactical errors 
+  - underlining of syntax errors 
   - semantic analysis for code completion, goto definition and tool tips
   - import statement completion
   - parameter info tooltips 

@@ -1,6 +1,6 @@
 Ddoc
 
-$(P The search window helps you finding files in larger projects or symbol definitions. 
+$(P The search window helps you find files in larger projects or symbol definitions. 
 The window can be opened through the Visual D menu. It is more convenient to assign keyboard 
 shortcuts to the commands "VisualD.!SearchFile" and  "VisualD.!SearchSymbol".)
 

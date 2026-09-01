@@ -3,12 +3,12 @@ Ddoc
 $(TABLE_NOBORDER
 $(TD $(IMG images/vd_logo.png))
 $(TD
-$(P Visual D is a Visual Studio package providing project management, language services and debugger integration.
+$(P Visual D is a Visual Studio package that provides project management, language services, and debugger integration.
 It works with Visual Studio 2008 - 2026 including Professional and Community versions.
 See the $(LINK2 Installation.html, Installation) instructions, especially if using older versions
 of Visual Studio.)
 
-$(P Visual D aims at providing seamless integration of the D programming language into Visual Studio.)
+$(P Visual D aims to provide seamless integration of the D programming language into Visual Studio.)
 ))
 
 $(TABLE_NOBORDER
@@ -17,8 +17,8 @@ $(TABLE_NOBORDER
   $(TD Latest release: Visual D $(VERSION))
  )
  $(TR
-  $(TD If you are just starting with the D programming language and don't have a compiler installed then this download
-  provides you with everything you need to get you started with writing D programs in Visual Studio including the reference
+  $(TD If you are just starting with the D programming language and don't have a compiler installed, then this download
+  provides you with everything to get you started with writing D program in Visual Studio including the reference
   compiler DMD $(DMD_VERSION) and the LLVM-based compiler LDC $(LDC_VERSION):)
   $(TD
   <span>
@@ -29,8 +29,8 @@ $(TABLE_NOBORDER
   </span>
  ))
  $(TR
-  $(TD If you are a Visual D user or have a D compiler already installed then this download
-  provides you with an update to boost your experience in Visual Studio:)
+  $(TD If you are a Visual D user or have a D compiler already installed, then this download
+  provides you with an update to enhance your experience in Visual Studio:)
   $(TD
   <div align="right">
   $(LINK2 https://github.com/dlang/visuald/releases/download/v$(VERSION)/VisualD-v$(VERSION).exe, $(IMG images/download_extension2.png))
@@ -38,7 +38,7 @@ $(TABLE_NOBORDER
   <div align="right"><small>download size approx 12 MB</small></div>
  ))
  $(TR
-  $(TD Cutting-edge prereleases if you want to try the most recent improvements to Visual D:)
+  $(TD Cutting edge prereleases if you want to try the most recent improvements to Visual D:)
   $(TD
   <div align="right">
   $(P $(LINK2 https://github.com/dlang/visuald/releases, Beta releases))
@@ -49,7 +49,7 @@ $(TABLE_NOBORDER
 
 $(H2 Overview)
 
-$(P Use the navigation bar on the left to take a tour of Visual D including a lot of screenshots.)
+$(P Use the navigation bar on the left to take a tour of Visual D including a lot of screen shots.)
 
 $(TABLE_NOBORDER
 $(TD
@@ -57,17 +57,17 @@ $(UL
  $(LI Project management with all DMD options available through the UI)
  $(LI Seamless VC project integration)
  $(LI Syntax highlighting with special version and token string support)
- $(LI Code completion and tooltips from semantic analysis of source code)
+ $(LI Code completion and tooltips based on semantic analysis of source code)
  $(LI Underlining of syntax errors)
  $(LI Go to definition)
- $(LI Parameter info tooltips)
+ $(LI Parameter information tooltips)
  $(LI Code outlining)
  $(LI Symbol/File search window)
  $(LI Integration with the Visual Studio debugger through native D expression evaluation
       or custom debug engine $(LINK2 https://github.com/rainers/mago, Mago))
- $(LI Profiler browser window)
- $(LI Code coverage support)
- $(LI Support for Error List, Code Definition window, Object Browser and Class View)
+ $(LI Profiler browse window)
+ $(LI Code Coverage support)
+ $(LI Support for the Error List, Code Definition window, Object Browser, and Class View)
  $(LI C++ to D Conversion Wizard)
  $(LI Support for building with $(LINK2 https://github.com/ldc-developers/ldc, LDC) and
       $(LINK2 https://github.com/D-Programming-GDC/GDC, GDC)
@@ -109,6 +109,7 @@ $(P $(LINK2 VersionHistory.html, Full version history and complete details...)
   $(LI full installer now bundled with DMD 2.110.0 and LDC 1.40.0)
   $(LI for better responsiveness mago debug extension now executes visualizer calls asynchronously)
  )
+
 
 $(LINK2 VersionHistory.html, more...)
 

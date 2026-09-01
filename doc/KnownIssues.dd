@@ -3,15 +3,15 @@ Ddoc
 $(P
 Please consult the $(LINK2
 https://issues.dlang.org/buglist.cgi?component=VisualD&order=Importance&query_format=advanced&resolution=---,
-bug database) for issues within Visual D. Some irritating behaveour is not
+bug database) for issues within Visual D. Some irritating behaviour is not
 caused by Visual D - these are listed here:)
 
 $(H2 Visual Studio Express)
 
-$(P Visual D does not work with any of the Express version of Visual Studio. These editions do not
+$(P Visual D does not work with any of the Express versions of Visual Studio. These editions do not
 support loading third party extensions and add-ins.)
 
-$(P A free alternative are the integrated Visual Studio Shell distributions.
+$(P A free alternative is the integrated Visual Studio Shell distributions.
 The shells are identical with the Visual Studio IDE, but stripped of any language support. It
 still contains the native debugger that can be used to debug D applications. Please see the
 $(LINK2 Installation.html, installation page) for download links.)

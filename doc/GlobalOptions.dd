@@ -22,7 +22,7 @@ $(UL
  $(LI the debug engine to be used by the "Compile and Debug" command)
 )
 
-$(P For each supported compiler, there is a separate page to setup directories to be used during compilation:)
+$(P For each supported compiler, there is a separate page to set up directories to be used during compilation:)
 
 $(IMG_CENTER images/dmd_directories.png)
 
@@ -71,7 +71,7 @@ $(UL
  $(LI any variable from the system environment enclosed in $(DOLLAR)() )
 )
 
-$(P Please note that you'll also find a new entry "D" in the Text Editor branch to setup
+$(P Please note that you'll also find a new entry "D" in the Text Editor branch to set up
 $(VDLINK Editor,syntax highlighting) and more. )
 
 Macros:
