@@ -12,6 +12,7 @@ import vdc.ivdserver;
 version(MARS)
 {
 	import vdc.dmdserver.dmdserver;
+	import vdc.dmdserver.ctfedebug;
 	alias VDServer = DMDServer;
 }
 else
@@ -101,6 +102,14 @@ class VDServerClassFactory : ComObject, IClassFactory
 extern(C) int vdserver_main()
 {
 	HRESULT hr;
+
+	version(MARS)
+	{
+		// "-ctfeDebug" makes the process speak the Debug Adapter Protocol on its
+		// standard handles instead of registering the COM server.
+		if (ctfeDebugRequested())
+			return ctfeDebugRun();
+	}
 
 	// Create the MyCar class object.
 	VDServerClassFactory cf = newCom!VDServerClassFactory;

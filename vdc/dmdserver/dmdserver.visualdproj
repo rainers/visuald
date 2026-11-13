@@ -2451,6 +2451,8 @@
    <File path="dmd\compiler\src\dmd\utils.d" />
    <File path="dmd\compiler\src\dmd\vsoptions.d" />
   </Folder>
+  <File path="ctfedebug.d" />
+  <File path="dapio.d" />
   <File path="dmderrors.d" />
   <File path="dmdinit.d" />
   <File path="dmdlib.d" />

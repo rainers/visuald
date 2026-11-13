@@ -258,6 +258,16 @@
                 <LocCanonicalName>OpenWebsite</LocCanonicalName>
             </Strings>
         </Button>
+        <Button guid="g_commandSetCLSID" id="CmdStartCtfeDebug" priority="0xF000" type="Button">
+            <Parent guid="g_commandSetCLSID" id="IDG_VD_DEBUG"/>
+            <Strings>
+                <ButtonText>Start CTFE Debugger</ButtonText>
+                <MenuText>Start &amp;CTFE Debugger</MenuText>
+                <ToolTipText>Debug the active D source file while it is interpreted at compile time (CTFE)</ToolTipText>
+                <CanonicalName>StartCtfeDebug</CanonicalName>
+                <LocCanonicalName>StartCtfeDebug</LocCanonicalName>
+            </Strings>
+        </Button>
         <Button guid="g_commandSetCLSID" id="CmdStepOverForeach" priority="0xF100" type="Button">
             <Parent guid="g_commandSetCLSID" id="IDG_VD_DEBUG"/>
             <Strings>

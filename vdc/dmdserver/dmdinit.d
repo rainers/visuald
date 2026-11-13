@@ -276,6 +276,7 @@ void dmdInit()
 	Type_init();
 	Module._init();
 	CTFloat.initialize();
+	objc._init();
 }
 
 struct Options

@@ -2351,6 +2351,7 @@ rc /fo&quot;$(OutDir)\visuald.res&quot; /I &quot;$(IntDir)&quot; $(InputPath)" d
    <File path="Resources\WholeWord.ico" />
   </Folder>
   <File path="comutil.d" />
+  <File path="ctfedebug.d" />
   <File path="dimagelist.d" />
   <File path="dllmain.d" />
   <File path="dpackage.d" />

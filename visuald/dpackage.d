@@ -37,6 +37,7 @@ import visuald.dproject;
 import visuald.automation;
 import visuald.build;
 import visuald.config;
+import visuald.ctfedebug;
 import visuald.chiernode;
 import visuald.dlangsvc;
 import visuald.dimagelist;
@@ -122,6 +123,9 @@ const GUID    g_unmarshalEnumOutCLSID    = uuid("002a2de9-8bb6-484d-980e-7e4ad40
 const GUID    g_VisualDHelperCLSID       = uuid("002a2de9-8bb6-484d-aa10-7e4ad4084715");
 const GUID    g_VisualCHelperCLSID       = uuid("002a2de9-8bb6-484d-aa11-7e4ad4084715");
 const GUID    g_VisualDHelper15CLSID     = uuid("002a2de9-8bb6-484d-aa15-7e4ad4084715");
+
+// Debug engine used to drive the DMD CTFE interpreter through the Debug Adapter Protocol
+const GUID    g_ctfeDebugEngineCLSID     = uuid("002a2de9-8bb6-484d-982a-7e4ad4084715");
 
 // more guids in propertypage.d starting with 9810
 
@@ -635,6 +639,7 @@ version(none)
 				case CmdDelLstFiles:
 				case CmdResetVDServer:
 				case CmdStepOverForeach:
+				case CmdStartCtfeDebug:
 					prgCmds[i].cmdf = OLECMDF_SUPPORTED | OLECMDF_ENABLED;
 					break;
 				default:
@@ -727,6 +732,10 @@ version(none)
 		if(nCmdID == CmdStepOverForeach)
 		{
 			return Package.GetLanguageService().ExecuteStepOverForeach();
+		}
+		if(nCmdID == CmdStartCtfeDebug)
+		{
+			return StartCtfeDebug();
 		}
 		return OLECMDERR_E_NOTSUPPORTED;
 	}

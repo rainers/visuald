@@ -313,6 +313,7 @@ static const wstring regPathToolsDub       = "\\ToolsOptionsPages\\Projects\\Vis
 static const wstring regPathMagoOptions    = "\\ToolsOptionsPages\\Debugger\\Mago"w;
 static const wstring regPathMetricsExcpt   = "\\AD7Metrics\\Exception"w;
 static const wstring regPathMetricsEE      = "\\AD7Metrics\\ExpressionEvaluator"w;
+static const wstring regPathMetricsEngine   = "\\AD7Metrics\\Engine"w;
 
 static const wstring vendorMicrosoftGuid   = "{994B45C4-E6E9-11D2-903F-00C04FA302A1}"w;
 static const wstring guidCOMPlusNativeEng  = "{92EF0900-2251-11D2-B72E-0000F87572EF}"w;
@@ -581,6 +582,7 @@ HRESULT VSDllRegisterServerInternal(in wchar* pszRegRoot, in bool useRanu, in st
 		wstring vdhelperGuid = GUID2wstring(g_VisualDHelperCLSID);
 		wstring vdhelper15Guid = GUID2wstring(g_VisualDHelper15CLSID);
 		wstring vchelperGuid = GUID2wstring(g_VisualCHelperCLSID);
+		wstring ctfeEngineGuid = GUID2wstring(g_ctfeDebugEngineCLSID);
 
 		// package
 		scope RegKey keyPackage = new RegKey(keyRoot, registrationRoot ~ "\\Packages\\"w ~ packageGuid);
@@ -745,6 +747,28 @@ HRESULT VSDllRegisterServerInternal(in wchar* pszRegRoot, in bool useRanu, in st
 			scope RegKey keyProp = new RegKey(keyRoot, registrationRoot ~ "\\CLSID\\"w ~ GUID2wstring(*guid));
 			keyProp.Set("InprocServer32"w, dllPath);
 			keyProp.Set("ThreadingModel"w, "Appartment"w);
+		}
+
+		// Debug Adapter Protocol engine for debugging D code interpreted at compile time (CTFE)
+		if (ver >= 15)
+		{
+			scope RegKey keyCtfeEngine = new RegKey(keyRoot, registrationRoot ~ regPathMetricsEngine ~ "\\"w ~ ctfeEngineGuid);
+			keyCtfeEngine.Set("CLSID"w, "{DAB324E9-7B35-454C-ACA8-F6BB0D5C8673}"w); // Debug Adapter Host AD7 engine
+			keyCtfeEngine.Set("Name"w, "D CTFE Debugger"w);
+			keyCtfeEngine.Set("Language"w, g_languageName);
+			keyCtfeEngine.Set("LanguageId"w, languageGuid);
+			keyCtfeEngine.Set("AlwaysLoadLocal"w, 1);
+			keyCtfeEngine.Set("AddressBP"w, 0);
+			keyCtfeEngine.Set("CallStackBP"w, 0);
+			keyCtfeEngine.Set("SetNextStatement"w, 0); // the adapter does not implement the "goto" request
+			keyCtfeEngine.Set("Attach"w, 0);
+			keyCtfeEngine.Set("SupportsEESearch"w, 0);
+			wstring dmdServer = instPath ~ "\\dmdserver.exe"w;
+			if (exists(dmdServer))
+			{
+				keyCtfeEngine.Set("Adapter"w, dmdServer);
+				keyCtfeEngine.Set("AdapterArgs"w, "-ctfeDebug"w);
+			}
 		}
 
 version(none){
