@@ -414,6 +414,16 @@ Section "Visual Studio package" SecPackage
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.13.dll
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.14.dll
   ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.15.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.16.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.17.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.18.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.19.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.20.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.21.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.22.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.23.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.24.dll
+  ${File} ..\bin\dbuild\release-v18_0\obj\ dbuild.18.25.dll
 !endif
   WriteRegStr HKLM "Software\${APPNAME}" "msbuild" $INSTDIR\msbuild
 !endif
@@ -2017,9 +2027,11 @@ enabled:
   ;------ MagoNatCC
   WriteRegStr ${VS_REGISTRY_ROOT}   "$1\${MAGO_EE_KEY}" "Language" "D" 
   WriteRegStr ${VS_REGISTRY_ROOT}   "$1\${MAGO_EE_KEY}" "Name" "D" 
+  ; for "Break When Value Changes" in the Locals/Watch context menu
+  WriteRegDWORD ${VS_REGISTRY_ROOT} "$1\${MAGO_EE_KEY}" "BreakWhenValueChanges" 1
   ; enable conditional breakpoints
-  WriteRegStr ${VS_REGISTRY_ROOT}   "$1\${MAGO_EE_KEY}\Engine" "0" "{449EC4CC-30D2-4032-9256-EE18EB41B62B}" 
-  WriteRegStr ${VS_REGISTRY_ROOT}   "$1\${MAGO_EE_KEY}\Engine" "1" "{92EF0900-2251-11D2-B72E-0000F87572EF}" 
+  WriteRegStr ${VS_REGISTRY_ROOT}   "$1\${MAGO_EE_KEY}\Engine" "0" "{449EC4CC-30D2-4032-9256-EE18EB41B62B}"
+  WriteRegStr ${VS_REGISTRY_ROOT}   "$1\${MAGO_EE_KEY}\Engine" "1" "{92EF0900-2251-11D2-B72E-0000F87572EF}"
 
   WriteRegStr ${VS_REGISTRY_ROOT}   "$1\Debugger\CodeView Compilers\68:*" "LanguageID" "${LANGUAGE_CLSID}"
   WriteRegStr ${VS_REGISTRY_ROOT}   "$1\Debugger\CodeView Compilers\68:*" "VendorID"   "${VENDOR_CLSID}"

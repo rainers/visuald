@@ -887,6 +887,8 @@ HRESULT registerMago(in wchar* pszRegRoot, in bool useRanu)
 	scope RegKey keyEE = new RegKey(keyRoot, eeKeyStr);
 	keyEE.Set("Language"w, "D"w);
 	keyEE.Set("Name"w, "D"w);
+	// keyEE.Set("DataBP"w, 1); // probably unnecessary
+	keyEE.Set("BreakWhenValueChanges"w, 1);
 
 	// needed to avoid "D does not support conditional breakpoints", see
 	// https://github.com/Microsoft/ConcordExtensibilitySamples/issues/18

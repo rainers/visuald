@@ -202,7 +202,7 @@ $(ASSEMBLYPATCHER):
 	cd msbuild\dbuild\AssemblyPatcher && dotnet build -c Release
 
 dbuild18_all: dbuild18_0 $(ASSEMBLYPATCHER)
-	for %f in (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15) do \
+	for %f in (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25) do \
 	$(ASSEMBLYPATCHER) $(DBUILD18_BIN)\dbuild.18.0.dll Microsoft.Build.CPPTasks.Common 18.%f.0.0 $(DBUILD18_BIN)\dbuild.18.%f.dll
 
 dbuild18_2: dbuild18_0 $(ASSEMBLYPATCHER)
