@@ -14,8 +14,10 @@
 // Instead of registering the COM language server, the process then speaks DAP on
 // its standard input and output handles. This lets Visual Studio debug compile
 // time function execution: breakpoints in D source are hit while the front end
-// interprets a CTFE function, and the interpreter's call stack, local variables
-// and global constants can be inspected.
+// interprets a CTFE function, and the interpreter's call stack and local
+// variables can be inspected. The global constants are not offered as a scope
+// of their own, they would only clutter the Locals window, but the expression
+// evaluator still resolves their names for the watch and hover windows.
 
 module vdc.dmdserver.ctfedebug;
 
@@ -25,9 +27,7 @@ import vdc.dmdserver.semanalysis : runModuleSemantic;
 import vdc.dmdserver.semvisitor : createModuleFromText;
 
 import dmd.console : Color;
-import dmd.dinterpret : InterState, ctfeCallDepth, ctfeCurrentFrameBase, ctfeGlobalDeclarations,
-	ctfeGlobalValues, ctfeStackPointer, ctfeThisValue, ctfeValuesInRange, ctfeVariablesInRange,
-	setCtfeStatementHook;
+import dmd.dinterpret : InterState, ctfeDebugHooks, ctfeGlobals;
 import dmd.dmodule : Module;
 import dmd.declaration : VarDeclaration;
 import dmd.dsymbol : Dsymbol;
@@ -42,7 +42,8 @@ import dmd.mtype : Type;
 import dmd.typesem : toBasetype, isUnsigned;
 
 import core.stdc.stdarg : va_list;
-import core.stdc.stdio : vsnprintf;
+import core.stdc.stdio : vsnprintf, FILE, stdout, stderr, fileno, fflush, setvbuf,
+	_IONBF, _O_WRONLY, _O_BINARY, _open_osfhandle, _close;
 import core.sys.windows.windows;
 import core.thread : Thread;
 import std.functional : toDelegate;
@@ -56,6 +57,62 @@ import core.runtime : Runtime;
 import std.string : fromStringz;
 
 
+/// Number of CTFE function calls currently active.
+public int ctfeCallDepth()
+{
+    return ctfeGlobals.callDepth;
+}
+
+/// Current top of the CTFE value stack.
+public size_t ctfeStackPointer()
+{
+    return ctfeGlobals.stack.stackPointer();
+}
+
+/// Stack address of the first variable of the innermost CTFE frame.
+public size_t ctfeCurrentFrameBase()
+{
+    return ctfeGlobals.stack.framepointer;
+}
+
+/// For debuggers: the variables stored at the stack addresses [start, end)
+public VarDeclaration[] ctfeVariablesInRange(size_t start, size_t end)
+{
+	if (start >= ctfeGlobals.stack.vars.length)
+		return null;
+	if (end > ctfeGlobals.stack.vars.length)
+		end = ctfeGlobals.stack.vars.length;
+	return ctfeGlobals.stack.vars[start .. end];
+}
+
+/// For debuggers: the values of the variables stored at [start, end)
+public Expression[] ctfeValuesInRange(size_t start, size_t end)
+{
+	if (start >= ctfeGlobals.stack.values.length)
+		return null;
+	if (end > ctfeGlobals.stack.values.length)
+		end = ctfeGlobals.stack.values.length;
+	return ctfeGlobals.stack.values[start .. end];
+}
+
+/// For debuggers: values of the global constants evaluated so far
+public Expression[] ctfeGlobalValues()
+{
+    return ctfeGlobals.stack.globalValues[];
+}
+
+/// For debuggers: the declarations the values from ctfeGlobalValues() belong to
+public VarDeclaration[] ctfeGlobalDeclarations()
+{
+    return ctfeGlobals.stack.globalDecls[];
+}
+
+/// For debuggers: the value of 'this' in the innermost CTFE frame
+public Expression ctfeThisValue()
+{
+    return ctfeGlobals.stack.getThis();
+}
+
 /// The session the interpreter hook reports to (null if no session is active).
 __gshared CtfeDebugSession g_session;
 
@@ -67,6 +124,13 @@ void ctfeStatementHook(InterState* istate, Statement s)
 		ses.onStatement(istate, s);
 }
 
+/// Installed into the CTFE interpreter for the constants it evaluates at global
+/// scope; forwards to the current session.
+void ctfeConstantHook(Expression e, bool end)
+{
+	if (auto ses = g_session)
+		ses.onConstant(e, end);
+}
 
 /// The arguments the process was started with.
 ///
@@ -129,6 +193,139 @@ bool ctfeDebugRequested()
 	return false;
 }
 
+extern (C)
+{
+	int _dup(int handle);   // not declared by core.stdc.stdio
+	int _dup2(int handle, int to);
+}
+
+/// Forwards everything the compiler writes to its own stdout and stderr (pragma(msg),
+/// the "error limit reached" notice, the output of -v and -X, ...) as DAP output
+/// events, so that it shows up in the Debug pane of the Output window.
+///
+/// The compiler talks to the CRT, while the debug adapter protocol talks through the
+/// handles returned by GetStdHandle, so redirecting the C file descriptors does not
+/// affect the protocol channel.
+final class ConsoleCapture
+{
+	private enum pipeSize = 64 * 1024;
+
+	CtfeDebugSession ses;
+	HANDLE[2] readHandles = [INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE];
+	int[2] savedFds = [-1, -1];  // the original stdout and stderr
+	Thread[2] readers;
+	bool done;
+
+	this(CtfeDebugSession ses)
+	{
+		this.ses = ses;
+		start(stdout(), 0);
+		start(stderr(), 1);
+	}
+
+	~this()
+	{
+		stop();
+	}
+
+	/// Point one of the C streams at a pipe and start forwarding what arrives on it.
+	private void start(FILE* stream, size_t idx)
+	{
+		HANDLE hRead, hWrite;
+		if (!CreatePipe(&hRead, &hWrite, null, pipeSize))
+			return;
+
+		int fd = _open_osfhandle(cast(long) hWrite, _O_WRONLY | _O_BINARY);
+		if (fd == -1)
+		{
+			CloseHandle(hRead);
+			CloseHandle(hWrite);
+			return;
+		}
+
+		int streamFd = fileno(stream);
+		int saved = _dup(streamFd);
+		if (saved == -1 || _dup2(fd, streamFd) != 0)
+		{
+			if (saved != -1)
+				_close(saved);
+			_close(fd);        // also closes hWrite
+			CloseHandle(hRead);
+			return;
+		}
+
+		savedFds[idx] = saved;
+		_close(fd);            // the redirected stream keeps the pipe alive
+		setvbuf(stream, null, _IONBF, 0);  // deliver output without waiting for a flush
+
+		readHandles[idx] = hRead;
+		readers[idx] = new Thread(idx ? &forwardStderr : &forwardStdout);
+		readers[idx].name(idx ? "ctfeStderr" : "ctfeStdout");
+		readers[idx].start();
+	}
+
+	/// Restores the original streams and waits until all pending output is sent.
+	void stop()
+	{
+		if (done)
+			return;
+		done = true;
+
+		foreach (idx, stream; [stdout(), stderr()])
+		{
+			if (savedFds[idx] == -1)
+				continue;
+			fflush(stream);
+			_dup2(savedFds[idx], fileno(stream));
+			_close(savedFds[idx]);  // the last reference: the reader now sees EOF
+			savedFds[idx] = -1;
+		}
+
+		foreach (ref reader; readers)
+		{
+			if (reader is null)
+				continue;
+			reader.join();
+			reader = null;
+		}
+
+		foreach (ref h; readHandles)
+		{
+			if (h == INVALID_HANDLE_VALUE)
+				continue;
+			CloseHandle(h);
+			h = INVALID_HANDLE_VALUE;
+		}
+	}
+
+	void forwardStdout()
+	{
+		forward(readHandles[0], "stdout");
+	}
+
+	void forwardStderr()
+	{
+		forward(readHandles[1], "stderr");
+	}
+
+	private void forward(HANDLE h, string category)
+	{
+		if (h == INVALID_HANDLE_VALUE)
+			return;
+
+		char[4096] buf;
+		for (;;)
+		{
+			// Blocks until the compiler has written something, and fails once the
+			// write end of the pipe is closed.
+			DWORD read = 0;
+			if (!ReadFile(h, buf.ptr, cast(DWORD) buf.length, &read, null) || !read)
+				break;
+			ses.outputMessage(category, cast(string) buf[0 .. read].idup);
+		}
+	}
+}
+
 /// Run the DAP server until the client disconnects.
 int ctfeDebugRun()
 {
@@ -138,6 +335,7 @@ int ctfeDebugRun()
 
 	auto ses = new CtfeDebugSession(conn);
 	g_session = ses;
+	ses.capture = new ConsoleCapture(ses);
 	ses.readCommandLine();
 
 	while (!ses.quit)
@@ -161,6 +359,7 @@ int ctfeDebugRun()
 		{
 		}
 	}
+	ses.capture.stop();
 	g_session = null;
 	return 0;
 }
@@ -243,6 +442,10 @@ final class CtfeDebugSession
 	int nextBreakpointId = 1;  // normalized file name -> breakpoints
 	string[size_t] fileNames;     // interned compiler file name -> normalized path
 
+	// the global constant expressions the front end is currently interpreting,
+	// innermost last; they are reported as the bottom of the call stack
+	Expression[] globalExprs;
+
 	// only valid while suspended at a stop
 	CtfeFrame[] frames;
 	Expression[int] valueHandles;
@@ -252,11 +455,9 @@ final class CtfeDebugSession
 	string[] evalBuffers;
 
 	Thread worker;
+	ConsoleCapture capture;  // the compiler's own console output
 
 	enum threadId = 1;
-
-	/// Pseudo variablesReference for the global constants (frame ids start at 1)
-	enum globalsReference = 0x10000;
 
 	this(DapConnection conn)
 	{
@@ -391,8 +592,13 @@ final class CtfeDebugSession
 				}
 			}
 
-			setCtfeStatementHook(&ctfeStatementHook);
-			scope (exit) setCtfeStatementHook(null);
+			ctfeDebugHooks.onStatement = &ctfeStatementHook;
+			ctfeDebugHooks.onConstant = &ctfeConstantHook;
+			scope (exit)
+			{
+				ctfeDebugHooks.onStatement = null;
+				ctfeDebugHooks.onConstant = null;
+			}
 
 			runModuleSemantic(createModuleFromText(program, text));
 		}
@@ -408,6 +614,8 @@ final class CtfeDebugSession
 
 	void finishCompilation()
 	{
+		if (capture)
+			capture.stop();  // send all pending compiler output before exiting
 		bool disconnected;
 		synchronized (lock)
 		{
@@ -435,7 +643,35 @@ final class CtfeDebugSession
 		if (istate !is null)
 			istate.stmt = s;
 
-		Loc loc = s.loc;
+		checkAt(istate, s.loc);
+	}
+
+	/// The front end is about to interpret a constant expression at global scope,
+	/// usually the initializer of a manifest constant.  Stopping here makes the
+	/// breakpoint on the declaration itself work, and stepping from it goes into
+	/// the function call the initializer contains.
+	void onConstant(Expression e, bool end)
+	{
+		if (e is null)
+			return;
+
+		synchronized (lock)
+		{
+			if (end)
+			{
+				if (globalExprs.length && globalExprs[$ - 1] is e)
+					globalExprs.length = globalExprs.length - 1;
+				return;
+			}
+			globalExprs ~= e;
+		}
+
+		checkAt(null, e.loc);
+	}
+
+	/// Suspend the compilation if the position `loc` calls for a stop.
+	void checkAt(InterState* istate, Loc loc)
+	{
 		if (!loc.isValid)
 			return;
 
@@ -452,17 +688,17 @@ final class CtfeDebugSession
 		{
 			if (abortRequested)
 				throw new CtfeDebugAbort;
-			reason = checkStop(istate, s, fname, line);
+			reason = checkStop(istate, loc, fname, line);
 			if (reason !is null)
 				mode = RunMode.none;
 		}
 
 		if (reason !is null)
-			suspend(istate, s, reason);
+			suspend(istate, loc, reason);
 	}
 
 	/// Decide whether to stop at the given position; called with lock held.
-	string checkStop(InterState* istate, Statement s, const(char)* fname, uint line)
+	string checkStop(InterState* istate, Loc loc, const(char)* fname, uint line)
 	{
 		if (pauseRequested)
 		{
@@ -473,7 +709,7 @@ final class CtfeDebugSession
 		string file = normalizedName(cast(size_t) fname, fname);
 		if (auto p = file in breakpoints)
 			foreach (ref Breakpoint bp; *p)
-				if (bp.line == line && (!bp.condition.length || conditionHolds(istate, s, bp.condition)))
+				if (bp.line == line && (!bp.condition.length || conditionHolds(istate, loc, bp.condition)))
 					return "breakpoint";
 
 		if (stopOnEntry && !entryDone)
@@ -507,10 +743,10 @@ final class CtfeDebugSession
 	/// Whether the condition of a breakpoint holds at this position; called with
 	/// lock held.  The frames of the stop are not built yet, so build them just
 	/// for evaluating the condition.
-	bool conditionHolds(InterState* istate, Statement s, string condition)
+	bool conditionHolds(InterState* istate, Loc loc, string condition)
 	{
 		CtfeFrame[] saved = frames;
-		frames = buildFrames(istate, s);
+		frames = buildFrames(istate, loc);
 		scope (exit) frames = saved;
 
 		string error;
@@ -525,11 +761,11 @@ final class CtfeDebugSession
 		return evalBool(e, b) && b;
 	}
 
-	void suspend(InterState* istate, Statement s, string reason)
+	void suspend(InterState* istate, Loc loc, string reason)
 	{
 		synchronized (lock)
 		{
-			frames = buildFrames(istate, s);
+			frames = buildFrames(istate, loc);
 			valueHandles = null;
 			nextValueHandle = 1;
 			evalBuffers = null;
@@ -565,7 +801,7 @@ final class CtfeDebugSession
 		SetEvent(evResume);
 	}
 
-	CtfeFrame[] buildFrames(InterState* istate, Statement s)
+	CtfeFrame[] buildFrames(InterState* istate, Loc stopLoc)
 	{
 		CtfeFrame[] result;
 		size_t end = ctfeStackPointer();
@@ -574,23 +810,20 @@ final class CtfeDebugSession
 		if (istate is null)
 		{
 			// global CTFE initializer (enum or static const initializers)
-			CtfeFrame fr;
-			fr.id = id++;
-			fr.name = "static initialization";
-			fr.path = pathOf(s.loc);
-			fr.file = normalizedPathOf(s.loc);
-			fr.line = s.loc.linnum;
-			fr.column = s.loc.charnum;
-			fr.varStart = ctfeCurrentFrameBase();
-			fr.varEnd = end;
-			result ~= fr;
+			result ~= globalFrames(id, ctfeCurrentFrameBase(), end);
 			return result;
 		}
 
 		for (InterState* p = istate; p !is null; p = p.caller)
 		{
-			Statement st = p is istate ? s : p.stmt;
-			Loc loc = st ? st.loc : (p.fd ? p.fd.loc : Loc.initial);
+			// the innermost frame is at the position of the stop, the outer ones
+			// at the statement that called the function below them
+			Loc loc = stopLoc;
+			if (p !is istate)
+			{
+				Statement st = p.stmt;
+				loc = st ? st.loc : (p.fd ? p.fd.loc : Loc.initial);
+			}
 
 			CtfeFrame fr;
 			fr.id = id++;
@@ -608,7 +841,64 @@ final class CtfeDebugSession
 			if (result.length >= 64)
 				break;
 		}
+
+		// the global expression whose interpretation led to these calls
+		result ~= globalFrames(id, end, end);
 		return result;
+	}
+
+	/// The global constant expressions currently being interpreted, innermost first.
+	/// A global initializer has no function to return to, so the expression itself is
+	/// reported as the bottom of the call stack, at its own location. `start` and `end`
+	/// are the CTFE stack range of the temporaries of the innermost one.
+	CtfeFrame[] globalFrames(ref int id, size_t start, size_t end)
+	{
+		CtfeFrame[] result;
+		for (size_t i = globalExprs.length; i-- > 0;)
+		{
+			Expression e = globalExprs[i];
+			Loc loc = e.loc;
+
+			CtfeFrame fr;
+			fr.id = id++;
+			fr.name = expressionText(e);
+			if (!fr.name.length)
+				fr.name = "static initialization";
+			else
+				fr.name = "evaluating " ~ fr.name;
+			fr.path = pathOf(loc);
+			fr.file = normalizedPathOf(loc);
+			fr.line = loc.linnum;
+			fr.column = loc.charnum;
+			if (!result.length)
+			{
+				fr.varStart = start;
+				fr.varEnd = end;
+			}
+			result ~= fr;
+
+			if (result.length >= 64)
+				break;
+		}
+		return result;
+	}
+
+	/// The expression as it is written in the source, used as the name of the frame
+	/// of a global initializer.
+	static string expressionText(Expression e)
+	{
+		if (e is null)
+			return null;
+
+		try
+		{
+			string s = zstring(e.toChars());
+			return s ? s : null;
+		}
+		catch (Throwable e)
+		{
+			return null;
+		}
 	}
 
 	// ------------------------------------------------------------- variables
@@ -684,7 +974,9 @@ final class CtfeDebugSession
 		return ei ? ei.exp : null;
 	}
 
-	/// Look a global constant up by name; called with lock held.
+	/// Look a global constant up by name, for the names an evaluated expression
+	/// mentions; the constants are not reported as a scope of their own.
+	/// Called with lock held.
 	Expression findGlobalConstant(string name, out VarDeclaration pv)
 	{
 		pv = null;
@@ -695,14 +987,6 @@ final class CtfeDebugSession
 				return gc.value;
 			}
 		return null;
-	}
-
-	JSONValue[] globalVariables()
-	{
-		JSONValue[] result;
-		foreach (ref gc; globalConstants())
-			result ~= makeVariable(variableName(gc.v), gc.v.type, gc.value);
-		return result;
 	}
 
 	JSONValue[] valueChildren(Expression e)
@@ -953,6 +1237,9 @@ final class CtfeDebugSession
 
 			case "scopes":
 			{
+				// Only the locals. Visual Studio shows every scope of a frame in
+				// the Locals window, and the global constants are reachable by
+				// name from the watch, immediate and hover windows anyway.
 				int frameId = getInteger(a, "frameId", 1);
 				JSONValue[] list;
 				synchronized (lock)
@@ -960,15 +1247,10 @@ final class CtfeDebugSession
 					{
 						JSONValue[string] sc;
 						sc["name"] = JSONValue("Locals");
+						sc["presentationHint"] = JSONValue("locals");
 						sc["variablesReference"] = JSONValue(frameId);
 						sc["expensive"] = JSONValue(false);
 						list = [JSONValue(sc)];
-
-						JSONValue[string] gl;
-						gl["name"] = JSONValue("Constants");
-						gl["variablesReference"] = JSONValue(globalsReference);
-						gl["expensive"] = JSONValue(false);
-						list ~= JSONValue(gl);
 					}
 				conn.sendResponse(seq, command, true, JSONValue(["scopes": JSONValue(list)]));
 				break;
@@ -982,8 +1264,6 @@ final class CtfeDebugSession
 				{
 					if (auto fr = findFrame(reference))
 						list = frameVariables(*fr);
-					else if (reference == globalsReference)
-						list = globalVariables();
 					else if (auto p = reference in valueHandles)
 						list = valueChildren(*p);
 				}

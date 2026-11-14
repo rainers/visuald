@@ -27,7 +27,24 @@ public:
 		writeLock = new Object;
 		hIn = GetStdHandle(STD_INPUT_HANDLE);
 		hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		// Keep references of our own: redirecting the C standard streams, as the
+		// console capture does, closes the handles GetStdHandle hands out.
+		HANDLE self = GetCurrentProcess();
+		ownHandle(self, &hIn);
+		ownHandle(self, &hOut);
 	}
+
+	private static void ownHandle(HANDLE self, HANDLE* h)
+	{
+		if (*h is null || *h is INVALID_HANDLE_VALUE)
+			return;
+		HANDLE dup;
+		if (DuplicateHandle(self, *h, self, &dup, 0, false, DUPLICATE_SAME_ACCESS))
+			*h = dup;
+	}
+
+public:
 
 	bool isValid() const nothrow
 	{
@@ -79,13 +96,16 @@ public:
 			return JSONValue();
 	}
 
-	/// Send a pre-built message.
-	void send(JSONValue msg)
+	/// Send a message.  The sequence number is handed out inside the write lock,
+	/// so messages from different threads (the compile worker and the console
+	/// capture) can neither interleave nor share a sequence number.
+	void send(JSONValue[string] msg)
 	{
-		string text = msg.toString();
-		string header = "Content-Length: " ~ to!string(text.length) ~ "\r\n\r\n";
 		synchronized (writeLock)
 		{
+			msg["seq"] = JSONValue(++outSeq);
+			string text = JSONValue(msg).toString();
+			string header = "Content-Length: " ~ to!string(text.length) ~ "\r\n\r\n";
 			DWORD written;
 			WriteFile(hOut, header.ptr, cast(DWORD) header.length, &written, null);
 			WriteFile(hOut, text.ptr, cast(DWORD) text.length, &written, null);
@@ -96,11 +116,10 @@ public:
 	{
 		JSONValue[string] msg;
 		msg["type"] = JSONValue("event");
-		msg["seq"] = JSONValue(++outSeq);
 		msg["event"] = JSONValue(event);
 		if (body.type != JSONType.null_)
 			msg["body"] = body;
-		send(JSONValue(msg));
+		send(msg);
 	}
 
 	void sendResponse(int requestSeq, string command, bool success,
@@ -108,7 +127,6 @@ public:
 	{
 		JSONValue[string] msg;
 		msg["type"] = JSONValue("response");
-		msg["seq"] = JSONValue(++outSeq);
 		msg["request_seq"] = JSONValue(requestSeq);
 		msg["command"] = JSONValue(command);
 		msg["success"] = JSONValue(success);
@@ -116,7 +134,7 @@ public:
 			msg["body"] = body;
 		if (message.length)
 			msg["message"] = JSONValue(message);
-		send(JSONValue(msg));
+		send(msg);
 	}
 
 	void sendError(int requestSeq, string command, string message)
