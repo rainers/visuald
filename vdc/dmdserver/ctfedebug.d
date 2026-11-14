@@ -15,15 +15,17 @@
 // its standard input and output handles. This lets Visual Studio debug compile
 // time function execution: breakpoints in D source are hit while the front end
 // interprets a CTFE function, and the interpreter's call stack and local
-// variables can be inspected. The template arguments of the instances a frame
-// belongs to are reported with the locals of that frame. The global constants
-// are not offered as a scope of their own, they would only clutter the Locals
-// window, but the expression evaluator still resolves their names for the watch
-// and hover windows.
+// variables can be inspected. The names the instances a frame belongs to give
+// to their arguments, to the values they hold and to the types they define are
+// reported with the locals of that frame. The global constants are not offered
+// as a scope of their own, they would only clutter the Locals window, but the
+// expression evaluator still resolves their names for the watch and hover
+// windows.
 
 // Each template instance is reported as a frame of its own, placed below the
 // call that runs the code it generated, and located where the instance was
-// created. Its template arguments are the locals of that frame.
+// created. Its arguments and the values and types it defines are the locals of
+// that frame.
 
 module vdc.dmdserver.ctfedebug;
 
@@ -35,8 +37,8 @@ import vdc.dmdserver.semvisitor : createModuleFromText;
 import dmd.console : Color;
 import dmd.dinterpret : InterState, ctfeDebugHooks, ctfeGlobals;
 import dmd.dmodule : Module;
-import dmd.declaration : VarDeclaration;
-import dmd.dsymbol : Dsymbol;
+import dmd.declaration : Declaration, VarDeclaration;
+import dmd.dsymbol : Dsymbol, ScopeDsymbol;
 import dmd.dtemplate : TemplateInstance, TemplateDeclaration, Tuple, isExpression, isType, isTuple, isDsymbol;
 import dmd.astenums : STC;
 import dmd.errors : diagnosticHandler;
@@ -925,7 +927,7 @@ final class CtfeDebugSession
 
 	/// The frame reporting an instantiation, located where the instance was
 	/// created. It has no variables of its own; its locals are the arguments the
-	/// template was given.
+	/// template was given and the values and types it defines.
 	CtfeFrame instanceFrame(ref int id, TemplateInstance ti)
 	{
 		CtfeFrame fr;
@@ -1024,10 +1026,10 @@ final class CtfeDebugSession
 	{
 		JSONValue[] result;
 
-		// the template arguments are not stored on the CTFE stack, but they are
-		// constants of the frame just like its parameters are
-		foreach (ref TemplateArgument ta; frameTemplateArguments(fr))
-			result ~= makeArgument(ta.name, ta.value);
+		// the names of the instances of the frame are not stored on the CTFE stack,
+		// but they are constants of the frame just like its parameters are
+		foreach (ref InstanceName n; frameInstanceNames(fr))
+			result ~= namedValue(n.name, n.value);
 
 		auto vars = ctfeVariablesInRange(fr.varStart, fr.varEnd);
 		auto vals = ctfeValuesInRange(fr.varStart, fr.varEnd);
@@ -1043,23 +1045,26 @@ final class CtfeDebugSession
 		return result;
 	}
 
-	/// A template parameter of an instance the frame belongs to, and the argument
-	/// it was instantiated with.
-	struct TemplateArgument
+	/// A name the instantiation of a template puts into its scope: a template
+	/// parameter with the argument it was given, or a value or type the instance
+	/// itself defines.
+	struct InstanceName
 	{
 		string name;
 		RootObject value;   // an Expression, a Type, a Dsymbol, or a Tuple
 	}
 
-	/// The template arguments visible in `fr`, innermost instance first.  They are
-	/// fixed by the instantiation instead of being stored on the CTFE stack, so
-	/// they are read back from the instances the frame's function is nested in. For
-	/// a frame reporting an instantiation, they are the arguments of that instance.
-	TemplateArgument[] frameTemplateArguments(ref CtfeFrame fr)
+	/// The names of the instances `fr` belongs to, innermost instance first.  None
+	/// of them is stored on the CTFE stack: an argument is fixed when the instance is
+	/// created, and a definition only exists in the symbol table of the instance, so
+	/// both are read back from the instances the frame's function is nested in.  For
+	/// a frame reporting an instantiation, they are the names of that instance.  The
+	/// innermost instance wins a name, an outer one cannot use it as well.
+	InstanceName[] frameInstanceNames(ref CtfeFrame fr)
 	{
-		TemplateArgument[] result;
+		InstanceName[] result;
 		if (fr.instance !is null)
-			return instanceArguments(fr.instance);
+			return instanceNames(fr.instance);
 
 		Dsymbol s = fr.istate !is null ? fr.istate.fd : null;
 
@@ -1069,18 +1074,27 @@ final class CtfeDebugSession
 			if (ti is null || s.isTemplateMixin())
 				continue;
 
-			result ~= instanceArguments(ti);
+			foreach (ref InstanceName n; instanceNames(ti))
+				if (!containsName(result, n.name))
+					result ~= n;
 			if (result.length >= 32)
 				break;
 		}
 		return result;
 	}
 
+	/// Everything `ti` gives its scope a name for: first the arguments it was
+	/// instantiated with, then the values and types it defines.
+	InstanceName[] instanceNames(TemplateInstance ti)
+	{
+		return instanceArguments(ti) ~ instanceDefinitions(ti);
+	}
+
 	/// The arguments `ti` was instantiated with, in the order of the template's
 	/// formal parameters.
-	TemplateArgument[] instanceArguments(TemplateInstance ti)
+	InstanceName[] instanceArguments(TemplateInstance ti)
 	{
-		TemplateArgument[] result;
+		InstanceName[] result;
 		if (ti is null || !ti.tdtypes.length)
 			return result;
 
@@ -1090,18 +1104,127 @@ final class CtfeDebugSession
 		{
 			if (o is null || i >= params.length || params[i] is null || params[i].ident is null)
 				continue;
-			result ~= TemplateArgument(idup(params[i].ident.toString()), o);
+			result ~= InstanceName(idup(params[i].ident.toString()), o);
 		}
 		return result;
+	}
+
+	/// The values and types `ti` defines for its scope beside the declarations it
+	/// generates: its manifest constants, its aliases, and the types its enum and
+	/// aggregate declarations introduce.  They are fixed by the instantiation
+	/// rather than interpreted, so the CTFE stack has nothing to report for them.
+	InstanceName[] instanceDefinitions(TemplateInstance ti)
+	{
+		InstanceName[] result;
+		if (ti is null)
+			return result;
+
+		// A template that declares an aggregate of its own name becomes that
+		// aggregate: `Stats!int` *is* the struct it generates, so the names of its
+		// scope are the members of the struct rather than the struct itself.
+		Dsymbol sole = ti.aliasdecl;
+		if (sole !is null && sole.isStructDeclaration() is null &&
+			sole.isClassDeclaration() is null)    // a union or an interface as well
+			sole = null;
+
+		ScopeDsymbol sds = sole !is null ? sole.isScopeDsymbol() : ti;
+		addDefinitions(result, sds.members ? (*sds.members)[] : null);
+		return result;
+	}
+
+	/// The names the members of an instance scope give to a value or a type, in the
+	/// order in which the template body declares them.
+	void addDefinitions(ref InstanceName[] result, Dsymbol[] members)
+	{
+		foreach (Dsymbol s; members)
+		{
+			// a template that names a great many things should not fill the Locals
+			// window with all of them
+			if (result.length >= 16)
+				break;
+			if (s is null || s.ident is null)
+				continue;
+			string name = idup(s.ident.toString());
+			// the names the compiler gives itself are just noise
+			if (name.length >= 2 && name[0 .. 2] == "__")
+				continue;
+
+			RootObject o = definitionValue(s);
+			if (o is null)
+				continue;
+			result ~= InstanceName(name, o);
+		}
+	}
+
+	/// What the member `s` of an instance stands for in the scope of that instance,
+	/// or null if the debugger does not show it: the value of a manifest constant,
+	/// the type an alias names, the symbol an alias stands for, the type an enum or
+	/// an aggregate declaration introduces.  The functions, the fields and the
+	/// nested templates an instance also generates are neither a value nor a type.
+	static RootObject definitionValue(Dsymbol s)
+	{
+		// the parameters of the template are reported with their arguments
+		Declaration d = s.isDeclaration();
+		if (d !is null && d.storage_class & (STC.temp | STC.templateparameter))
+			return null;
+
+		if (auto v = s.isVarDeclaration())
+		{
+			if (!(v.storage_class & STC.manifest))
+				return null;
+			// what the interpreter has computed for it, and the initializer of the
+			// declaration for as long as the constant is not folded yet
+			Expression e = foldedConstant(v);
+			return e !is null ? cast(RootObject) e : cast(RootObject) foldedInitializer(v);
+		}
+
+		if (auto a = s.isAliasDeclaration())
+			return a.type ? cast(RootObject) a.type : cast(RootObject) a.aliassym;
+
+		if (auto e = s.isEnumDeclaration())
+			return cast(RootObject) e.type;
+		if (auto sd = s.isStructDeclaration())
+			return cast(RootObject) sd.type;
+		if (auto cd = s.isClassDeclaration())
+			return cast(RootObject) cd.type;
+		return null;
+	}
+
+	/// The value the interpreter has for the manifest constant `v`, or null if it
+	/// has computed none.  It keeps those values in its table of folded constants
+	/// instead of on the CTFE stack and points the declaration at the entry it got
+	/// (see CTFE.getValue).
+	static Expression foldedConstant(VarDeclaration v)
+	{
+		if (!(v.storage_class & STC.manifest) || v.isCTFE())
+			return null;
+
+		size_t adr = v.ctfeAdrOnStack;
+		if (adr == VarDeclaration.AdrOnStackNone)
+			return null;
+
+		auto vals = ctfeGlobalValues();
+		auto decls = ctfeGlobalDeclarations();
+		if (adr >= vals.length || adr >= decls.length || decls[adr] !is v)
+			return null;   // the entry belongs to another constant
+		return vals[adr];
+	}
+
+	static bool containsName(InstanceName[] list, string name)
+	{
+		foreach (ref InstanceName other; list)
+			if (other.name == name)
+				return true;
+		return false;
 	}
 
 	/// What a name resolves to in a single frame.
 	struct FrameValue
 	{
 		bool found;
-		VarDeclaration v;      // a local or parameter of the frame ...
-		Expression value;      // ... and the value the interpreter has for it
-		TemplateArgument arg;  // or: a template argument of one of its instances
+		VarDeclaration v;        // a local or parameter of the frame ...
+		Expression value;        // ... and the value the interpreter has for it
+		InstanceName inst;       // or: a name of one of the instances of the frame
 	}
 
 	/// The name `name` of the frame `fr`, and only of that frame.  The locals of the
@@ -1122,11 +1245,11 @@ final class CtfeDebugSession
 				return fv;
 			}
 
-		foreach (ref TemplateArgument ta; frameTemplateArguments(fr))
-			if (ta.name == name)
+		foreach (ref InstanceName n; frameInstanceNames(fr))
+			if (n.name == name)
 			{
 				fv.found = true;
-				fv.arg = ta;
+				fv.inst = n;
 				return fv;
 			}
 
@@ -1209,7 +1332,7 @@ final class CtfeDebugSession
 		if (auto tp = isTuple(e))
 		{
 			foreach (size_t i, RootObject o; tp.objects[])
-				result ~= makeArgument("[" ~ to!string(i) ~ "]", o);
+				result ~= namedValue("[" ~ to!string(i) ~ "]", o);
 			return result;
 		}
 
@@ -1271,20 +1394,22 @@ final class CtfeDebugSession
 		return JSONValue(o);
 	}
 
-	/// A template argument as a variable of the Locals scope.
-	JSONValue makeArgument(string name, RootObject value)
+	/// A name of an instance, or an element of a tuple argument, as a variable of
+	/// the Locals scope.
+	JSONValue namedValue(string name, RootObject value)
 	{
 		JSONValue[string] o;
 		o["name"] = JSONValue(name);
-		o["value"] = JSONValue(argumentText(value));
-		o["type"] = JSONValue(argumentTypeText(value));
+		o["value"] = JSONValue(constantText(value));
+		o["type"] = JSONValue(constantTypeText(value));
 		o["variablesReference"] = JSONValue(childHandle(value));
 		return JSONValue(o);
 	}
 
-	/// How a template argument reads: the value of a value parameter, and the type,
-	/// symbol, or tuple itself for the other kinds of parameter.
-	static string argumentText(RootObject o)
+	/// How a name of an instance reads: the value of a value parameter or of a
+	/// manifest constant, and the type, symbol, or tuple itself for the names that
+	/// stand for one of those.
+	static string constantText(RootObject o)
 	{
 		if (auto e = isExpression(o))
 			return valueText(e);
@@ -1301,8 +1426,8 @@ final class CtfeDebugSession
 		}
 	}
 
-	/// What the type column says about a template argument.
-	static string argumentTypeText(RootObject o)
+	/// What the type column says about a name of an instance.
+	static string constantTypeText(RootObject o)
 	{
 		if (auto e = isExpression(o))
 			return typeText(e.type);
@@ -1679,7 +1804,7 @@ final class CtfeDebugSession
 				if (fv.v !is null)
 					result = evaluateBody(expr, fv.v, fv.value);
 				else if (fv.found)
-					result = evaluateArgument(fv.arg);
+					result = evaluateName(fv.inst);
 			}
 
 			// fall back to the global constants
@@ -1721,10 +1846,11 @@ final class CtfeDebugSession
 		return variableBody(makeVariable(name, t, e));
 	}
 
-	/// The "evaluate" body reporting a template argument; called with lock held.
-	JSONValue evaluateArgument(ref TemplateArgument ta)
+	/// The "evaluate" body reporting a name of one of the instances of the frame;
+	/// called with lock held.
+	JSONValue evaluateName(InstanceName n)
 	{
-		return variableBody(makeArgument(ta.name, ta.value));
+		return variableBody(namedValue(n.name, n.value));
 	}
 
 	static JSONValue variableBody(JSONValue var)
@@ -2182,8 +2308,8 @@ final class CtfeDebugSession
 	/// The value of `name` in the frame the expression is evaluated in, or a global
 	/// constant.  The frames of the calling functions are not searched: their locals
 	/// are not in scope where the expression is read.
-	/// `found` says whether the name exists at all: a type argument does, but only a
-	/// value argument has an Expression to hand out.
+	/// `found` says whether the name exists at all: a type does, but only a value
+	/// has an Expression to hand out.
 	Expression evalLookup(string name, int frameIdx, out VarDeclaration pv, out bool found)
 	{
 		pv = null;
@@ -2196,7 +2322,7 @@ final class CtfeDebugSession
 			{
 				pv = fv.v;
 				found = true;
-				return fv.v !is null ? fv.value : isExpression(fv.arg.value);
+				return fv.v !is null ? fv.value : isExpression(fv.inst.value);
 			}
 		}
 
