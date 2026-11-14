@@ -15,9 +15,15 @@
 // its standard input and output handles. This lets Visual Studio debug compile
 // time function execution: breakpoints in D source are hit while the front end
 // interprets a CTFE function, and the interpreter's call stack and local
-// variables can be inspected. The global constants are not offered as a scope
-// of their own, they would only clutter the Locals window, but the expression
-// evaluator still resolves their names for the watch and hover windows.
+// variables can be inspected. The template arguments of the instances a frame
+// belongs to are reported with the locals of that frame. The global constants
+// are not offered as a scope of their own, they would only clutter the Locals
+// window, but the expression evaluator still resolves their names for the watch
+// and hover windows.
+
+// Each template instance is reported as a frame of its own, placed below the
+// call that runs the code it generated, and located where the instance was
+// created. Its template arguments are the locals of that frame.
 
 module vdc.dmdserver.ctfedebug;
 
@@ -31,10 +37,12 @@ import dmd.dinterpret : InterState, ctfeDebugHooks, ctfeGlobals;
 import dmd.dmodule : Module;
 import dmd.declaration : VarDeclaration;
 import dmd.dsymbol : Dsymbol;
+import dmd.dtemplate : TemplateInstance, TemplateDeclaration, Tuple, isExpression, isType, isTuple, isDsymbol;
 import dmd.astenums : STC;
 import dmd.errors : diagnosticHandler;
 import dmd.expression : Expression, IntegerExp, NullExp, RealExp, StringExp;
 import dmd.root.ctfloat : real_t;
+import dmd.rootobject : RootObject;
 import dmd.globals : dinteger_t;
 import dmd.location : Loc, SourceLoc;
 import dmd.statement : Statement;
@@ -386,7 +394,9 @@ class CtfeDebugAbort : Exception
 struct CtfeFrame
 {
 	int id;
-	InterState* istate;
+	InterState* istate;         // null for a global initializer and
+	                            // for the frame of an instantiation
+	TemplateInstance instance;  // set for a frame reporting an instantiation
 	string name;
 	string path;      // file name as used by the compiler
 	string file;      // normalized, lower case, for breakpoint matching
@@ -448,8 +458,13 @@ final class CtfeDebugSession
 
 	// only valid while suspended at a stop
 	CtfeFrame[] frames;
-	Expression[int] valueHandles;
-	int nextValueHandle = 1;
+	RootObject[int] valueHandles;
+
+	// The frame ids of a stop count up from 1, so the references of the expandable
+	// values start above the range they can reach: one number must not be both a
+	// frame and a value.
+	enum firstValueHandle = 0x10000;
+	int nextValueHandle = firstValueHandle;
 
 	// keeps the buffers of the strings created while evaluating alive
 	string[] evalBuffers;
@@ -767,7 +782,7 @@ final class CtfeDebugSession
 		{
 			frames = buildFrames(istate, loc);
 			valueHandles = null;
-			nextValueHandle = 1;
+			nextValueHandle = firstValueHandle;
 			evalBuffers = null;
 			lastStopDepth = ctfeCallDepth();
 			atStop = true;
@@ -804,6 +819,7 @@ final class CtfeDebugSession
 	CtfeFrame[] buildFrames(InterState* istate, Loc stopLoc)
 	{
 		CtfeFrame[] result;
+		CtfeFrame[] calls;
 		size_t end = ctfeStackPointer();
 		int id = 1;
 
@@ -835,16 +851,117 @@ final class CtfeDebugSession
 			fr.column = loc.charnum;
 			fr.varStart = p.stackBase;
 			fr.varEnd = end;
-			result ~= fr;
+			calls ~= fr;
 
 			end = p.stackBase;
-			if (result.length >= 64)
+			if (calls.length >= 64)
 				break;
 		}
 
+		// the template instantiations whose generated code these calls run
+		result ~= instantiationFrames(id, calls);
 		// the global expression whose interpretation led to these calls
 		result ~= globalFrames(id, end, end);
 		return result;
+	}
+
+	/// The frames of the template instantiations whose generated code the calls of
+	/// the stack run, interleaved with the calls themselves: below a call, the
+	/// instances whose code that call executes and no call above it executes,
+	/// innermost first. An instantiation frame is located where the instance was
+	/// created, so it sits between the code of the instance and the call that
+	/// brought it about.
+	CtfeFrame[] instantiationFrames(ref int id, CtfeFrame[] calls)
+	{
+		CtfeFrame[] result;
+		if (!calls.length)
+			return result;
+
+		// the instances each call runs code of, innermost first
+		TemplateInstance[][] nests;
+		foreach (ref CtfeFrame fr; calls)
+			nests ~= frameInstances(fr);
+
+		TemplateInstance[] reported;
+		for (size_t i = 0; i < calls.length; i++)
+		{
+			result ~= calls[i];
+			// an instance is reported once, below the outermost call that runs
+			// its code: if the caller of a call is nested in the instance as
+			// well, the frame of that caller shows it
+			TemplateInstance[] next = i + 1 < calls.length ? nests[i + 1] : null;
+			foreach (TemplateInstance ti; nests[i])
+			{
+				if (containsInstance(reported, ti) || containsInstance(next, ti))
+					continue;
+				if (reported.length >= 64)
+					break;
+				reported ~= ti;
+				result ~= instanceFrame(id, ti);
+			}
+		}
+		return result;
+	}
+
+	/// The template instances the code of `fr` was generated from, innermost
+	/// first. The interpreter state does not track the instantiation trail, but
+	/// every symbol knows the scope it was declared in.
+	TemplateInstance[] frameInstances(ref CtfeFrame fr)
+	{
+		TemplateInstance[] result;
+		Dsymbol s = fr.istate !is null ? fr.istate.fd : null;
+
+		for (s = s ? s.parent : null; s !is null; s = s.parent)
+		{
+			if (auto ti = s.isTemplateInstance())
+				result ~= ti;
+			else if (s.isTemplateMixin())
+				continue;   // the enclosing template owns the trail
+			if (result.length >= 32)
+				break;
+		}
+		return result;
+	}
+
+	/// The frame reporting an instantiation, located where the instance was
+	/// created. It has no variables of its own; its locals are the arguments the
+	/// template was given.
+	CtfeFrame instanceFrame(ref int id, TemplateInstance ti)
+	{
+		CtfeFrame fr;
+		fr.id = id++;
+		fr.instance = ti;
+		fr.name = "instantiating " ~ instanceName(ti);
+		Loc loc = ti.loc;
+		fr.path = pathOf(loc);
+		fr.file = normalizedPathOf(loc);
+		fr.line = loc.linnum;
+		fr.column = loc.charnum;
+		return fr;
+	}
+
+	/// How an instance reads in the name of its frame.
+	static string instanceName(TemplateInstance ti)
+	{
+		if (ti is null)
+			return "template instance";
+		try
+		{
+			string s = zstring(ti.toPrettyChars());
+			return s && s.length ? s : "template instance";
+		}
+		catch (Throwable e)
+		{
+			return "template instance";
+		}
+	}
+
+	static bool containsInstance(TemplateInstance[] list, TemplateInstance ti)
+	{
+		foreach (TemplateInstance other; list)
+			if (other is ti)
+				return true;
+		return false;
 	}
 
 	/// The global constant expressions currently being interpreted, innermost first.
@@ -906,6 +1023,12 @@ final class CtfeDebugSession
 	JSONValue[] frameVariables(ref CtfeFrame fr)
 	{
 		JSONValue[] result;
+
+		// the template arguments are not stored on the CTFE stack, but they are
+		// constants of the frame just like its parameters are
+		foreach (ref TemplateArgument ta; frameTemplateArguments(fr))
+			result ~= makeArgument(ta.name, ta.value);
+
 		auto vars = ctfeVariablesInRange(fr.varStart, fr.varEnd);
 		auto vals = ctfeValuesInRange(fr.varStart, fr.varEnd);
 
@@ -918,6 +1041,96 @@ final class CtfeDebugSession
 			result ~= makeVariable(variableName(v), v.type, e);
 		}
 		return result;
+	}
+
+	/// A template parameter of an instance the frame belongs to, and the argument
+	/// it was instantiated with.
+	struct TemplateArgument
+	{
+		string name;
+		RootObject value;   // an Expression, a Type, a Dsymbol, or a Tuple
+	}
+
+	/// The template arguments visible in `fr`, innermost instance first.  They are
+	/// fixed by the instantiation instead of being stored on the CTFE stack, so
+	/// they are read back from the instances the frame's function is nested in. For
+	/// a frame reporting an instantiation, they are the arguments of that instance.
+	TemplateArgument[] frameTemplateArguments(ref CtfeFrame fr)
+	{
+		TemplateArgument[] result;
+		if (fr.instance !is null)
+			return instanceArguments(fr.instance);
+
+		Dsymbol s = fr.istate !is null ? fr.istate.fd : null;
+
+		for (s = s ? s.parent : null; s !is null; s = s.parent)
+		{
+			TemplateInstance ti = s.isTemplateInstance();
+			if (ti is null || s.isTemplateMixin())
+				continue;
+
+			result ~= instanceArguments(ti);
+			if (result.length >= 32)
+				break;
+		}
+		return result;
+	}
+
+	/// The arguments `ti` was instantiated with, in the order of the template's
+	/// formal parameters.
+	TemplateArgument[] instanceArguments(TemplateInstance ti)
+	{
+		TemplateArgument[] result;
+		if (ti is null || !ti.tdtypes.length)
+			return result;
+
+		TemplateDeclaration td = ti.tempdecl ? ti.tempdecl.isTemplateDeclaration() : null;
+		auto params = td && td.parameters ? (*td.parameters)[] : null;
+		foreach (size_t i, RootObject o; ti.tdtypes[])
+		{
+			if (o is null || i >= params.length || params[i] is null || params[i].ident is null)
+				continue;
+			result ~= TemplateArgument(idup(params[i].ident.toString()), o);
+		}
+		return result;
+	}
+
+	/// What a name resolves to in a single frame.
+	struct FrameValue
+	{
+		bool found;
+		VarDeclaration v;      // a local or parameter of the frame ...
+		Expression value;      // ... and the value the interpreter has for it
+		TemplateArgument arg;  // or: a template argument of one of its instances
+	}
+
+	/// The name `name` of the frame `fr`, and only of that frame.  The locals of the
+	/// calling functions are not in scope at the position of the stop, so the frames
+	/// above it are not searched.
+	FrameValue frameLookup(ref CtfeFrame fr, string name)
+	{
+		FrameValue fv;
+
+		auto vars = ctfeVariablesInRange(fr.varStart, fr.varEnd);
+		auto vals = ctfeValuesInRange(fr.varStart, fr.varEnd);
+		foreach (size_t j, VarDeclaration v; vars)
+			if (v !is null && v.ident && v.ident.toString() == name)
+			{
+				fv.found = true;
+				fv.v = v;
+				fv.value = j < vals.length ? vals[j] : null;
+				return fv;
+			}
+
+		foreach (ref TemplateArgument ta; frameTemplateArguments(fr))
+			if (ta.name == name)
+			{
+				fv.found = true;
+				fv.arg = ta;
+				return fv;
+			}
+
+		return fv;
 	}
 
 	/// A global constant and the value known for it.
@@ -989,11 +1202,22 @@ final class CtfeDebugSession
 		return null;
 	}
 
-	JSONValue[] valueChildren(Expression e)
+	JSONValue[] valueChildren(RootObject e)
 	{
 		JSONValue[] result;
 
-		if (auto sl = e.isStructLiteralExp())
+		if (auto tp = isTuple(e))
+		{
+			foreach (size_t i, RootObject o; tp.objects[])
+				result ~= makeArgument("[" ~ to!string(i) ~ "]", o);
+			return result;
+		}
+
+		Expression value = isExpression(e);
+		if (value is null)
+			return result;
+
+		if (auto sl = value.isStructLiteralExp())
 		{
 			if (sl.elements is null)
 				return result;
@@ -1007,7 +1231,7 @@ final class CtfeDebugSession
 				result ~= makeVariable(name, ex ? ex.type : null, ex);
 			}
 		}
-		else if (auto al = e.isArrayLiteralExp())
+		else if (auto al = value.isArrayLiteralExp())
 		{
 			if (al.elements is null)
 				return result;
@@ -1017,7 +1241,7 @@ final class CtfeDebugSession
 				result ~= makeVariable("[" ~ to!string(i) ~ "]", v ? v.type : null, v);
 			}
 		}
-		else if (auto aa = e.isAssocArrayLiteralExp())
+		else if (auto aa = value.isAssocArrayLiteralExp())
 		{
 			if (aa.keys is null || aa.values is null)
 				return result;
@@ -1047,21 +1271,72 @@ final class CtfeDebugSession
 		return JSONValue(o);
 	}
 
-	int childHandle(Expression e)
+	/// A template argument as a variable of the Locals scope.
+	JSONValue makeArgument(string name, RootObject value)
+	{
+		JSONValue[string] o;
+		o["name"] = JSONValue(name);
+		o["value"] = JSONValue(argumentText(value));
+		o["type"] = JSONValue(argumentTypeText(value));
+		o["variablesReference"] = JSONValue(childHandle(value));
+		return JSONValue(o);
+	}
+
+	/// How a template argument reads: the value of a value parameter, and the type,
+	/// symbol, or tuple itself for the other kinds of parameter.
+	static string argumentText(RootObject o)
+	{
+		if (auto e = isExpression(o))
+			return valueText(e);
+		if (o is null)
+			return "";
+		try
+		{
+			string s = zstring(o.toChars());
+			return s ? s : "";
+		}
+		catch (Throwable e)
+		{
+			return "<unavailable>";
+		}
+	}
+
+	/// What the type column says about a template argument.
+	static string argumentTypeText(RootObject o)
+	{
+		if (auto e = isExpression(o))
+			return typeText(e.type);
+		if (isType(o))
+			return "type";
+		if (isTuple(o))
+			return "tuple";
+		if (isDsymbol(o))
+			return "alias";
+		return "";
+	}
+
+	int childHandle(RootObject e)
 	{
 		if (e is null)
 			return 0;
 
-		if (auto sl = e.isStructLiteralExp())
+		if (auto tp = isTuple(e))
+			return tp.objects.length ? newHandle(e) : 0;
+
+		Expression value = isExpression(e);
+		if (value is null)
+			return 0;
+
+		if (auto sl = value.isStructLiteralExp())
 			return sl.elements && (*sl.elements).length ? newHandle(e) : 0;
-		if (auto al = e.isArrayLiteralExp())
+		if (auto al = value.isArrayLiteralExp())
 			return al.elements && (*al.elements).length ? newHandle(e) : 0;
-		if (auto aa = e.isAssocArrayLiteralExp())
+		if (auto aa = value.isAssocArrayLiteralExp())
 			return aa.keys && aa.values && (*aa.keys).length ? newHandle(e) : 0;
 		return 0;
 	}
 
-	int newHandle(Expression e)
+	int newHandle(RootObject e)
 	{
 		int id = nextValueHandle++;
 		valueHandles[id] = e;
@@ -1121,6 +1396,12 @@ final class CtfeDebugSession
 			if (frames[i].id == id)
 				return cast(int) i;
 		return -1;
+	}
+
+	/// The frame at index `idx` of the current stop, or null if there is none.
+	CtfeFrame* frameAt(int idx)
+	{
+		return idx >= 0 && idx < cast(int) frames.length ? &frames[idx] : null;
 	}
 
 	string normalizedName(size_t key, const(char)* fname)
@@ -1390,17 +1671,15 @@ final class CtfeDebugSession
 			if (idx < 0)
 				idx = 0;
 
-			for (int i = idx; i < cast(int) frames.length && result.type == JSONType.null_; i++)
+			// the frame the request names is the context it is evaluated in: the
+			// locals of the calling functions are not in scope at its position
+			if (CtfeFrame* fr = frameAt(idx))
 			{
-				auto vars = ctfeVariablesInRange(frames[i].varStart, frames[i].varEnd);
-				auto vals = ctfeValuesInRange(frames[i].varStart, frames[i].varEnd);
-				foreach (size_t j, VarDeclaration v; vars)
-				{
-					if (v is null || !v.ident || v.ident.toString() != expr)
-						continue;
-					result = evaluateBody(expr, v, j < vals.length ? vals[j] : null);
-					break;
-				}
+				FrameValue fv = frameLookup(*fr, expr);
+				if (fv.v !is null)
+					result = evaluateBody(expr, fv.v, fv.value);
+				else if (fv.found)
+					result = evaluateArgument(fv.arg);
 			}
 
 			// fall back to the global constants
@@ -1439,7 +1718,17 @@ final class CtfeDebugSession
 
 	JSONValue evaluateBody(string name, Type t, Expression e)
 	{
-		JSONValue var = makeVariable(name, t, e);
+		return variableBody(makeVariable(name, t, e));
+	}
+
+	/// The "evaluate" body reporting a template argument; called with lock held.
+	JSONValue evaluateArgument(ref TemplateArgument ta)
+	{
+		return variableBody(makeArgument(ta.name, ta.value));
+	}
+
+	static JSONValue variableBody(JSONValue var)
+	{
 		JSONValue[string] body;
 		body["result"] = var.object["value"];
 		body["type"] = var.object["type"];
@@ -1718,9 +2007,12 @@ final class CtfeDebugSession
 				return new NullExp(Loc.initial);
 
 			VarDeclaration v;
-			Expression e = evalLookup(id, st.frameIdx, v);
-			if (v is null)
+			bool found;
+			Expression e = evalLookup(id, st.frameIdx, v, found);
+			if (!found)
 				st.error = "'" ~ id ~ "' not found in scope";
+			else if (e is null && v is null)
+				st.error = "'" ~ id ~ "' is not a value";
 			return e;
 		}
 
@@ -1887,22 +2179,30 @@ final class CtfeDebugSession
 
 	static bool isIdentChar(char c) { return isIdentStart(c) || isDigitChar(c); }
 
-	/// The value of `name` in the frames of the current stop, or a global constant.
-	Expression evalLookup(string name, int frameIdx, out VarDeclaration pv)
+	/// The value of `name` in the frame the expression is evaluated in, or a global
+	/// constant.  The frames of the calling functions are not searched: their locals
+	/// are not in scope where the expression is read.
+	/// `found` says whether the name exists at all: a type argument does, but only a
+	/// value argument has an Expression to hand out.
+	Expression evalLookup(string name, int frameIdx, out VarDeclaration pv, out bool found)
 	{
 		pv = null;
-		for (int i = frameIdx; i < cast(int) frames.length; ++i)
+		found = false;
+
+		if (CtfeFrame* fr = frameAt(frameIdx))
 		{
-			auto vars = ctfeVariablesInRange(frames[i].varStart, frames[i].varEnd);
-			auto vals = ctfeValuesInRange(frames[i].varStart, frames[i].varEnd);
-			foreach (size_t j, VarDeclaration v; vars)
-				if (v !is null && v.ident && v.ident.toString() == name)
-				{
-					pv = v;
-					return j < vals.length ? vals[j] : null;
-				}
+			FrameValue fv = frameLookup(*fr, name);
+			if (fv.found)
+			{
+				pv = fv.v;
+				found = true;
+				return fv.v !is null ? fv.value : isExpression(fv.arg.value);
+			}
 		}
-		return findGlobalConstant(name, pv);
+
+		Expression e = findGlobalConstant(name, pv);
+		found = pv !is null;
+		return e;
 	}
 
 	Expression evalMember(Expression e, string name, ref EvalState st)
