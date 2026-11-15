@@ -27,6 +27,13 @@
 // created. Its arguments and the values and types it defines are the locals of
 // that frame.
 
+// Leaving a call is a step of its own: the value the returning frame hands back
+// to its caller is reported with the locals of that frame, and the evaluator
+// resolves its name for the watch, hover and immediate windows.  Stepping out
+// of a call leaves the stop in the frame that is leaving behind and ends at the
+// call site, where the value is reported with the locals of the frame the call
+// is written in.
+
 module vdc.dmdserver.ctfedebug;
 
 import vdc.dmdserver.dapio;
@@ -42,7 +49,7 @@ import dmd.dsymbol : Dsymbol, ScopeDsymbol;
 import dmd.dtemplate : TemplateInstance, TemplateDeclaration, Tuple, isExpression, isType, isTuple, isDsymbol;
 import dmd.astenums : STC;
 import dmd.errors : diagnosticHandler;
-import dmd.expression : Expression, IntegerExp, NullExp, RealExp, StringExp;
+import dmd.expression : CTFEExp, Expression, IntegerExp, NullExp, RealExp, StringExp;
 import dmd.root.ctfloat : real_t;
 import dmd.rootobject : RootObject;
 import dmd.globals : dinteger_t;
@@ -140,6 +147,14 @@ void ctfeConstantHook(Expression e, bool end)
 {
 	if (auto ses = g_session)
 		ses.onConstant(e, end);
+}
+
+/// Installed into the CTFE interpreter when a call is about to hand its result
+/// back to its caller; forwards to the current session.
+void ctfeReturnHook(InterState* istate, Expression result)
+{
+	if (auto ses = g_session)
+		ses.onReturn(istate, result);
 }
 
 /// The arguments the process was started with.
@@ -384,6 +399,12 @@ enum RunMode
 	stepOut,
 }
 
+/// Whether a position of the program ends a step of the kind `m` asks for.
+bool isStepping(RunMode m)
+{
+	return m == RunMode.stepIn || m == RunMode.stepOver || m == RunMode.stepOut;
+}
+
 
 /// Thrown into the compilation to give it up when the debug session ends.
 class CtfeDebugAbort : Exception
@@ -406,6 +427,10 @@ struct CtfeFrame
 	uint column;
 	size_t varStart;  // CTFE stack range of this frame
 	size_t varEnd;
+	Expression returned;    // the value this frame hands back to its caller at a
+	                        // stop on its own return, or the value a call it has
+	                        // just made handed back to it at a stop at the call
+	                        // site (null at any other stop)
 }
 
 
@@ -417,6 +442,14 @@ struct Breakpoint
 	string condition;
 	int id;         // DAP breakpoint id, handed out when the breakpoint is set
 }
+
+
+/// The name the value a call hands back is reported under: with the locals of
+/// the frame that is leaving at a stop on its return, and with those of the
+/// frame that received it at a stop at the call site.  Nothing of the program
+/// can carry that name, as a D identifier never starts with a '$', and the
+/// evaluator accepts it for the hover, watch and immediate windows.
+enum returnValueName = "$returnValue";
 
 
 final class CtfeDebugSession
@@ -440,6 +473,7 @@ final class CtfeDebugSession
 	RunMode mode = RunMode.none;
 	int stopCallDepth;
 	int lastStopDepth;
+	Loc lastStopLoc;
 	bool compileStarted;
 	bool compileDone;
 	bool atStop;
@@ -611,10 +645,12 @@ final class CtfeDebugSession
 
 			ctfeDebugHooks.onStatement = &ctfeStatementHook;
 			ctfeDebugHooks.onConstant = &ctfeConstantHook;
+			ctfeDebugHooks.onReturn = &ctfeReturnHook;
 			scope (exit)
 			{
 				ctfeDebugHooks.onStatement = null;
 				ctfeDebugHooks.onConstant = null;
+				ctfeDebugHooks.onReturn = null;
 			}
 
 			runModuleSemantic(createModuleFromText(program, text));
@@ -686,6 +722,274 @@ final class CtfeDebugSession
 		checkAt(null, e.loc);
 	}
 
+	/// The interpreter has computed the value a call returns and is about to leave
+	/// the frame of `istate`.  Stepping into a call ends twice on its way back: at
+	/// the return of the function that hands its value back, where the value can be
+	/// read together with the locals of the frame that is leaving, and at the
+	/// statement of the caller the call is written in, where the value has become a
+	/// name of the frame that goes on: the step after that is the one that reaches
+	/// the next statement, and the next call, of that frame.  A plain continue runs
+	/// through the returns.  Stepping out of a call takes only the second of these
+	/// stops: it ends at the call site, which reports the frame the value goes back
+	/// to, at the statement the call is written in, and reports the value as a name
+	/// of that frame.
+	///
+	/// A call the compile time evaluation started from has no caller of the program
+	/// to go back to.  The declaration of the constant whose evaluation it is takes
+	/// the place of that caller: it is the frame the value goes back to, and the
+	/// value the call hands back is the value of the constant.  Stepping out ends at
+	/// that declaration; the return of the call is a step of its own, and the step
+	/// after it ends there too, because the interpreter has no statement of the
+	/// program between the return and the declaration.
+	///
+	/// The user is stopped at the `return` statement of a frame before that frame
+	/// returns, so the first of the two stops would report the statement the user is
+	/// looking at again: a step that leaves the position where it is is no step.
+	/// The return of the frame is reported at the position the value goes back to
+	/// then, and the value becomes a name of the frame reported there.
+	void onReturn(InterState* istate, Expression result)
+	{
+		if (istate is null || istate.fd is null)
+			return;
+
+		// the positions the return can be reported at: that of the frame that is
+		// leaving, that of the frame the value goes back to, which is where stepping
+		// out ends, and, for a call that has no caller of the program, the
+		// declaration of the constant whose evaluation the call belongs to
+		Loc loc = returnLoc(istate);
+		Loc callSite = callSiteLoc(istate.caller);
+
+		bool atCallSite, atDeclaration, atReturn, again, over, stop;
+		Loc declaration;
+		synchronized (lock)
+		{
+			if (abortRequested)
+				throw new CtfeDebugAbort;
+
+			atCallSite = !pauseRequested && mode == RunMode.stepOut &&
+				ctfeCallDepth() == stopCallDepth && isReportable(callSite);
+
+			// out of the call the compile time evaluation started from, the constant
+			// it computes the value of is the frame left to report, and its
+			// declaration is the position the value goes back to
+			declaration = declarationLoc();
+			atDeclaration = !pauseRequested && mode == RunMode.stepOut &&
+				istate.caller is null && ctfeCallDepth() == stopCallDepth &&
+				isReportable(declaration);
+
+			// a call with no caller of the program ends the stepping: the front end
+			// goes on with code of its own, which is no code to step through either
+			over = mode == RunMode.stepOut && istate.caller is null &&
+				ctfeCallDepth() == stopCallDepth;
+
+			// the return of the frame whose `return` statement the user is stopped at
+			// would report the position the user is looking at: the step ends at the
+			// position the value goes back to instead, if there is one to report
+			atReturn = isReportable(loc) && returnIsStep();
+			again = atReturn && samePosition(loc, lastStopLoc) &&
+				(istate.caller is null ? isReportable(declaration) : isReportable(callSite));
+
+			stop = atCallSite || atDeclaration || (atReturn && !again);
+			if (stop || over || again)
+				mode = RunMode.none;
+		}
+
+		if (atCallSite)
+			callSiteStop(istate, result, callSite);
+		else if (atDeclaration)
+			declarationStop(declaration, result);
+		else if (again)
+			// the step that would have stopped at the return of the frame goes on to
+			// the position the value goes back to, where the value is a name of the
+			// frame reported there
+			if (istate.caller is null)
+				declarationStop(declaration, result);
+			else
+				callSiteStop(istate, result, callSite);
+		else if (stop)
+		{
+			suspend(istate, loc, "step", reportableValue(result));
+
+			// the step that stopped at the return of a call goes on at the position
+			// the value goes back to: the statement of the caller the call is
+			// written in, or, for the call the evaluation started from, which has
+			// no caller of the program, the declaration of the constant.  A
+			// continue from the return runs past either.
+			if (istate.caller is null)
+				stopAtDeclaration(result, declaration);
+			else
+				stopAtCallSite(istate, result, callSite);
+		}
+		else if (istate.caller is null)
+			// a return with no position of its own to report still ends the step
+			// that is running, and for the call the evaluation started from that
+			// position is the declaration of the constant
+			stopAtDeclaration(result, declaration);
+	}
+
+	/// Report the declaration of the constant whose evaluation the frame that is
+	/// leaving belongs to, if a step is running to be ended.  Between the return of
+	/// the outermost call and that declaration the interpreter has no statement of
+	/// the program to report a step at, so the declaration ends the step.  It is
+	/// called while the frame is still on the CTFE stack, and the values of that
+	/// frame are no names of the constant: the frame reported for the declaration
+	/// knows only the value the call hands back.
+	void stopAtDeclaration(Expression result, Loc declaration)
+	{
+		if (!isReportable(declaration))
+			return;
+
+		bool stop;
+		synchronized (lock)
+		{
+			if (abortRequested)
+				throw new CtfeDebugAbort;
+			stop = !pauseRequested && isStepping(mode);
+			if (stop)
+				mode = RunMode.none;
+		}
+		if (!stop)
+			return;
+
+		declarationStop(declaration, result);
+	}
+
+	/// Suspend at the declaration of the constant whose value `result` is.  The
+	/// frame of the call that is leaving is still on the CTFE stack, but its values
+	/// are no names of the constant: the only name of the frame reported for the
+	/// declaration is the value the call hands back.
+	void declarationStop(Loc declaration, Expression result)
+	{
+		suspend(null, declaration, "step", reportableValue(result),
+			ctfeCurrentFrameBase(), ctfeCallDepth() - 1);
+	}
+
+	/// Report the statement of the caller of the frame that is leaving, if a step
+	/// is running to be ended.  Between the return of a call and the statement the
+	/// caller goes on with, the interpreter has no position of the program to report
+	/// a step at, so the statement the call is written in ends the step: the step
+	/// after it is the one that goes into the next call.  It is called while the
+	/// frame of the call is still on the CTFE stack.
+	void stopAtCallSite(InterState* istate, Expression result, Loc callSite)
+	{
+		if (!isReportable(callSite))
+			return;
+
+		bool stop;
+		synchronized (lock)
+		{
+			if (abortRequested)
+				throw new CtfeDebugAbort;
+
+			stop = !pauseRequested && isStepping(mode);
+			mode = RunMode.none;
+		}
+
+		if (!stop)
+			return;
+
+		callSiteStop(istate, result, callSite);
+	}
+
+	/// Suspend at the statement of `istate.caller` that the call which is leaving
+	/// was written in.  The frame of that call is still on the CTFE stack, but its
+	/// values are no locals of the caller: they are kept from the locals of the
+	/// frame reported for the stop, and the stepping on from the call site starts
+	/// one call shallower than the one the interpreter is at.
+	void callSiteStop(InterState* istate, Expression result, Loc callSite)
+	{
+		suspend(istate.caller, callSite, "step", reportableValue(result),
+			istate.stackBase, ctfeCallDepth() - 1);
+	}
+
+	/// The position of the return of `istate`: the statement whose value the frame
+	/// has computed, or its declaration if it has none of its own.
+	static Loc returnLoc(InterState* istate)
+	{
+		Statement st = istate.stmt;
+		if (st !is null && st.loc.isValid)
+			return st.loc;
+		return istate.fd ? istate.fd.loc : Loc.initial;
+	}
+
+	/// The position of the call that `caller` is interpreting: the statement the
+	/// call is written in, as the statement hook of that frame recorded it.
+	static Loc callSiteLoc(InterState* caller)
+	{
+		if (caller is null)
+			return Loc.initial;
+
+		Statement st = caller.stmt;
+		return st !is null ? st.loc : Loc.initial;
+	}
+
+	/// The declaration of the constant whose evaluation the interpreter is at: the
+	/// position of the innermost global expression being interpreted.  A global
+	/// initializer has no statement of the program to return to, so its declaration
+	/// is where the value of a call the evaluation started from goes back to.
+	Loc declarationLoc()
+	{
+		return globalExprs.length ? globalExprs[$ - 1].loc : Loc.initial;
+	}
+
+	/// Whether `loc` names a place in a source file the debugger can show.
+	static bool isReportable(Loc loc)
+	{
+		return loc.isValid && loc.linnum != 0;
+	}
+
+	/// Whether `a` and `b` report the same place of the source.  The same file is
+	/// named by a separate string for each `Loc`, so the names are compared after
+	/// normalizing them.
+	bool samePosition(Loc a, Loc b)
+	{
+		return isReportable(a) && isReportable(b) && a.linnum == b.linnum &&
+			normalizedPathOf(a) == normalizedPathOf(b);
+	}
+
+	/// The value to report for the result `e` of a return, or none at all: the
+	/// interpreter marks a call that returned void, a call it could not interpret
+	/// and the unwinding of a call with pseudo expressions rather than with a value
+	/// the debugger could show.
+	static Expression reportableValue(Expression e)
+	{
+		if (e is null || e.isThrownExceptionExp() !is null)
+			return null;
+
+		auto op = e.op;
+		foreach (Expression mark; [CTFEExp.voidexp, CTFEExp.cantexp, CTFEExp.gotoexp,
+			CTFEExp.breakexp, CTFEExp.continueexp])
+			if (op == mark.op)
+				return null;
+		return e;
+	}
+
+	/// Whether the return of the frame that is leaving calls for a stop in that
+	/// frame; called with lock held.  The frame is still on the CTFE stack, so its
+	/// own depth counts: the call the user stepped over returns one deeper than the
+	/// frame the user stepped from.  Stepping out answers with a stop of its own
+	/// (see onReturn), and a plain continue runs through the returns.
+	bool returnIsStep()
+	{
+		if (pauseRequested)
+			return false;   // the statement of the caller reports the pause
+
+		switch (mode)
+		{
+			case RunMode.stepIn:
+				return true;
+
+			case RunMode.stepOver:
+				return ctfeCallDepth() == stopCallDepth;
+
+			case RunMode.stepOut:
+				return false;   // onReturn ends the step at the call site instead
+
+			default:
+				return false;
+		}
+	}
+
 	/// Suspend the compilation if the position `loc` calls for a stop.
 	void checkAt(InterState* istate, Loc loc)
 	{
@@ -747,6 +1051,8 @@ final class CtfeDebugSession
 				break;
 
 			case RunMode.stepOut:
+				// onReturn normally ends the step at the call site; a frame whose
+				// return has no position to report gets here on its way out
 				if (depth < stopCallDepth)
 					return "step";
 				break;
@@ -778,15 +1084,28 @@ final class CtfeDebugSession
 		return evalBool(e, b) && b;
 	}
 
-	void suspend(InterState* istate, Loc loc, string reason)
+	void suspend(InterState* istate, Loc loc, string reason, Expression returned = null)
+	{
+		suspend(istate, loc, reason, returned, ctfeStackPointer(), ctfeCallDepth());
+	}
+
+	/// Suspend the compilation and report `istate` as the innermost frame of the
+	/// stop at `loc`.  `varEnd` is the top of the CTFE stack range of that frame:
+	/// the frame below it is still on the stack when a call is on its way out, but
+	/// its values are no locals of the frame reported.  `depth` is the call depth
+	/// the next step starts from, which for the same reason is not always the one
+	/// the interpreter is at.
+	void suspend(InterState* istate, Loc loc, string reason, Expression returned,
+		size_t varEnd, int depth)
 	{
 		synchronized (lock)
 		{
-			frames = buildFrames(istate, loc);
+			frames = buildFrames(istate, loc, returned, varEnd);
 			valueHandles = null;
 			nextValueHandle = firstValueHandle;
 			evalBuffers = null;
-			lastStopDepth = ctfeCallDepth();
+			lastStopDepth = depth;
+			lastStopLoc = loc;
 			atStop = true;
 		}
 
@@ -818,17 +1137,35 @@ final class CtfeDebugSession
 		SetEvent(evResume);
 	}
 
-	CtfeFrame[] buildFrames(InterState* istate, Loc stopLoc)
+	/// The frames of the stop, innermost first.  `returned` is the value the
+	/// innermost frame hands back to its caller at a stop on the return of a call,
+	/// or the value the call it has just made handed back to it at a stop at the
+	/// call site, and none at any other stop.
+	CtfeFrame[] buildFrames(InterState* istate, Loc stopLoc, Expression returned = null)
+	{
+		return buildFrames(istate, stopLoc, returned, ctfeStackPointer());
+	}
+
+	/// `end` is the top of the CTFE stack range of the innermost frame: below the
+	/// stack pointer while a frame that is leaving still occupies the top of it.
+	CtfeFrame[] buildFrames(InterState* istate, Loc stopLoc, Expression returned,
+		size_t end)
 	{
 		CtfeFrame[] result;
 		CtfeFrame[] calls;
-		size_t end = ctfeStackPointer();
 		int id = 1;
 
 		if (istate is null)
 		{
 			// global CTFE initializer (enum or static const initializers)
-			result ~= globalFrames(id, ctfeCurrentFrameBase(), end);
+			CtfeFrame[] globals = globalFrames(id, ctfeCurrentFrameBase(), end);
+
+			// at a stop at the declaration of a constant, the innermost global
+			// expression is the one whose value the returning call hands back
+			if (returned !is null && globals.length)
+				globals[0].returned = returned;
+
+			result ~= globals;
 			return result;
 		}
 
@@ -859,6 +1196,12 @@ final class CtfeDebugSession
 			if (calls.length >= 64)
 				break;
 		}
+
+		// the value a return reports belongs to the innermost call of the stop: to
+		// the frame that hands it back at a stop on its return, and to the frame
+		// that receives it at a stop at the call site
+		if (returned !is null && calls.length)
+			calls[0].returned = returned;
 
 		// the template instantiations whose generated code these calls run
 		result ~= instantiationFrames(id, calls);
@@ -1025,6 +1368,11 @@ final class CtfeDebugSession
 	JSONValue[] frameVariables(ref CtfeFrame fr)
 	{
 		JSONValue[] result;
+
+		// the value a call hands back belongs to the frame the stop is reported in,
+		// and is read like the other names of its scope
+		if (fr.returned !is null)
+			result ~= namedValue(returnValueName, fr.returned);
 
 		// the names of the instances of the frame are not stored on the CTFE stack,
 		// but they are constants of the frame just like its parameters are
@@ -1234,6 +1582,15 @@ final class CtfeDebugSession
 	{
 		FrameValue fv;
 
+		// the value the frame hands back to its caller names a value of the frame
+		// just like its locals do
+		if (fr.returned !is null && name == returnValueName)
+		{
+			fv.found = true;
+			fv.inst = InstanceName(returnValueName, fr.returned);
+			return fv;
+		}
+
 		auto vars = ctfeVariablesInRange(fr.varStart, fr.varEnd);
 		auto vals = ctfeValuesInRange(fr.varStart, fr.varEnd);
 		foreach (size_t j, VarDeclaration v; vars)
@@ -1413,17 +1770,11 @@ final class CtfeDebugSession
 	{
 		if (auto e = isExpression(o))
 			return valueText(e);
+		if (auto t = isType(o))
+			return typeText(t);
 		if (o is null)
 			return "";
-		try
-		{
-			string s = zstring(o.toChars());
-			return s ? s : "";
-		}
-		catch (Throwable e)
-		{
-			return "<unavailable>";
-		}
+		return compilerText(o);
 	}
 
 	/// What the type column says about a name of an instance.
@@ -1468,8 +1819,15 @@ final class CtfeDebugSession
 		return id;
 	}
 
+	/// What the type column says about `t`: the way the compiler spells the type.
+	/// Its printers name the arguments of the instance an aggregate was generated
+	/// from (`Box!int`, `Pair!(int, string)`, `Node!(Node!Leaf)`) and qualify a
+	/// class with the module it belongs to.
 	static string typeText(Type t)
 	{
+		if (t is null)
+			return "";
+
 		try
 		{
 			string s = zstring(t.toChars());
@@ -1483,26 +1841,142 @@ final class CtfeDebugSession
 
 	static string valueText(Expression e)
 	{
+		return valueText(e, 0);
+	}
+
+	/// The value as the Locals, watch and hover windows show it.  The compiler
+	/// prints a literal of an aggregate as `Box(3)`: it names the aggregate, but
+	/// not the instance the literal is a literal of, which is the part a debugger
+	/// has to add.  The name it adds is the type as the compiler spells it, so the
+	/// `Box!int` a call is made on reads `Box!int(3)`.  `depth` counts the literals
+	/// the one being written is inside.
+	static string valueText(Expression e, int depth)
+	{
 		if (e is null)
 			return "";
 
 		try
 		{
-			if (auto ie = e.isIntegerExp())
-			{
-				Type t = ie.type ? ie.type.toBasetype() : null;
-				if (t is Type.tbool)
-					return ie.value ? "true" : "false";
-				if (t && t.isUnsigned())
-					return to!string(cast(ulong) ie.value);
-			}
+			if (string s = integerText(e))
+				return s;
+
+			if (depth < maxLiteralDepth)
+				if (string s = aggregateLiteralText(e, depth))
+					return s;
+
+			if (string s = instanceAddressText(e))
+				return s;
+
 			string s = zstring(e.toChars());
 			return s ? s : "";
 		}
-		catch (Throwable e)
+		catch (Throwable err)
 		{
 			return "<unavailable>";
 		}
+	}
+
+	/// How many literals inside one another are written out before the text falls
+	/// back to the compiler's, so that a value containing itself stays short.
+	enum int maxLiteralDepth = 4;
+
+	/// The value of an integer as the windows show it: a `bool` as `true` or
+	/// `false`, an unsigned as an unsigned.  Empty text for the values the compiler
+	/// prints as they are.
+	static string integerText(Expression e)
+	{
+		auto ie = e.isIntegerExp();
+		if (ie is null)
+			return null;
+
+		Type t = ie.type ? ie.type.toBasetype() : null;
+		if (t is Type.tbool)
+			return ie.value ? "true" : "false";
+		if (t && t.isUnsigned())
+			return to!string(cast(ulong) ie.value);
+		return null;
+	}
+
+	/// The text the compiler itself gives for `o`, or `<unavailable>` when it
+	/// cannot be had.
+	static string compilerText(RootObject o)
+	{
+		if (o is null)
+			return "";
+
+		try
+		{
+			string s = zstring(o.toChars());
+			return s ? s : "";
+		}
+		catch (Throwable err)
+		{
+			return "<unavailable>";
+		}
+	}
+
+	/// The literal `e` of an aggregate: its type as the compiler spells it, and the
+	/// values of its fields written out one level below `depth`.  Empty text when
+	/// the type has no name to write.
+	static string aggregateLiteralText(Expression e, int depth)
+	{
+		Expression[] elems;
+		Type ty = e.type;
+
+		if (auto sl = e.isStructLiteralExp())
+		{
+			elems = sl.elements ? (*sl.elements)[] : null;
+			if (ty is null)
+				ty = sl.stype;
+		}
+		else if (auto cr = e.isClassReferenceExp())
+			elems = cr.value && cr.value.elements ? (*cr.value.elements)[] : null;
+		else
+			return null;
+
+		string name = typeText(ty);
+		if (!name.length)
+			return null;
+
+		string result = name ~ "(";
+		foreach (size_t i, Expression el; elems)
+		{
+			if (i)
+				result ~= ", ";
+			result ~= el is null ? "" : valueText(el, depth + 1);
+			if (result.length >= 400)
+				return result ~ "...";
+		}
+		return result ~ ")";
+	}
+
+	/// The address of the function an instance generates, named the way the
+	/// compiler names the instance: `& fn!int` rather than the `& fn` it prints for
+	/// the function.  Empty text for the address of anything else, and for a member
+	/// of an instance, which the compiler names through the instance.
+	static string instanceAddressText(Expression e)
+	{
+		auto so = e.isSymOffExp();
+		if (so is null || so.var is null)
+			return null;
+
+		// The eponymous member is what the instance stands for, which is what makes
+		// the name of the instance the name of the function.
+		Dsymbol s = so.var;
+		TemplateInstance ti = s.parent ? s.parent.isTemplateInstance() : null;
+		if (ti is null || ti.aliasdecl !is s)
+			return null;
+
+		string name;
+		try
+			name = zstring(ti.toChars());
+		catch (Throwable err)
+			return null;
+		if (!name.length)
+			return null;
+
+		return so.offset ? "(& " ~ name ~ " + " ~ to!string(cast(ulong) so.offset) ~ ")"
+			: "& " ~ name;
 	}
 
 	// ------------------------------------------------------------- lookups
@@ -2300,7 +2774,8 @@ final class CtfeDebugSession
 
 	static bool isIdentStart(char c)
 	{
-		return c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+		// the '$' of the return value the debugger reports makes a name of its own
+		return c == '_' || c == '$' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 	}
 
 	static bool isIdentChar(char c) { return isIdentStart(c) || isDigitChar(c); }
