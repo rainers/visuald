@@ -47,6 +47,7 @@ import dmd.dmodule : Module;
 import dmd.dclass : ClassDeclaration;
 import dmd.declaration : Declaration, VarDeclaration;
 import dmd.dsymbol : Dsymbol, ScopeDsymbol;
+import dmd.dscope : Scope;
 import dmd.dtemplate : TemplateInstance, TemplateDeclaration, Tuple, isExpression, isType, isTuple, isDsymbol;
 import dmd.astenums : STC;
 import dmd.errors : diagnosticHandler;
@@ -157,6 +158,15 @@ void ctfeReturnHook(InterState* istate, Expression result)
 {
 	if (auto ses = g_session)
 		ses.onReturn(istate, result);
+}
+
+/// Installed into the front end when it evaluates a static condition (the
+/// constraint of a template, the condition of a `static if` or of a `static
+/// assert`); forwards to the current session.
+void ctfeConditionHook(Scope* sc, Expression e, const(char)* kind, bool end)
+{
+	if (auto ses = g_session)
+		ses.onCondition(sc, e, kind, end);
 }
 
 /// The arguments the process was started with.
@@ -422,6 +432,7 @@ struct CtfeFrame
 	InterState* istate;         // null for a global initializer and
 	                            // for the frame of an instantiation
 	TemplateInstance instance;  // set for a frame reporting an instantiation
+	TemplateInstance[] names;   // instances whose arguments are names of this frame
 	string name;
 	string path;      // file name as used by the compiler
 	string file;      // normalized, lower case, for breakpoint matching
@@ -443,6 +454,25 @@ struct Breakpoint
 	uint line;
 	string condition;
 	int id;         // DAP breakpoint id, handed out when the breakpoint is set
+}
+
+
+/// An evaluation the front end starts on its own: a constant expression being
+/// interpreted, or a static condition being answered (the constraint of a
+/// template instance, or the condition of a `static if` or of a `static assert`).
+/// Neither has a statement of the program to return to, so both are frames at
+/// the bottom of the call stack rather than positions the interpreter walks
+/// past.  They nest: the front end answers a static condition by interpreting
+/// its parts.
+struct CtfeContext
+{
+	Expression e;      // the expression, or the condition as it is written
+	Scope* sc;         // the scope a static condition is evaluated in
+	string kind;       // "static if", "static assert" or "template constraint"
+	string text;       // a condition as it reads before it is analyzed
+	bool condition;    // true for a static condition
+	Loc loc;           // where the expression or condition is written
+	bool stopped;      // a condition: it has stopped at its own position already
 }
 
 
@@ -490,9 +520,10 @@ final class CtfeDebugSession
 	int nextBreakpointId = 1;  // normalized file name -> breakpoints
 	string[size_t] fileNames;     // interned compiler file name -> normalized path
 
-	// the global constant expressions the front end is currently interpreting,
-	// innermost last; they are reported as the bottom of the call stack
-	Expression[] globalExprs;
+	// the constant expressions and static conditions the front end is currently
+	// evaluating, innermost last; they are reported as the bottom of the call
+	// stack
+	CtfeContext[] contexts;
 
 	// only valid while suspended at a stop
 	CtfeFrame[] frames;
@@ -648,11 +679,13 @@ final class CtfeDebugSession
 			ctfeDebugHooks.onStatement = &ctfeStatementHook;
 			ctfeDebugHooks.onConstant = &ctfeConstantHook;
 			ctfeDebugHooks.onReturn = &ctfeReturnHook;
+			ctfeDebugHooks.onCondition = &ctfeConditionHook;
 			scope (exit)
 			{
 				ctfeDebugHooks.onStatement = null;
 				ctfeDebugHooks.onConstant = null;
 				ctfeDebugHooks.onReturn = null;
+				ctfeDebugHooks.onCondition = null;
 			}
 
 			runModuleSemantic(createModuleFromText(program, text));
@@ -714,14 +747,61 @@ final class CtfeDebugSession
 		{
 			if (end)
 			{
-				if (globalExprs.length && globalExprs[$ - 1] is e)
-					globalExprs.length = globalExprs.length - 1;
+				if (contexts.length && !contexts[$ - 1].condition && contexts[$ - 1].e is e)
+					contexts.length = contexts.length - 1;
 				return;
 			}
-			globalExprs ~= e;
+			// The condition of a `static assert` is commonly the constant expression
+			// the interpreter evaluates as a whole; the frame of the condition
+			// reports that position, and the frame of the expression would report
+			// the same position a step has just stopped at.
+			int cnd = innermostCondition();
+			if (cnd >= 0 && sameExactPosition(e.loc, contexts[cnd].loc))
+				return;
+
+			contexts ~= CtfeContext(e, null, null, null, false, e.loc, false);
 		}
 
 		checkAt(null, e.loc);
+	}
+
+	/// The front end is evaluating a static condition: the constraint of a
+	/// template instance, or the condition of a `static if` or of a `static
+	/// assert`.  The answer to such a question is known before any statement of
+	/// the program is interpreted, so the hooks of the interpreter never report
+	/// these positions: a breakpoint on the line of a constraint or of a static
+	/// condition stops here instead, and stepping goes on into the calls its
+	/// clauses contain.
+	void onCondition(Scope* sc, Expression e, const(char)* kind, bool end)
+	{
+		if (e is null)
+			return;
+
+		synchronized (lock)
+		{
+			if (end)
+			{
+				if (contexts.length && contexts[$ - 1].condition && contexts[$ - 1].e is e)
+					contexts.length = contexts.length - 1;
+				return;
+			}
+
+			// A condition that is itself the constant expression the interpreter
+			// evaluates, as the condition of a `static assert` usually is, is
+			// reported by the frame of the condition; the frame of the expression
+			// would say the same thing at the same position.
+			int cnd = innermostCondition();
+			if (cnd >= 0 && sameExactPosition(e.loc, contexts[cnd].loc))
+				return;
+
+			// the condition is read before the front end analyzes it: the names it
+			// refers to are replaced by their values as it is evaluated, and the
+			// frame of the condition is meant to say what is being asked, not what
+			// the answer was built from
+			contexts ~= CtfeContext(e, sc, zstring(kind), expressionText(e), true, e.loc, false);
+		}
+
+		checkAt(null, e.loc, true);
 	}
 
 	/// The interpreter has computed the value a call returns and is about to leave
@@ -929,9 +1009,21 @@ final class CtfeDebugSession
 	/// position of the innermost global expression being interpreted.  A global
 	/// initializer has no statement of the program to return to, so its declaration
 	/// is where the value of a call the evaluation started from goes back to.
+	/// While a static condition is being evaluated, it takes that place: the value
+	/// of a call the condition contains goes back into the condition.
 	Loc declarationLoc()
 	{
-		return globalExprs.length ? globalExprs[$ - 1].loc : Loc.initial;
+		return contexts.length ? contexts[$ - 1].loc : Loc.initial;
+	}
+
+	/// The index of the static condition answered innermost, or -1 while the
+	/// front end is answering none.
+	int innermostCondition()
+	{
+		for (size_t i = contexts.length; i-- > 0;)
+			if (contexts[i].condition)
+				return cast(int)i;
+		return -1;
 	}
 
 	/// Whether `loc` names a place in a source file the debugger can show.
@@ -947,6 +1039,13 @@ final class CtfeDebugSession
 	{
 		return isReportable(a) && isReportable(b) && a.linnum == b.linnum &&
 			normalizedPathOf(a) == normalizedPathOf(b);
+	}
+
+	/// Whether `a` and `b` name the same position of the source down to the
+	/// character, which says whether two reports are about the same token.
+	bool sameExactPosition(Loc a, Loc b)
+	{
+		return a.charnum == b.charnum && samePosition(a, b);
 	}
 
 	/// The value to report for the result `e` of a return, or none at all: the
@@ -992,8 +1091,9 @@ final class CtfeDebugSession
 		}
 	}
 
-	/// Suspend the compilation if the position `loc` calls for a stop.
-	void checkAt(InterState* istate, Loc loc)
+	/// Suspend the compilation if the position `loc` calls for a stop.  `condition`
+	/// says that the position is a static condition the front end is evaluating.
+	void checkAt(InterState* istate, Loc loc, bool condition = false)
 	{
 		if (!loc.isValid)
 			return;
@@ -1011,7 +1111,7 @@ final class CtfeDebugSession
 		{
 			if (abortRequested)
 				throw new CtfeDebugAbort;
-			reason = checkStop(istate, loc, fname, line);
+			reason = checkStop(istate, loc, fname, line, condition);
 			if (reason !is null)
 				mode = RunMode.none;
 		}
@@ -1021,7 +1121,8 @@ final class CtfeDebugSession
 	}
 
 	/// Decide whether to stop at the given position; called with lock held.
-	string checkStop(InterState* istate, Loc loc, const(char)* fname, uint line)
+	string checkStop(InterState* istate, Loc loc, const(char)* fname, uint line,
+		bool condition = false)
 	{
 		if (pauseRequested)
 		{
@@ -1032,8 +1133,15 @@ final class CtfeDebugSession
 		string file = normalizedName(cast(size_t) fname, fname);
 		if (auto p = file in breakpoints)
 			foreach (ref Breakpoint bp; *p)
-				if (bp.line == line && (!bp.condition.length || conditionHolds(istate, loc, bp.condition)))
+				if (bp.line == line && !conditionReported(loc) &&
+					(!bp.condition.length || conditionHolds(istate, loc, bp.condition)))
 					return "breakpoint";
+
+		// Whether the front end answers a static condition is a decision of its
+		// own, not a position of the program being interpreted: a breakpoint stops
+		// at it, but stepping walks past it and goes on into the calls it contains.
+		if (condition)
+			return null;
 
 		if (stopOnEntry && !entryDone)
 		{
@@ -1086,6 +1194,17 @@ final class CtfeDebugSession
 		return evalBool(e, b) && b;
 	}
 
+	/// Whether the innermost static condition being evaluated has already stopped
+	/// at the position it is written at.  The clauses of a condition, and the
+	/// calls they contain, are written on that line and are reported at it again:
+	/// a breakpoint there would stop the user twice at the position they are
+	/// looking at.
+	bool conditionReported(Loc loc)
+	{
+		int cnd = innermostCondition();
+		return cnd >= 0 && contexts[cnd].stopped && samePosition(loc, contexts[cnd].loc);
+	}
+
 	void suspend(InterState* istate, Loc loc, string reason, Expression returned = null)
 	{
 		suspend(istate, loc, reason, returned, ctfeStackPointer(), ctfeCallDepth());
@@ -1109,6 +1228,13 @@ final class CtfeDebugSession
 			lastStopDepth = depth;
 			lastStopLoc = loc;
 			atStop = true;
+
+			// a stop at the position a static condition is written at reports that
+			// condition; the calls its clauses contain are written there too, and
+			// are no position of their own for a breakpoint
+			int cnd = innermostCondition();
+			if (cnd >= 0 && samePosition(loc, contexts[cnd].loc))
+				contexts[cnd].stopped = true;
 		}
 
 		JSONValue[string] ev;
@@ -1159,15 +1285,16 @@ final class CtfeDebugSession
 
 		if (istate is null)
 		{
-			// global CTFE initializer (enum or static const initializers)
-			CtfeFrame[] globals = globalFrames(id, ctfeCurrentFrameBase(), end);
+			// the evaluations the front end has started on its own: the static
+			// condition whose answer it is working out, and the constant
+			// expression (an enum or static const initializer, or one of the
+			// calls of such a condition) whose interpretation led there
+			result ~= contextFrames(id, result, ctfeCurrentFrameBase(), end);
 
-			// at a stop at the declaration of a constant, the innermost global
-			// expression is the one whose value the returning call hands back
-			if (returned !is null && globals.length)
-				globals[0].returned = returned;
-
-			result ~= globals;
+			// at a stop at the declaration of a constant, the innermost frame is
+			// the one whose value the returning call hands back
+			if (returned !is null && result.length)
+				result[0].returned = returned;
 			return result;
 		}
 
@@ -1207,8 +1334,9 @@ final class CtfeDebugSession
 
 		// the template instantiations whose generated code these calls run
 		result ~= instantiationFrames(id, calls);
-		// the global expression whose interpretation led to these calls
-		result ~= globalFrames(id, end, end);
+		// the static conditions and constant expressions whose evaluation led to
+		// these calls
+		result ~= contextFrames(id, result, end, end);
 		return result;
 	}
 
@@ -1311,25 +1439,37 @@ final class CtfeDebugSession
 		return false;
 	}
 
-	/// The global constant expressions currently being interpreted, innermost first.
-	/// A global initializer has no function to return to, so the expression itself is
-	/// reported as the bottom of the call stack, at its own location. `start` and `end`
-	/// are the CTFE stack range of the temporaries of the innermost one.
-	CtfeFrame[] globalFrames(ref int id, size_t start, size_t end)
+	/// The evaluations the front end has started on its own, innermost first: the
+	/// constant expressions it is interpreting and the static conditions it is
+	/// answering, in the order they began.  A condition is followed by the
+	/// template instances it is written in, as its clauses are named with the
+	/// parameters of those instances.  A condition has no values of its own;
+	/// those arguments are the names its clauses are written with, and the
+	/// evaluation of a clause names them as well.
+	CtfeFrame[] contextFrames(ref int id, CtfeFrame[] above, size_t start, size_t end)
 	{
 		CtfeFrame[] result;
-		for (size_t i = globalExprs.length; i-- > 0;)
+		for (size_t i = contexts.length; i-- > 0;)
 		{
-			Expression e = globalExprs[i];
-			Loc loc = e.loc;
+			ref CtfeContext ctx = contexts[i];
+			Loc loc = ctx.loc;
+
+			TemplateInstance[] instances = scopeInstances(
+				ctx.condition ? ctx.sc : conditionScope(i));
 
 			CtfeFrame fr;
 			fr.id = id++;
-			fr.name = expressionText(e);
-			if (!fr.name.length)
-				fr.name = "static initialization";
+			fr.names = instances;
+			if (ctx.condition)
+				fr.name = conditionName(ctx);
 			else
-				fr.name = "evaluating " ~ fr.name;
+			{
+				fr.name = expressionText(ctx.e);
+				if (!fr.name.length)
+					fr.name = "static initialization";
+				else
+					fr.name = "evaluating " ~ fr.name;
+			}
 			fr.path = pathOf(loc);
 			fr.file = normalizedPathOf(loc);
 			fr.line = loc.linnum;
@@ -1341,14 +1481,80 @@ final class CtfeDebugSession
 			}
 			result ~= fr;
 
+			// only a condition is reported as being written in an instance
+			if (ctx.condition)
+				foreach (TemplateInstance ti; instances)
+				{
+					if (containsInstanceFrame(result, ti) || containsInstanceFrame(above, ti))
+						continue;
+					result ~= instanceFrame(id, ti);
+				}
+
 			if (result.length >= 64)
 				break;
 		}
 		return result;
 	}
 
-	/// The expression as it is written in the source, used as the name of the frame
-	/// of a global initializer.
+	/// How a static condition reads in the name of its frame.
+	static string conditionName(ref CtfeContext cnd)
+	{
+		string kind = cnd.kind.length ? cnd.kind : "static condition";
+		return cnd.text.length ? kind ~ " (" ~ cnd.text ~ ")" : kind;
+	}
+
+	/// The scope of the static condition the evaluation of the context at `i` is
+	/// a clause of, or null when it belongs to no condition.  The clause is
+	/// written with the parameters of the instances that scope is nested in.
+	Scope* conditionScope(size_t i)
+	{
+		for (size_t j = i; j-- > 0;)
+			if (contexts[j].condition)
+				return contexts[j].sc;
+		return null;
+	}
+
+	/// The template instances the scope `sc` is nested in, innermost first: the
+	/// instances of the scope chain, and the instances of the function whose body
+	/// the condition is part of.
+	static TemplateInstance[] scopeInstances(Scope* sc)
+	{
+		TemplateInstance[] result;
+		if (sc is null)
+			return result;
+
+		if (auto fd = sc.func)
+			for (Dsymbol s = fd.parent; s !is null; s = s.parent)
+			{
+				if (auto ti = s.isTemplateInstance())
+					if (!containsInstance(result, ti))
+						result ~= ti;
+				if (result.length >= 32)
+					return result;
+			}
+
+		for (Scope* s = sc; s !is null; s = s.enclosing)
+		{
+			if (auto ti = s.scopesym ? s.scopesym.isTemplateInstance() : null)
+				if (!containsInstance(result, ti))
+					result ~= ti;
+			if (result.length >= 32)
+				break;
+		}
+		return result;
+	}
+
+	/// Whether any frame of `frames` reports the instantiation `ti`.
+	static bool containsInstanceFrame(CtfeFrame[] frames, TemplateInstance ti)
+	{
+		foreach (ref CtfeFrame fr; frames)
+			if (fr.instance is ti)
+				return true;
+		return false;
+	}
+
+	/// The expression as it is written in the source, used as the name of the
+	/// frame of a constant being evaluated.
 	static string expressionText(Expression e)
 	{
 		if (e is null)
@@ -1416,6 +1622,20 @@ final class CtfeDebugSession
 		if (fr.instance !is null)
 			return instanceNames(fr.instance);
 
+		// the frame of a static condition is not code of an instance, but it is
+		// written in one: the arguments of that instance are the names the
+		// condition is written with
+		foreach (TemplateInstance ti; fr.names)
+		{
+			foreach (ref InstanceName n; instanceNames(ti))
+				if (!containsName(result, n.name))
+					result ~= n;
+			if (result.length >= 32)
+				break;
+		}
+		if (fr.names.length)
+			return result;
+
 		Dsymbol s = fr.istate !is null ? fr.istate.fd : null;
 
 		for (s = s ? s.parent : null; s !is null; s = s.parent)
@@ -1441,20 +1661,32 @@ final class CtfeDebugSession
 	}
 
 	/// The arguments `ti` was instantiated with, in the order of the template's
-	/// formal parameters.
+	/// formal parameters.  An instance whose constraint is still being answered
+	/// has parameters that are not deduced into `tdtypes` yet; those are named by
+	/// the arguments the instantiation was written with, which for a call that
+	/// deduces or defaults every argument are the ones the front end deduced.
 	InstanceName[] instanceArguments(TemplateInstance ti)
 	{
 		InstanceName[] result;
-		if (ti is null || !ti.tdtypes.length)
+		if (ti is null)
 			return result;
 
 		TemplateDeclaration td = ti.tempdecl ? ti.tempdecl.isTemplateDeclaration() : null;
 		auto params = td && td.parameters ? (*td.parameters)[] : null;
-		foreach (size_t i, RootObject o; ti.tdtypes[])
+		if (!params.length)
+			return result;
+
+		RootObject[] deduced = ti.tdtypes[];
+		RootObject[] written = ti.tiargs ? (*ti.tiargs)[] : null;
+
+		foreach (size_t i, p; params)
 		{
-			if (o is null || i >= params.length || params[i] is null || params[i].ident is null)
+			RootObject o = i < deduced.length ? deduced[i] : null;
+			if (o is null && i < written.length)
+				o = written[i];
+			if (o is null || p is null || p.ident is null)
 				continue;
-			result ~= InstanceName(idup(params[i].ident.toString()), o);
+			result ~= InstanceName(idup(p.ident.toString()), o);
 		}
 		return result;
 	}
