@@ -44,12 +44,14 @@ import vdc.dmdserver.semvisitor : createModuleFromText;
 import dmd.console : Color;
 import dmd.dinterpret : InterState, ctfeDebugHooks, ctfeGlobals;
 import dmd.dmodule : Module;
+import dmd.dclass : ClassDeclaration;
 import dmd.declaration : Declaration, VarDeclaration;
 import dmd.dsymbol : Dsymbol, ScopeDsymbol;
 import dmd.dtemplate : TemplateInstance, TemplateDeclaration, Tuple, isExpression, isType, isTuple, isDsymbol;
 import dmd.astenums : STC;
 import dmd.errors : diagnosticHandler;
-import dmd.expression : CTFEExp, Expression, IntegerExp, NullExp, RealExp, StringExp;
+import dmd.expression : CTFEExp, Expression, IntegerExp, NullExp, RealExp, StringExp,
+	StructLiteralExp;
 import dmd.root.ctfloat : real_t;
 import dmd.rootobject : RootObject;
 import dmd.globals : dinteger_t;
@@ -1697,12 +1699,12 @@ final class CtfeDebugSession
 		if (value is null)
 			return result;
 
-		if (auto sl = value.isStructLiteralExp())
+		if (auto sl = aggregateLiteral(value))
 		{
 			if (sl.elements is null)
 				return result;
 			auto elems = (*sl.elements)[];
-			auto fields = sl.sd ? sl.sd.fields[] : null;
+			VarDeclaration[] fields = aggregateFields(value);
 			foreach (size_t i, Expression ex; elems)
 			{
 				string name = i < fields.length && fields[i] && fields[i].ident
@@ -1734,6 +1736,47 @@ final class CtfeDebugSession
 			}
 		}
 		return result;
+	}
+
+	/// The literal that holds the values of an aggregate: the literal of a struct
+	/// or union, and the literal of the instance that a reference to a class
+	/// points at.  Null for a value that is not one of an aggregate.
+	static StructLiteralExp aggregateLiteral(Expression e)
+	{
+		if (e is null)
+			return null;
+		if (auto sl = e.isStructLiteralExp())
+			return sl;
+		if (auto cr = e.isClassReferenceExp())
+			return cr.value;
+		return null;
+	}
+
+	/// The fields whose values the literal of an aggregate holds, in the order the
+	/// values are stored in it: the fields of a struct, and for an instance of a
+	/// class the fields of its base classes first and those of the class itself
+	/// last.  The `__monitor` of the root class is left out, because the values of
+	/// an instance never hold it.
+	static VarDeclaration[] aggregateFields(Expression e)
+	{
+		if (auto sl = e.isStructLiteralExp())
+			return sl.sd ? sl.sd.fields[] : null;
+
+		auto cr = e.isClassReferenceExp();
+		ClassDeclaration cd = cr is null ? null : cr.originalClass();
+		if (cd is null)
+			return null;
+
+		ClassDeclaration[] chain;
+		for (ClassDeclaration c = cd; c; c = c.baseClass)
+			chain ~= c;
+
+		VarDeclaration[] fields;
+		for (size_t i = chain.length; i-- > 0; )
+			foreach (VarDeclaration v; chain[i].fields)
+				if (v !is null && (v.ident is null || v.ident.toString() != "__monitor"))
+					fields ~= v;
+		return fields;
 	}
 
 	static string variableName(VarDeclaration v)
@@ -1803,7 +1846,7 @@ final class CtfeDebugSession
 		if (value is null)
 			return 0;
 
-		if (auto sl = value.isStructLiteralExp())
+		if (auto sl = aggregateLiteral(value))
 			return sl.elements && (*sl.elements).length ? newHandle(e) : 0;
 		if (auto al = value.isArrayLiteralExp())
 			return al.elements && (*al.elements).length ? newHandle(e) : 0;
@@ -2818,11 +2861,11 @@ final class CtfeDebugSession
 				return evalIntExp(cast(long) (aa.keys ? (*aa.keys).length : 0), Type.tint32);
 		}
 
-		if (auto sl = e.isStructLiteralExp())
+		if (auto sl = aggregateLiteral(e))
 		{
-			if (sl.elements !is null && sl.sd !is null)
+			if (sl.elements !is null)
 			{
-				auto fields = sl.sd.fields[];
+				VarDeclaration[] fields = aggregateFields(e);
 				foreach (size_t i, Expression ex; (*sl.elements)[])
 					if (i < fields.length && fields[i] !is null && fields[i].ident &&
 						fields[i].ident.toString() == name)
