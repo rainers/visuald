@@ -2360,6 +2360,32 @@ final class CtfeDebugSession
 				conn.sendResponse(seq, command, true, JSONValue(["breakpoints": emptyArray()]));
 				break;
 
+			case "source":
+			{
+				// A client that cannot open a file itself asks for the text of a
+				// source the adapter named.  Every source is a file on disk.
+				JSONValue src = getField(a, "source");
+				string path = getString(src, "path");
+				if (path is null)
+					path = getString(a, "path");
+				if (path is null)
+				{
+					conn.sendError(seq, command, "no source file");
+					break;
+				}
+				try
+				{
+					string text = cast(string) read(path);
+					if (text.length >= 3 && text[0] == 0xEF && text[1] == 0xBB && text[2] == 0xBF)
+						text = text[3 .. $];   // the client decodes the text itself
+					conn.sendResponse(seq, command, true,
+						JSONValue(["content": JSONValue(text)]));
+				}
+				catch (Exception e)
+					conn.sendError(seq, command, "cannot read " ~ path ~ ": " ~ e.msg);
+				break;
+			}
+
 			case "configurationDone":
 				startCompilation();
 				conn.sendResponse(seq, command, true);
@@ -2493,19 +2519,18 @@ final class CtfeDebugSession
 			return;
 		}
 
+		// One entry per breakpoint the client sent, in the order it sent them:
+		// a client matches the reported breakpoints to the requested ones by
+		// their index in the array, so they must not be reordered or dropped.
 		Breakpoint[] bps;
 		foreach (ref bp; jsonArray(a, "breakpoints"))
 		{
 			int line = getInteger(bp, "line");
-			if (line > 0)
-			{
-				Breakpoint b;
-				b.line = cast(uint) line;
-				b.condition = getString(bp, "condition");
-				bps ~= b;
-			}
+			Breakpoint b;
+			b.line = line > 0 ? cast(uint) line : 0;
+			b.condition = getString(bp, "condition");
+			bps ~= b;
 		}
-		bps.sort!((x, y) => x.line < y.line)();
 
 		string key = normalizePath(path);
 		synchronized (lock)
@@ -2520,8 +2545,16 @@ final class CtfeDebugSession
 		{
 			JSONValue[string] bp;
 			bp["id"] = JSONValue(cast(long) b.id);
-			bp["verified"] = JSONValue(true);
-			bp["line"] = JSONValue(cast(long) b.line);
+			if (b.line)
+			{
+				bp["verified"] = JSONValue(true);
+				bp["line"] = JSONValue(cast(long) b.line);
+			}
+			else
+			{
+				bp["verified"] = JSONValue(false);
+				bp["message"] = JSONValue("no line number");
+			}
 			bp["source"] = JSONValue(["path": JSONValue(path)]);
 			list ~= JSONValue(bp);
 		}

@@ -6,9 +6,11 @@
 module vdc.dmdserver.dapio;
 
 import std.conv : to;
+import std.file : append;
 import std.json;
 import std.string : indexOf, strip;
 
+import core.stdc.stdlib : getenv;
 import core.sys.windows.windows;
 
 /// A single DAP message stream.
@@ -20,11 +22,14 @@ private:
 	ubyte[] pending;        // bytes read but not consumed yet
 	Object writeLock;
 	int outSeq;
+	string logPath;         // file named by CTFE_DAP_LOG, or null
 
 public:
 	this()
 	{
 		writeLock = new Object;
+		if (auto name = getenv("CTFE_DAP_LOG"))
+			logPath = to!string(name);
 		hIn = GetStdHandle(STD_INPUT_HANDLE);
 		hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -90,6 +95,7 @@ public:
 		if (text is null)
 			return JSONValue();
 
+		log("--> ", text);
 		try
 			return parseJSON(text);
 		catch (JSONException e)
@@ -105,6 +111,7 @@ public:
 		{
 			msg["seq"] = JSONValue(++outSeq);
 			string text = JSONValue(msg).toString();
+			log("<-- ", text);
 			string header = "Content-Length: " ~ to!string(text.length) ~ "\r\n\r\n";
 			DWORD written;
 			WriteFile(hOut, header.ptr, cast(DWORD) header.length, &written, null);
@@ -143,6 +150,26 @@ public:
 	}
 
 private:
+	/// Append a message to the file named by the CTFE_DAP_LOG environment
+	/// variable, so that the traffic between a client and the adapter can be
+	/// inspected afterwards.  Logging gives up once the file cannot be written.
+	void log(string arrow, string text)
+	{
+		if (logPath.length == 0)
+			return;
+		// Messages arrive from the client thread and are written out by the
+		// compile worker and the console capture; opening the file from two of
+		// them at once fails, so they take turns.  The lock is the one `send`
+		// already holds, and it is reentrant.
+		synchronized (writeLock)
+		{
+			try
+				append(logPath, arrow ~ text ~ "\r\n");
+			catch (Exception e)
+				logPath = null;
+		}
+	}
+
 	bool fill()
 	{
 		enum chunk = 4096;
