@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "CTFE",
+      "type": "dmdserver-ctfe",
+      "request": "launch",
+      "$adapter": "C:\\s\\d\\visuald\\trunk\\bin\\Debug COFF32\\x64\\dmdserver.exe",
+      "$adapterArgs": "-ctfeDebug",
+      "$engineGuid": "002a2de9-8bb6-484d-982a-7e4ad4084715",
+      "program": "C:\\s\\d\\visuald\\trunk\\vdc\\dmdserver\\ctfe_debug\\ctfe_expr.d",
+      "importPaths": [
+        "C:\\D\\dmd-2.114.0-beta.1\\src\\druntime\\src",
+        "C:\\D\\dmd-2.114.0-beta.1\\src\\phobos"
+      ],
+      "stringImportPaths": [],
+      "versionIds": [],
+      "debugIds": [],
+      "options": "",
+      "stopOnEntry": false
+    }
+  ]
+}
