@@ -20,9 +20,9 @@ Debug Adapter Host.
 
 | where | state |
 |---|---|
-| Visual D trunk | `edf1f11 add CTFE debugger`, `4533aa6 redirect stdout and stderr to the debug pane`, `b5a9ae3 add template instantiations to the call stack`, `4fd6a97 show types and compile time constants as part of the instantiation`, `cb0eb87 improve stepping through return, show return value`, `7453155 show fields of a class instance` |
-| dmd submodule, branch `dmdserver` (ahead 1 of `rainers/dmdserver`) | `76f9418577 add hooks for CTFE debugging`, `08b1d14488 move debugger helpers to ctfedebug.d`, `a090b3c8d3 add return value hook` |
-| still uncommitted | the `onCondition` hook (4 dmd files, 29 insertions); the adapter changes for static conditions and their instance arguments; `visuald/ctfedebug.d` (+73 lines: a `version(all)` override to the trunk build of `dmdserver.exe`, and the scratch fixture at the end of the file); the whole `ctfe_debug/` harness folder (untracked) |
+| Visual D trunk | `edf1f11 add CTFE debugger`, `4533aa6 redirect stdout and stderr to the debug pane`, `b5a9ae3 add template instantiations to the call stack`, `4fd6a97 show types and compile time constants as part of the instantiation`, `cb0eb87 improve stepping through return, show return value`, `7453155 show fields of a class instance`, `2f05c67 CTFE debugger: fix breakpoint handling`, `c7c5996 add CTFE debugger tests` |
+| dmd submodule, branch `dmdserver` (ahead 2 of `rainers/dmdserver`) | `76f9418577 add hooks for CTFE debugging`, `08b1d14488 move debugger helpers to ctfedebug.d`, `a090b3c8d3 add return value hook`, `05bcd531ef add onCondition hook` |
+| still uncommitted | the `resolvePackage()` call in `compileWorker` ("The debugged file is one module" above); the `scenario_package_module()` test and the `ctfe_pkg/` fixture; `visuald/ctfedebug.d` (+77 lines: a `version(all)` override to the trunk build of `dmdserver.exe`, and the scratch fixture at the end of the file); `vdextensions/vdext15.csproj` (copy `ctfedebug_launch.json` to the output) |
 
 Commit the dmd submodule first, then Visual D, with
 `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`. Keep
@@ -32,7 +32,7 @@ Commit the dmd submodule first, then Visual D, with
 
 | File | Role |
 |---|---|
-| `vdc/dmdserver/ctfedebug.d` | the DAP server (3480 lines): stdio JSON, breakpoints, stack, locals, template arguments and instance definitions, instance arguments in values and types, return values, stepping out at the call site and out to the declaration of the constant, single stepping ending at either, a step off a return line ending there too, class instances expanding their fields, template constraints and `static if`/`static assert` conditions with the arguments of the instance they are written in, globals, expression evaluator |
+| `vdc/dmdserver/ctfedebug.d` | the DAP server (3526 lines): stdio JSON, breakpoints, stack, locals, template arguments and instance definitions, instance arguments in values and types, return values, stepping out at the call site and out to the declaration of the constant, single stepping ending at either, a step off a return line ending there too, class instances expanding their fields, template constraints and `static if`/`static assert` conditions with the arguments of the instance they are written in, globals, expression evaluator |
 | `vdc/dmdserver/dapio.d` | Content-Length framed JSON transport, `getField/getString/getInteger/jsonArray` helpers |
 | `vdc/dmdserver/dmdinit.d` | `objc._init()` / `_dsymbols1` bootstrap the front end needs |
 | `vdc/dmdserver/vdserverfactory.d` | routes `-ctfeDebug` on the command line to `CtfeDebugSession` |
@@ -60,8 +60,8 @@ while.
 cd vdc\dmdserver\ctfe_debug
 python -u dap_scenarios.py > ..\..\..\dap_run.log
 ```
-(`-u` and a file redirect are required — PowerShell pipes buffer the output.) 19 scenarios, ~4 s,
-exit 0, ~313 log lines:
+(`-u` and a file redirect are required — PowerShell pipes buffer the output.) 20 scenarios, ~4 s,
+exit 0, ~318 log lines:
 
 ```
 global constants are no scope of their own        compiler generated locals are hidden
@@ -73,15 +73,15 @@ class instances expand the fields                 breaking on static conditions
 arguments of the instance a condition is in       the return of a call is a step of its own
 stepping out of a call ends at the call site      pause while running
 compile time error reported to the client         compiler console output reaches the client
-breakpoints come back as they were sent
+breakpoints come back as they were sent          a module of a package is analysed once
 ```
 
 Scenarios, in the order `main()` runs them: `scenario_globals()`, `scenario_temps()`,
 `scenario_condition()`, `scenario_evaluate()`, `scenario_manifest()`, `scenario_bottom()`,
 `scenario_template_args()`, `scenario_instantiation()`, `scenario_instance_defs()`,
 `scenario_instance_values()`, `scenario_class_fields()`, `scenario_conditions()`,
-`scenario_condition_instances()`, `scenario_breakpoint_order()`, `scenario_return()`,
-`scenario_stepout()`, `scenario_pause()`, `scenario_errors()`, `scenario_output()`.
+`scenario_condition_instances()`, `scenario_breakpoint_order()`, `scenario_package_module()`,
+`scenario_return()`, `scenario_stepout()`, `scenario_pause()`, `scenario_errors()`, `scenario_output()`.
 
 Harness API (`dap_scenarios.py`): `Client(src)` with `request(cmd, args)`, `send`,
 `wait_event(names, timeout)` (takes a *set* of event names and leaves the terminal
@@ -93,7 +93,8 @@ is why the suite once took 3 min.
 
 Demo sources: `ctfe_demo.d`, `ctfe_demo2.d`, `ctfe_pause.d`, `ctfe_err.d`, `ctfe_expr.d`,
 `ctfe_manifest.d`, `ctfe_template.d`, `ctfe_out.d`, `ctfe_inst.d`, `ctfe_nested.d`, `ctfe_defs.d`,
-`ctfe_ret.d`, `ctfe_stepout.d`, `ctfe_values.d`, `ctfe_class.d`, `ctfe_cond.d`, `ctfe_cond2.d`.
+`ctfe_ret.d`, `ctfe_stepout.d`, `ctfe_values.d`, `ctfe_class.d`, `ctfe_cond.d`, `ctfe_cond2.d`, and the
+`ctfe_pkg/` package (`package.d` importing `leaf.d`).
 `launch.json` (here) is the Visual Studio launch configuration used for the VS smoke test.
 
 ## How `ctfedebug.d` is edited
@@ -176,10 +177,30 @@ helper functions the front end used to offer moved to `ctfedebug.d` in `08b1d144
   `combine(T)(T a, T b) if (...)(2, 3) == 5`. The adapter takes the text of a condition once, when
   the hook begins. `evalStaticCondition` short-circuits `!`, `&&` and `||` structurally and analyzes
   the leaves one by one, so a whole condition never reaches `ctfeInterpret` — only its clauses do.
-  The patch also re-indents a few lines of that function; keep the diff small when re-basing onto a
-  new dmd.
+     The patch also re-indents a few lines of that function; keep the diff small when re-basing onto a
+     new dmd.
 
-## The call stack
+  ## The debugged file is one module
+
+  `compileWorker` parses the text of the launch `program` itself (`createModuleFromText` of
+  `semvisitor.d`), and a module built that way has no package until one is given to it. The compiler
+  resolves a root file after parsing it: `main.d` calls `Module.resolvePackage`, which takes the name
+  and the packages from the `module` declaration — or the file name where there is none — and registers
+  the module under it. The adapter does the same now. Left unresolved, `visuald\ctfedebug.d`, which
+  declares `module visuald.ctfedebug;`, was the module `ctfedebug`, while the `import visuald.ctfedebug;`
+  of `visuald\dpackage.d` read the same file again as a second module: the front end analysed the file
+  twice and interpreted every constant in it twice, so each breakpoint stopped twice and the call stack
+  showed `ctfedebug.T!5` beside `visuald.ctfedebug.T!5`. The import paths do not cause this — the name of
+  the parsed root module comes from the file, not from the `-I` list, so having both `trunk\` and
+  `trunk\visuald\` on it is harmless.
+
+  The scratch fixture of `visuald\ctfedebug.d` replayed with the 8 breakpoints of a VS session stopped
+  40 times before and stops 21 times now: the `T!5` chain of line 382 runs once instead of twice, and the
+  `T!5 t3;` of line 375 is a second instantiation that legitimately stops again. `scenario_package_module()`
+  holds the rule down with `ctfe_pkg/package.d` importing `ctfe_pkg/leaf.d`; without the call that scenario
+  stops three times and names one of its frames `leaf.twice`.
+
+  ## The call stack
 
 DAP reports frames innermost first. `buildFrames` collects the interpreted calls from the
 `InterState` chain, interleaves them with the instantiation frames, and closes the stack with the
@@ -580,4 +601,7 @@ Still open on the VS side:
     seen by the client — `scenario_temps` printed `terminated: False` although the process exited 0.
     `restart` is not implemented.
 11. Commit: dmd submodule first (the `onCondition` hook), then Visual D, then the `ctfe_debug/`
-    harness folder.
+     harness folder.
+12. A debugged file whose name is not an identifier (`ctfe-cond.d`) is still read twice when another
+     module imports it: `resolvePackage()` rejects such a name, and the debugger deliberately keeps
+     reading files the compiler would refuse.

@@ -1,6 +1,7 @@
 """DAP scenarios: global constants, pause, errors, hidden locals, conditions,
 expressions, template arguments, instantiations, instance definitions, instance
-values, static conditions, condition arguments, returns, breakpoint order."""
+values, static conditions, condition arguments, returns, breakpoint order,
+package modules."""
 import functools
 import json
 import os
@@ -1665,6 +1666,39 @@ def scenario_breakpoint_order():
     print("  logged %d requests and %d answers to %s" % (sent, answered, log))
 
 
+def scenario_package_module():
+    print("=== a module of a package is analysed once ===")
+    src = BASE + r"\ctfe_pkg\leaf.d"
+    c = Client(src)
+    c.request("initialize", {"adapterID": "ctfe", "pathFormat": "path"})
+    c.request("launch", {"program": src, "importPaths": IMPORTS + [BASE]})
+    line = find_line(src, "BP_TWICE")
+    c.request("setBreakpoints", {"source": {"path": src}, "breakpoints": [{"line": line}]})
+    c.request("configurationDone")
+    hits = []
+    while True:
+        ev, msg = c.wait_event(("stopped",) + TERMINAL, 30)
+        if msg is None or msg.get("event") != "stopped":
+            break
+        frames = c.frames()
+        top = frames[0] if frames else {}
+        args = local_values(c, top) if top else {}
+        hits.append((top.get("name"), args.get("n")))
+        print("  stop %s line %s: %s" % (top.get("name"), top.get("line"), args))
+        c.send("continue", {"threadId": 1})
+    print("terminated:", finish(c))
+    print("exit:", c.close())
+
+    # The debugged file is imported by its own package, so it could be read twice:
+    # once as the module the debugger parsed, named after the file, and once as the
+    # module the package imported, named after its declaration.  Each call would
+    # then be interpreted twice and every breakpoint would stop twice.
+    assert sorted(hits) == sorted([("ctfe_pkg.leaf.twice", "3"), ("ctfe_pkg.leaf.twice", "21")]), hits
+    for out in c.outputs:
+        text = out.get("output") or ""
+        assert "conflicts with" not in text and "must be imported" not in text, out
+
+
 def main():
     scenario_globals()
     scenario_temps()
@@ -1680,6 +1714,7 @@ def main():
     scenario_conditions()
     scenario_condition_instances()
     scenario_breakpoint_order()
+    scenario_package_module()
     scenario_return()
     scenario_stepout()
     scenario_pause()

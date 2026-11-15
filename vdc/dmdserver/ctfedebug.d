@@ -56,6 +56,7 @@ import dmd.expression : CTFEExp, Expression, IntegerExp, NullExp, RealExp, Strin
 import dmd.root.ctfloat : real_t;
 import dmd.rootobject : RootObject;
 import dmd.globals : dinteger_t;
+import dmd.identifier : Identifier;
 import dmd.location : Loc, SourceLoc;
 import dmd.statement : Statement;
 import dmd.mtype : Type;
@@ -688,7 +689,19 @@ final class CtfeDebugSession
 				ctfeDebugHooks.onCondition = null;
 			}
 
-			runModuleSemantic(createModuleFromText(program, text));
+			Module mod = createModuleFromText(program, text);
+			// A root module gets its name and package the way the compiler gives them
+			// after parsing a root file: main.d calls Module.resolvePackage, which takes
+			// them from the `module` declaration or, without one, from the file name, and
+			// registers the module under it.  Without that, "visuald\ctfedebug.d" is the
+			// module `ctfedebug`, and the `import visuald.ctfedebug;` of the package loads
+			// the same file again as a second module: everything in it is analysed and
+			// interpreted twice, and every breakpoint stops twice.  resolvePackage does
+			// complain about a file name that is not an identifier, which the compiler
+			// refuses to compile either, but the debugger can still read such a file.
+			if (mod.md !is null || Identifier.isValidIdentifier(mod.ident.toChars()))
+				mod.resolvePackage();
+			runModuleSemantic(mod);
 		}
 		catch (CtfeDebugAbort e)
 		{
