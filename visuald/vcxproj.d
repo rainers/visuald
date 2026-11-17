@@ -1,4 +1,3 @@
-// -*- D -*-
 // Convert a Visual D ".visualdproj" into a native MSBuild ".vcxproj".
 //
 // The conversion is driven by three sources of truth:
@@ -6,67 +5,65 @@
 //   visuald/config.d                 the option model and the command lines Visual D builds
 //   msbuild/dmd.xml, msbuild/ldc.xml the DCompile property vocabulary of the MSBuild rules
 //   msbuild/dcompile_defaults.props  the defaults a vcxproj inherits for DCompile
+//
+// This file is part of Visual D.
+//
+// Copyright (c) 2024 by Rainer Schuetze, All Rights Reserved
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 module visuald.vcxproj;
 
-import std.array : Appender, appender, array;
-import std.ascii : isAlpha, isAlphaNum, isDigit;
-import std.base64 : Base64;
-import std.conv : text;
-import std.digest.sha : SHA1;
-import std.algorithm.sorting : sort;
-import std.file : DirEntry, dirEntries, exists, getcwd, isDir, mkdir, read, SpanMode, write;
-import std.range : only, retro, walkLength;
-import std.string : indexOf, join, leftJustify, splitLines, startsWith, strip, toLower, toUpper;
+import std.algorithm : canFind, endsWith, equal, filter, map, max, sort, startsWith, uniq;
+import std.array : appender, array, join, replace, split;
+import std.ascii : isAlpha, isAlphaNum, isDigit, isWhite;
+import std.conv : ConvException, text, to;
+import std.file : DirEntry, dirEntries, exists, getcwd, mkdirRecurse, read, SpanMode, write;
+import std.format : format;
+import std.path : baseName;
+import std.range : only, walkLength;
+import std.regex : matchFirst, Regex, regex, replaceAll, replaceFirst, splitter;
+import std.stdio : writeln;
+import std.string : indexOf, lastIndexOf, leftJustify, splitLines, startsWith, strip, toLower, toUpper;
+import std.uuid : sha1UUID, urlNamespace;
+
+import stdext.path : canonicalPath, normalizePath;
 
 import xml = visuald.xmlwrap;
 
 
 // --------------------------------------------------------------------- small helpers
 
+/// The XML escaping of an attribute or text value; the apostrophe is left alone
+/// because MSBuild writes its conditions with them.
 string esc(string s)
 {
-	return strReplace(strReplace(strReplace(strReplace(s, "&", "&amp;"), "<", "&lt;"),
-		">", "&gt;"), `"`, "&quot;");
+	auto app = appender!string();
+	foreach (char c; s)
+		switch (c)
+		{
+			case '&': app.put("&amp;"); break;
+			case '<': app.put("&lt;"); break;
+			case '>': app.put("&gt;"); break;
+			case '"': app.put("&quot;"); break;
+			default: app.put(c); break;
+		}
+	return app.data;
 }
 
 /// Visual D stores booleans as 0/1 (and sometimes as an empty string).
 bool flag(string v)
 {
-	return strip(v is null ? "" : v) != "" && strip(v is null ? "" : v) != "0";
+	string s = strip(v is null ? "" : v);
+	return s.length != 0 && s != "0";
 }
 
 int asInt(string v, int default_ = 0)
 {
-	string s = strip(v is null ? "" : v);
-	size_t i = 0;
-	bool neg = false;
-	if (i < s.length && (s[i] == '+' || s[i] == '-'))
-	{
-		neg = s[i] == '-';
-		++i;
-	}
-	if (i >= s.length)
+	try
+		return strip(v is null ? "" : v).to!int;
+	catch (ConvException)
 		return default_;
-	int n = 0;
-	bool any = false;
-	bool prevDigit = false;
-	for (; i < s.length; ++i)
-	{
-		char c = s[i];
-		if (c == '_')
-		{
-			if (!prevDigit || i + 1 >= s.length || !isDigit(cast(dchar)s[i + 1]))
-				return default_;
-			prevDigit = false;
-			continue;
-		}
-		if (!isDigit(cast(dchar)c))
-			return default_;
-		n = n * 10 + (c - '0');
-		prevDigit = true;
-		any = true;
-	}
-	return any ? (neg ? -n : n) : default_;
 }
 
 /// Split a whitespace separated option list, honouring "quoted" entries.
@@ -99,46 +96,36 @@ string[] words(string s)
 
 // --------------------------------------------------------------------- string scanning
 
-// Python's str.replace, and the manual equivalents of the regular expressions the
-// Python tool uses (std.regex replacement would interpret '$' in macro values).
-
-string strReplace(string s, string old, string new_)
+dchar lowerAscii(dchar c)
 {
-	if (old.length == 0)
-		return s;
-	auto app = appender!string();
-	size_t i = 0;
-	while (i < s.length)
-	{
-		size_t j = indexOf(s, old, i);
-		if (j == size_t.max)
-		{
-			app.put(s[i .. $]);
-			break;
-		}
-		app.put(s[i .. j]);
-		app.put(new_);
-		i = j + old.length;
-	}
-	return app.data;
+	return c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
 }
 
-private bool startsWithCiAt(string s, size_t i, string pat)
+/// The option names, macro names and paths of a .visualdproj are compared without
+/// regard to case.
+bool ciChar(dchar a, dchar b)
 {
-	if (i + pat.length > s.length)
-		return false;
-	foreach (dchar c; pat)
-	{
-		char a = s[i];
-		if (a >= 'A' && a <= 'Z')
-			a = cast(char)(a + 32);
-		if (c >= 'A' && c <= 'Z')
-			c = cast(dchar)(c + 32);
-		if (a != c)
-			return false;
-		++i;
-	}
-	return true;
+	return lowerAscii(a) == lowerAscii(b);
+}
+
+bool ciEqual(string a, string b)
+{
+	return equal!ciChar(a, b);
+}
+
+bool ciHas(const string[] set, string name)
+{
+	return canFind!ciEqual(set, name);
+}
+
+bool startsWithCiAt(string s, size_t i, string pat)
+{
+	return i + pat.length <= s.length && startsWith!ciChar(s[i .. $], pat);
+}
+
+bool endsWithCi(string s, string suffix)
+{
+	return s.length >= suffix.length && endsWith!ciChar(s, suffix);
 }
 
 private bool isIdentStart(char c)
@@ -151,84 +138,48 @@ private bool isIdentChar(char c)
 	return c == '_' || isAlphaNum(cast(dchar)c);
 }
 
-private bool isPySpace(dchar c)
+// re.sub(r"(^|\\)\.($|\\)", r"\1", p)
+private auto dotComponentPattern()
 {
-	// the subset of \s the tool can run into
-	return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == 0x0b || c == 0x0c;
+	static immutable Regex!char re = regex(`(^|\\)\.(?:$|\\)`);
+	return re;
 }
 
-// re.sub(r"(^|\\)\.($|\\)", r"\1", p)
 private string dropDotComponents(string s)
 {
-	auto app = appender!string();
-	size_t i = 0;
-	while (i < s.length)
-	{
-		if (i == 0 && s[i] == '.' && (i + 1 == s.length || s[i + 1] == '\\'))
-		{
-			i += (i + 1 == s.length) ? 1 : 2;
-			continue;
-		}
-		if (s[i] == '\\' && i + 1 < s.length && s[i + 1] == '.' &&
-			(i + 2 == s.length || s[i + 2] == '\\'))
-		{
-			app.put('\\');
-			i += (i + 2 == s.length) ? 2 : 3;
-			continue;
-		}
-		app.put(s[i]);
-		++i;
-	}
-	return app.data;
+	return replaceAll(s, dotComponentPattern(), "$1");
 }
 
 // re.sub(r"\\{2,}", r"\\", p)
+private auto backslashRunPattern()
+{
+	static immutable Regex!char re = regex(`\\{2,}`);
+	return re;
+}
+
 private string collapseBackslashes(string s)
 {
-	auto app = appender!string();
-	size_t i = 0;
-	while (i < s.length)
-	{
-		if (s[i] == '\\')
-		{
-			app.put('\\');
-			while (i < s.length && s[i] == '\\')
-				++i;
-			continue;
-		}
-		app.put(s[i]);
-		++i;
-	}
-	return app.data;
+	return replaceAll(s, backslashRunPattern(), "\\");
 }
 
 /// Normalize a Windows path that may still contain $(Macros).
 string macroNormpath(string p)
 {
-	p = strReplace(p is null ? "" : p, "/", "\\");
+	p = normalizePath(p is null ? "" : p);
 	p = dropDotComponents(p);
 	p = collapseBackslashes(p);
 	return p;
 }
 
-// re.sub(r"(\$\(<macro>\))\\", r"\1", p, flags=re.I)
-private string dropSepAfterMacro(string s, string mac)
+// re.sub(r"(\$\((?:outdir|intdir|...)\))\\", r"\1", p, flags=re.I)
+private string dropSepAfterMacro(string s)
 {
-	string pat = "$(" ~ mac ~ ")";
-	auto app = appender!string();
-	size_t i = 0;
-	while (i < s.length)
-	{
-		if (i + pat.length < s.length && startsWithCiAt(s, i, pat) && s[i + pat.length] == '\\')
-		{
-			app.put(s[i .. i + pat.length]);
-			i += pat.length + 1;
-			continue;
-		}
-		app.put(s[i]);
-		++i;
-	}
-	return app.data;
+	return rewriteMacros(s, (ref MacroRef m) {
+		if (m.end >= m.text.length || m.text[m.end] != '\\' || !ciHas(TRAILING_SEP_MACROS, m.name))
+			return null;
+		m.end += 1;
+		return "$(" ~ m.name ~ ")";
+	});
 }
 
 /// Collapse "." and redundant separators in a path that may contain macros.
@@ -237,28 +188,18 @@ private string dropSepAfterMacro(string s, string mac)
 /// name, so "$(ProjectDir)..\\..\\bin" survives.
 string normalizeMacroPath(string p)
 {
-	p = strReplace(p is null ? "" : p, "/", "\\");
-	foreach (ref mac; TRAILING_SEP_MACROS)
-		p = dropSepAfterMacro(p, mac);
+	p = normalizePath(p is null ? "" : p);
+	p = dropSepAfterMacro(p);
 	string[] parts;
-	size_t i = 0;
-	while (i < p.length)
+	foreach (string part; split(p, '\\'))
 	{
-		size_t j = i;
-		while (j < p.length && p[j] != '\\')
-			++j;
-		string part = p[i .. j];
-		if (part.length && part != ".")
-		{
-			if (part == ".." && parts.length && parts[$ - 1] != ".." &&
-				!startsWith(parts[$ - 1], "$(") && indexOf(parts[$ - 1], ':') < 0)
-				parts.length -= 1;
-			else
-				parts ~= part;
-		}
-		i = j;
-		while (i < p.length && p[i] == '\\')
-			++i;
+		if (!part.length || part == ".")
+			continue;
+		if (part == ".." && parts.length && parts[$ - 1] != ".." &&
+			!startsWith(parts[$ - 1], "$(") && indexOf(parts[$ - 1], ':') < 0)
+			parts.length -= 1;
+		else
+			parts ~= part;
 	}
 	return join(parts, "\\");
 }
@@ -279,8 +220,7 @@ final class Env
 
 	string get(string k, string dflt = null)
 	{
-		auto p = k in vals;
-		return p is null ? dflt : *p;
+		return vals.get(k, dflt);
 	}
 
 	bool has(string k)
@@ -291,11 +231,8 @@ final class Env
 	Env dupEnv()
 	{
 		Env e = new Env;
-		foreach (k; keys)
-		{
-			e.keys ~= k;
-			e.vals[k] = vals[k];
-		}
+		e.keys = keys.dup;
+		e.vals = vals.dup;
 		return e;
 	}
 }
@@ -303,155 +240,103 @@ final class Env
 /// Replace $(Macro) occurrences by their value in env (case insensitive).
 string substitute(string s, Env env)
 {
-	for (int pass = 0; pass < 6; ++pass)
+	// MSBuild expands a macro whose value is itself an expression of macros, so
+	// repeat until nothing changes.
+	foreach (pass; 0 .. 6)
 	{
 		string prev = s;
-		foreach (name; env.keys)
-		{
-			string v = env.get(name);
-			if (v is null)
-				continue;
-			s = replaceCi(s, "$(" ~ name ~ ")", v);
-		}
+		s = rewriteMacros(s, (ref MacroRef m) => env.get(toLower(m.name), null));
 		if (s == prev)
 			break;
 	}
 	return s;
 }
 
-// case insensitive literal search & replace; the replacement is never rescanned
-private string replaceCi(string s, string pat, string repl)
-{
-	if (pat.length == 0)
-		return s;
-	auto app = appender!string();
-	size_t i = 0;
-	while (i < s.length)
-	{
-		if (startsWithCiAt(s, i, pat))
-		{
-			app.put(repl);
-			i += pat.length;
-			continue;
-		}
-		app.put(s[i]);
-		++i;
-	}
-	return app.data;
-}
-
-string ciGet(const string[string] aa, string key, string dflt = null)
-{
-	auto p = key in aa;
-	return p is null ? dflt : *p;
-}
-
 // --------------------------------------------------------------------- $(Macro) scanning
 
 // \$\(([A-Za-z_][A-Za-z0-9_]*)\)
-// Returns the identifiers of all macro references in s.
-string[] macroRefs(string s)
+struct MacroRef
 {
-	string[] res;
-	size_t i = 0;
-	while (i < s.length)
+	string text;  // the string the reference was found in
+	size_t begin; // the '$' of "$("
+	size_t end;   // one past the ')'
+	string name;  // the identifier as written
+}
+
+/// The macro references in s, in the order they appear. With spaces set, the
+/// "$(\s*Name\s*)" spelling that the macro alias table uses is matched as well.
+private MacroRef[] macroRefs(string s, bool spaces = false)
+{
+	MacroRef[] res;
+	for (size_t i = 0; i < s.length; ++i)
 	{
-		if (s[i] == '$' && i + 1 < s.length && s[i + 1] == '(')
-		{
-			size_t j = i + 2;
-			if (j < s.length && isIdentStart(s[j]))
-			{
-				size_t start = j;
-				while (j < s.length && isIdentChar(s[j]))
-					++j;
-				if (j < s.length && s[j] == ')')
-				{
-					res ~= s[start .. j];
-					i = j + 1;
-					continue;
-				}
-			}
-		}
-		++i;
+		if (s[i] != '$' || i + 1 >= s.length || s[i + 1] != '(')
+			continue;
+		size_t j = i + 2;
+		if (spaces)
+			while (j < s.length && isWhite(cast(dchar)s[j]))
+				++j;
+		if (j >= s.length || !isIdentStart(s[j]))
+			continue;
+		size_t start = j;
+		while (j < s.length && isIdentChar(s[j]))
+			++j;
+		size_t k = j;
+		if (spaces)
+			while (k < s.length && isWhite(cast(dchar)s[k]))
+				++k;
+		if (k >= s.length || s[k] != ')')
+			continue;
+		res ~= MacroRef(s, i, k + 1, s[start .. j]);
+		i = k;
 	}
 	return res;
+}
+
+/// Rewrite the macro references of s. fg returns the replacement for a reference,
+/// or null to keep it as written; it may extend m.end to swallow what follows the
+/// reference, and a null result then drops what it swallowed as well.
+private string rewriteMacros(string s, scope string delegate(ref MacroRef m) fg, bool spaces = false)
+{
+	auto app = appender!string();
+	size_t pos = 0;
+	foreach (ref m; macroRefs(s, spaces))
+	{
+		if (m.begin < pos)
+			continue; // an earlier rewrite already reached this reference
+		string r = fg(m);
+		if (r is null)
+		{
+			app.put(s[pos .. m.end]);
+			pos = m.end;
+			continue;
+		}
+		app.put(s[pos .. m.begin]);
+		app.put(r);
+		pos = m.end;
+	}
+	app.put(s[pos .. $]);
+	return app.data;
 }
 
 // re.sub(r"\$\(\s*<name>\s*\)", "$(" + target + ")", s, flags=re.I)
 private string replaceMacroAlias(string s, string name, string target)
 {
-	auto app = appender!string();
-	size_t i = 0;
-	while (i < s.length)
-	{
-		if (s[i] == '$' && i + 1 < s.length && s[i + 1] == '(')
-		{
-			size_t j = i + 2;
-			while (j < s.length && isPySpace(cast(dchar)s[j]))
-				++j;
-			if (startsWithCiAt(s, j, name))
-			{
-				j += name.length;
-				while (j < s.length && isPySpace(cast(dchar)s[j]))
-					++j;
-				if (j < s.length && s[j] == ')')
-				{
-					app.put("$(");
-					app.put(target);
-					app.put(')');
-					i = j + 1;
-					continue;
-				}
-			}
-		}
-		app.put(s[i]);
-		++i;
-	}
-	return app.data;
+	return rewriteMacros(s, (ref MacroRef m) => ciEqual(m.name, name) ? "$(" ~ target ~ ")" : null, true);
 }
 
 // re.sub(r"\$\(([A-Za-z_][A-Za-z0-9_]*)\)(\\\\|\\)", ...)
 private string dropTrailingSepBackslashes(string s)
 {
-	auto app = appender!string();
-	size_t i = 0;
-	while (i < s.length)
-	{
-		if (s[i] == '$' && i + 1 < s.length && s[i + 1] == '(')
-		{
-			size_t j = i + 2;
-			if (j < s.length && isIdentStart(s[j]))
-			{
-				size_t start = j;
-				while (j < s.length && isIdentChar(s[j]))
-					++j;
-				if (j < s.length && s[j] == ')')
-				{
-					string name = s[start .. j];
-					size_t k = j + 1;
-					size_t nsep = 0;
-					if (k < s.length && s[k] == '\\')
-					{
-						nsep = 1;
-						if (k + 1 < s.length && s[k + 1] == '\\')
-							nsep = 2;
-					}
-					if (nsep)
-					{
-						if (ciHas(TRAILING_SEP_MACROS, name))
-							app.put("$(" ~ name ~ ")");
-						else
-							app.put(s[i .. k + nsep]);
-						i = k + nsep;
-						continue;
-					}
-				}
-			}
-		}
-		app.put(s[i]);
-		++i;
-	}
-	return app.data;
+	return rewriteMacros(s, (ref MacroRef m) {
+		size_t nsep = 0;
+		if (m.end < m.text.length && m.text[m.end] == '\\')
+			nsep = m.end + 1 < m.text.length && m.text[m.end + 1] == '\\' ? 2 : 1;
+		if (!nsep || !ciHas(TRAILING_SEP_MACROS, m.name))
+			return null;
+		m.end += nsep;
+		return "$(" ~ m.name ~ ")";
+	});
 }
 
 // --------------------------------------------------------------------- report
@@ -465,10 +350,8 @@ final class Report
 
 	private void add(ref string[] bucket, string msg)
 	{
-		foreach (m; bucket)
-			if (m == msg)
-				return;
-		bucket ~= msg;
+		if (!canFind(bucket, msg))
+			bucket ~= msg;
 	}
 
 	void lossy(string msg) { add(lossyMsgs, msg); }
@@ -478,21 +361,26 @@ final class Report
 
 	string text()
 	{
-		string res;
-		void dump(const string title, const string[] items)
+		auto app = appender!string();
+		void dump(string title, const string[] items)
 		{
 			if (!items.length)
 				return;
-			res ~= title ~ ":\n";
+			app.put(title);
+			app.put(":\n");
 			foreach (m; items)
-				res ~= "  - " ~ m ~ "\n";
-			res ~= "\n";
+			{
+				app.put("  - ");
+				app.put(m);
+				app.put('\n');
+			}
+			app.put('\n');
 		}
 		dump("UNSUPPORTED", unsupportedMsgs);
 		dump("LOSSY", lossyMsgs);
 		dump("IGNORED", ignoredMsgs);
 		dump("NOTES", noteMsgs);
-		return res;
+		return app.data;
 	}
 }
 
@@ -531,84 +419,33 @@ bool msbuildCondition(string cond, string[string] env)
 	return true;
 }
 
-private bool ciEqual(string a, string b)
+// re.split(r"\s+and\s+", cond)
+private auto andPattern()
 {
-	if (a.length != b.length)
-		return false;
-	for (size_t i = 0; i < a.length; ++i)
-	{
-		char x = a[i], y = b[i];
-		if (x >= 'A' && x <= 'Z')
-			x = cast(char)(x + 32);
-		if (y >= 'A' && y <= 'Z')
-			y = cast(char)(y + 32);
-		if (x != y)
-			return false;
-	}
-	return true;
+	static immutable Regex!char re = regex(`\s+and\s+`);
+	return re;
 }
 
-// re.split(r"\s+and\s+", cond)
 private string[] splitAnd(string cond)
 {
-	string[] res;
-	size_t i = 0;
-	size_t last = 0;
-	while (i < cond.length)
-	{
-		if (isPySpace(cast(dchar)cond[i]))
-		{
-			size_t j = i;
-			while (j < cond.length && isPySpace(cast(dchar)cond[j]))
-				++j;
-			if (j + 3 <= cond.length && cond[j .. j + 3] == "and")
-			{
-				size_t k = j + 3;
-				if (k < cond.length && isPySpace(cast(dchar)cond[k]))
-				{
-					res ~= cond[last .. i];
-					while (k < cond.length && isPySpace(cast(dchar)cond[k]))
-						++k;
-					i = last = k;
-					continue;
-				}
-			}
-			i = j;
-			continue;
-		}
-		++i;
-	}
-	res ~= cond[last .. $];
-	return res;
+	return splitter(cond, andPattern()).array;
 }
 
 // re.match(r"^(.+?)\s*(==|!=)\s*(.+)$", part)
+private auto conditionPartPattern()
+{
+	static immutable Regex!char re = regex(`^(.+?)\s*(==|!=)\s*(.+)$`);
+	return re;
+}
+
 private bool matchConditionPart(string part, out string lhs, out string op, out string rhs)
 {
 	lhs = op = rhs = null;
-	for (size_t i = 1; i + 1 < part.length; ++i)
+	if (auto m = matchFirst(part, conditionPartPattern()))
 	{
-		string o;
-		if (part[i] == '=' && part[i + 1] == '=')
-			o = "==";
-		else if (part[i] == '!' && part[i + 1] == '=')
-			o = "!=";
-		else
-			continue;
-		// lhs = part[0 .. i] minus trailing whitespace, must be non-empty
-		size_t e = i;
-		while (e > 0 && isPySpace(cast(dchar)part[e - 1]))
-			--e;
-		if (e == 0)
-			continue;
-		size_t b = i + 2;
-		while (b < part.length && isPySpace(cast(dchar)part[b]))
-			++b;
-		if (b >= part.length)
-			continue;
-		lhs = part[0 .. e];
-		op = o;
-		rhs = part[b .. $];
+		lhs = m.captures[1];
+		op = m.captures[2];
+		rhs = m.captures[3];
 		return true;
 	}
 	return false;
@@ -617,32 +454,10 @@ private bool matchConditionPart(string part, out string lhs, out string op, out 
 // \$\(([A-Za-z_][A-Za-z0-9_]*)\) with env.get(name.lower(), "")
 private string expandMacroRefs(string s, string[string] env)
 {
-	auto app = appender!string();
-	size_t i = 0;
-	while (i < s.length)
-	{
-		if (s[i] == '$' && i + 1 < s.length && s[i + 1] == '(')
-		{
-			size_t j = i + 2;
-			if (j < s.length && isIdentStart(s[j]))
-			{
-				size_t start = j;
-				while (j < s.length && isIdentChar(s[j]))
-					++j;
-				if (j < s.length && s[j] == ')')
-				{
-					string name = s[start .. j];
-					string v = ciGet(env, toLower(name), "");
-					app.put(v is null ? "" : v);
-					i = j + 1;
-					continue;
-				}
-			}
-		}
-		app.put(s[i]);
-		++i;
-	}
-	return app.data;
+	return rewriteMacros(s, (ref MacroRef m) {
+		string v = env.get(toLower(m.name), null);
+		return v is null ? "" : v;
+	});
 }
 
 /// XML attribute values are normalized by a conforming parser: every literal
@@ -654,39 +469,8 @@ private string expandMacroRefs(string s, string[string] env)
 /// like they do in Python's ElementTree.
 string normalizeAttr(string s)
 {
-	bool any = false;
-	foreach (char c; s)
-		if (c == '\r' || c == '\n' || c == '\t')
-		{
-			any = true;
-			break;
-		}
-	if (!any)
-		return s;
-
-	char[] res;
-	res.length = s.length;
-	size_t n = 0;
-	for (size_t i = 0; i < s.length;)
-	{
-		char c = s[i];
-		if (c == '\r')
-		{
-			res[n++] = ' ';
-			i += i + 1 < s.length && s[i + 1] == '\n' ? 2 : 1;
-		}
-		else if (c == '\n' || c == '\t')
-		{
-			res[n++] = ' ';
-			++i;
-		}
-		else
-		{
-			res[n++] = c;
-			++i;
-		}
-	}
-	return cast(string)res[0 .. n];
+	static immutable Regex!char re = regex(`\r\n|[\r\n\t]`);
+	return replaceAll(s, re, " ");
 }
 
 /// xml.getAttribute with the normalization of a real XML parser applied.
@@ -969,122 +753,45 @@ private bool isCont(ubyte b)
 private bool slnProjectMatch(string line, out string path)
 {
 	path = null;
-	size_t i = 0;
-	bool lit(ref size_t j, string s)
+	static immutable Regex!char re = regex(`^Project\("\{[^}]*\}"\)\s*=\s*"[^"]*",\s*"([^"]*)"`);
+	if (auto m = matchFirst(line, re))
 	{
-		if (j + s.length > line.length || line[j .. j + s.length] != s)
-			return false;
-		j += s.length;
+		path = m.captures[1];
 		return true;
 	}
-	if (!lit(i, `Project("{`))
-		return false;
-	size_t j = i;
-	while (j < line.length && line[j] != '}')
-		++j;
-	if (j >= line.length || !lit(j, `}"`))
-		return false;
-	if (j >= line.length || line[j] != ')')
-		return false;
-	++j;
-	size_t k = j;
-	while (k < line.length && isPySpace(cast(dchar)line[k]))
-		++k;
-	if (k >= line.length || line[k] != '=')
-		return false;
-	++k;
-	while (k < line.length && isPySpace(cast(dchar)line[k]))
-		++k;
-	if (k >= line.length || line[k] != '"')
-		return false;
-	++k;
-	size_t q = k;
-	while (q < line.length && line[q] != '"')
-		++q;
-	if (q >= line.length)
-		return false;
-	string namePart = line[k .. q]; // "([^"]*)" group 2 of the pattern; not used
-	k = q + 1;
-	if (k >= line.length || line[k] != ',')
-		return false;
-	++k;
-	while (k < line.length && isPySpace(cast(dchar)line[k]))
-		++k;
-	if (k >= line.length || line[k] != '"')
-		return false;
-	++k;
-	q = k;
-	while (q < line.length && line[q] != '"')
-		++q;
-	if (q >= line.length)
-		return false;
-	path = line[k .. q];
-	return true;
+	return false;
 }
 
 // re.search(r"(\{[0-9A-Fa-f-]+\})\"?\s*$", line)
 private bool slnGuidSearch(string line, out string guid)
 {
 	guid = null;
-	// scan from the end: optional trailing whitespace, optional quote, then {guid}
-	size_t end = line.length;
-	while (end > 0 && isPySpace(cast(dchar)line[end - 1]))
-		--end;
-	size_t braceEnd = end;
-	if (braceEnd > 0 && line[braceEnd - 1] == '"')
-		braceEnd--;
-	if (braceEnd == 0 || line[braceEnd - 1] != '}')
-		return false;
-	size_t open = braceEnd - 1;
-	while (open > 0 && line[open - 1] != '{')
-		--open;
-	if (open == 0 && line[0] != '{')
-		return false;
-	--open; // step back onto the '{' itself
-	string inner = line[open + 1 .. braceEnd - 1];
-	if (!inner.length)
-		return false;
-	foreach (char c; inner)
-		if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == '-'))
-			return false;
-	guid = line[open .. braceEnd];
-	return true;
+	static immutable Regex!char re = regex(`(\{[0-9A-Fa-f-]+\})\"?\s*$`);
+	if (auto m = matchFirst(line, re))
+	{
+		guid = m.captures[1];
+		return true;
+	}
+	return false;
 }
 
 // re.match(r"\{([0-9A-Fa-f-]+)\}", stripped)
 private bool slnGuidMatch(string line, out string guid)
 {
 	guid = null;
-	if (!line.length || line[0] != '{')
-		return false;
-	size_t j = 1;
-	while (j < line.length && line[j] != '}')
-		++j;
-	if (j >= line.length)
-		return false;
-	string inner = line[1 .. j];
-	if (!inner.length)
-		return false;
-	foreach (char c; inner)
-		if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == '-'))
-			return false;
-	guid = "{" ~ inner ~ "}";
-	return true;
+	static immutable Regex!char re = regex(`^\{[0-9A-Fa-f-]+\}`);
+	if (auto m = matchFirst(line, re))
+	{
+		guid = m.captures[0];
+		return true;
+	}
+	return false;
 }
 
 struct Solution
 {
 	string[string] projects; // guid -> path
-	string[] depGuids;       // parallel to projects: guid order
-	string[][] deps;         // guid -> [referenced guid, ...]
-
-	string[] depsOf(string guid)
-	{
-		foreach (i, g; depGuids)
-			if (g == guid)
-				return deps[i];
-		return null;
-	}
+	string[][string] deps;   // guid -> [referenced guid, ...]
 }
 
 /// Return (project guid -> path, project guid -> [referenced guid, ...]).
@@ -1105,7 +812,6 @@ Solution parseSolution(string slnPath)
 				string full = pathAbspath(pathJoin(pathDirname(slnPath), p));
 				string key = gm.toUpper();
 				sol.projects[key] = full;
-				//sol.depGuids ~= key;
 				current = key;
 			}
 			inDeps = false;
@@ -1138,18 +844,8 @@ Solution parseSolution(string slnPath)
 
 private void depsOfAdd(ref Solution sol, string guid, string dep = null)
 {
-	foreach (i, g; sol.depGuids)
-		if (g == guid)
-		{
-			if (dep.length)
-				sol.deps[i] ~= dep;
-			return;
-		}
-	sol.depGuids ~= guid;
-	string[] d;
 	if (dep.length)
-		d ~= dep;
-	sol.deps ~= d;
+		sol.deps[guid] ~= dep;
 }
 
 // --------------------------------------------------------------------- solution references
@@ -1187,40 +883,16 @@ SlnRelink slnRelinkProject(string text, string projGuid, string projPath,
 	string slnDir, string newPath, string newTypeGuid)
 {
 	SlnRelink res;
-	SlnProjectLine hit;
-	bool haveHit;
-
-	foreach (pass; 0 .. 2)
-	{
-		size_t pos = 0;
-		while (pos < text.length)
-		{
-			size_t nl = findFrom(text, '\n', pos);
-			size_t lineEnd = nl == size_t.max ? text.length : nl;
-			SlnProjectLine ln = slnProjectLineAt(text, pos, lineEnd);
-			if (ln.valid)
-			{
-				bool match;
-				if (pass == 0)
-					match = projGuid.length && text[ln.guidBegin + 1 .. ln.guidEnd - 1].toUpper() == projGuid.toUpper();
-				else
-					match = pathNormcase(pathAbspath(pathJoin(slnDir, text[ln.pathBegin + 1 .. ln.pathEnd - 1])))
-						== pathNormcase(pathAbspath(projPath));
-				if (match)
-				{
-					hit = ln;
-					haveHit = true;
-					break;
-				}
-			}
-			if (nl == size_t.max)
-				break;
-			pos = nl + 1;
-		}
-		if (haveHit)
-			break;
-	}
-	if (!haveHit)
+	string guid = projGuid.toUpper();
+	SlnProjectLine hit = findProjectLine(text, (ref SlnProjectLine ln) {
+		return guid.length && text[ln.guidBegin + 1 .. ln.guidEnd - 1].toUpper() == guid;
+	});
+	if (!hit.valid)
+		hit = findProjectLine(text, (ref SlnProjectLine ln) {
+			return pathNormcase(pathAbspath(pathJoin(slnDir, text[ln.pathBegin + 1 .. ln.pathEnd - 1])))
+				== pathNormcase(pathAbspath(projPath));
+		});
+	if (!hit.valid)
 		return res;
 	res.found = true;
 
@@ -1239,6 +911,22 @@ SlnRelink slnRelinkProject(string text, string projGuid, string projPath,
 		~ text[hit.typeEnd .. hit.pathBegin] ~ '"' ~ newPath ~ '"'
 		~ text[hit.pathEnd .. $];
 	return res;
+}
+
+/// The first project header line of the solution that accept() likes.
+private SlnProjectLine findProjectLine(string text, scope bool delegate(ref SlnProjectLine ln) accept)
+{
+	for (size_t pos = 0; pos < text.length;)
+	{
+		size_t nl = indexOf(text, '\n', pos);
+		SlnProjectLine ln = slnProjectLineAt(text, pos, nl == size_t.max ? text.length : nl);
+		if (ln.valid && accept(ln))
+			return ln;
+		if (nl == size_t.max)
+			break;
+		pos = nl + 1;
+	}
+	return SlnProjectLine.init;
 }
 
 /// Pick out the quoted tokens of a solution project header line, or return an
@@ -1301,211 +989,165 @@ bool solutionHasEntry(string slnPath, string path1, string path2 = null)
 // --------------------------------------------------------------------- option tables
 
 immutable string[] TRAILING_SEP_MACROS = [ // MSBuild macros whose value already ends in a backslash
-    "outdir", "intdir", "projectdir", "solutiondir", "inputdir", "targetdir",
-    "vcinstalldir", "vctoolsinstalldir", "vsinstalldir", "devenvdir", "windowsdkdir",
-    "dmdbindir", "ldcbindir", "userrootdir", "vctargetspath", "extensiondir", "projectpath",
+	"outdir", "intdir", "projectdir", "solutiondir", "inputdir", "targetdir",
+	"vcinstalldir", "vctoolsinstalldir", "vsinstalldir", "devenvdir", "windowsdkdir",
+	"dmdbindir", "ldcbindir", "userrootdir", "vctargetspath", "extensiondir", "projectpath",
 ];
 // Macros a visualdproj uses that a vcxproj spells differently (insertion order matters).
-immutable string[][] MACRO_ALIASES = [
-    ["safeprojectname", "ProjectName"],
-    ["fulloutdir", "OutDir"],
-    ["fullintdir", "IntDir"],
-    ["universalcrtsdkdir", "WindowsSdkDir"],
-    ["windowsdkversion", "WindowsTargetPlatformVersion"],
-    // The C++ toolset defines $(Configuration) and $(Platform); the "...Name" spellings
-    // the visualdproj uses are only defined by the Visual D rules inside the IDE.
-    ["configurationname", "Configuration"],
-    ["platformname", "Platform"],
+immutable string[2][] MACRO_ALIASES = [
+	["safeprojectname", "ProjectName"],
+	["fulloutdir", "OutDir"],
+	["fullintdir", "IntDir"],
+	["universalcrtsdkdir", "WindowsSdkDir"],
+	["windowsdkversion", "WindowsTargetPlatformVersion"],
+	// The C++ toolset defines $(Configuration) and $(Platform); the "...Name" spellings
+	// the visualdproj uses are only defined by the Visual D rules inside the IDE.
+	["configurationname", "Configuration"],
+	["platformname", "Platform"],
 ];
 // Macros that have no counterpart in a vcxproj.
 immutable string[string] MACRO_LOSSY = [
-    "visualdinstalldir": "the Visual D installation folder is not an MSBuild property",
-    "cc": "the C++ compiler of the Visual D options is not an MSBuild property",
+	"visualdinstalldir": "the Visual D installation folder is not an MSBuild property",
+	"cc": "the C++ compiler of the Visual D options is not an MSBuild property",
 ];
 // Macros the custom build step understands; everywhere else they have to be spelled out.
 immutable string[] INPUT_MACROS = [
 	"inputpath", "inputname", "inputdir", "inputfilename", "inputext",
-    "rootname", "ext", "filename", "filedir"];
+	"rootname", "ext", "filename", "filedir"];
 // The same macros spelled as the MSBuild item metadata a custom build step expands.
 immutable string[string] INPUT_MACRO_METADATA = [
-    "inputpath": "%(Identity)",
-    "inputfilename": "%(Filename)%(Extension)",
-    "inputname": "%(Filename)",
-    "rootname": "%(Filename)",
-    "filename": "%(Filename)",
-    "inputext": "%(Extension)",
-    "ext": "%(Extension)",
-    "inputdir": "%(RelativeDir)",
-    "filedir": "%(RelativeDir)",
+	"inputpath": "%(Identity)",
+	"inputfilename": "%(Filename)%(Extension)",
+	"inputname": "%(Filename)",
+	"rootname": "%(Filename)",
+	"filename": "%(Filename)",
+	"inputext": "%(Extension)",
+	"ext": "%(Extension)",
+	"inputdir": "%(RelativeDir)",
+	"filedir": "%(RelativeDir)",
 ];
-immutable string[] BOOL_META_KEYS = [
-    "optimize", "useInline", "genStackFrame", "stackStomp", "allinst", "useUnitTests",
-    "cov", "trace", "vtls", "vgc", "verbose", "ignoreUnsupportedPragmas", "preservePaths",
-    "betterC", "dip25", "dip1000", "dip1008", "dip1021", "revert_import",
-    "transition_field", "transition_checkimports", "transition_complex",
-    "transition_vmarkdown", "preview_dtorfields", "preview_intpromote",
-    "preview_fixAliasThis", "preview_rvaluerefparam", "preview_nosharedaccess",
-    "preview_markdown", "preview_in", "preview_inclincontracts", "preview_shortenedMethods",
-];
-immutable string[] BOOL_META_VALUES = [
-    "Optimizer", "Inliner", "StackFrame", "StackStomp", "AllInst", "Unittest",
-    "Coverage", "Profile", "ShowTLS", "ShowGC", "Verbose", "IgnorePragma",
-    "PreserveSourcePath", "BetterC", "DIP25", "DIP1000", "DIP1008", "DIP1021",
-    "RevertImport", "TransitionField", "TransitionCheckImports", "TransitionComplex",
-    "TransitionVMarkdown", "PreviewDtorFields", "PreviewIntPromote", "PreviewFixAliasThis",
-    "PreviewRvalueRefParam", "PreviewNoSharedAccess", "PreviewMarkdown", "PreviewIn",
-    "PreviewInclusiveInContracts", "PreviewShortenedMethods",
+// The DCompile boolean options and the MSBuild metadata property each one sets.
+immutable string[2][] BOOL_META = [
+	["optimize", "Optimizer"],
+	["useInline", "Inliner"],
+	["genStackFrame", "StackFrame"],
+	["stackStomp", "StackStomp"],
+	["allinst", "AllInst"],
+	["useUnitTests", "Unittest"],
+	["cov", "Coverage"],
+	["trace", "Profile"],
+	["vtls", "ShowTLS"],
+	["vgc", "ShowGC"],
+	["verbose", "Verbose"],
+	["ignoreUnsupportedPragmas", "IgnorePragma"],
+	["preservePaths", "PreserveSourcePath"],
+	["betterC", "BetterC"],
+	["dip25", "DIP25"],
+	["dip1000", "DIP1000"],
+	["dip1008", "DIP1008"],
+	["dip1021", "DIP1021"],
+	["revert_import", "RevertImport"],
+	["transition_field", "TransitionField"],
+	["transition_checkimports", "TransitionCheckImports"],
+	["transition_complex", "TransitionComplex"],
+	["transition_vmarkdown", "TransitionVMarkdown"],
+	["preview_dtorfields", "PreviewDtorFields"],
+	["preview_intpromote", "PreviewIntPromote"],
+	["preview_fixAliasThis", "PreviewFixAliasThis"],
+	["preview_rvaluerefparam", "PreviewRvalueRefParam"],
+	["preview_nosharedaccess", "PreviewNoSharedAccess"],
+	["preview_markdown", "PreviewMarkdown"],
+	["preview_in", "PreviewIn"],
+	["preview_inclincontracts", "PreviewInclusiveInContracts"],
+	["preview_shortenedMethods", "PreviewShortenedMethods"],
 ];
 immutable string[] DEAD_OPTIONS = [
-    "obj", "link", "multiobj", "oneobj", "cpu", "scheduler", "pic", "debuglevel",
-    "versionlevel", "dump_source", "useassert", "useinvariants", "usein", "useout",
-    "usearraybounds", "useswitcherror", "noboundscheck", "libname",
-    "islinux", "isosx", "iswindows", "isfreebsd", "issolaris",
+	"obj", "link", "multiobj", "oneobj", "cpu", "scheduler", "pic", "debuglevel",
+	"versionlevel", "dump_source", "useassert", "useinvariants", "usein", "useout",
+	"usearraybounds", "useswitcherror", "noboundscheck", "libname",
+	"islinux", "isosx", "iswindows", "isfreebsd", "issolaris",
 ];
 immutable string[string] UNSUPPORTED_OPTIONS = [
-    "run": "Visual D runs the target after building; a vcxproj has no equivalent",
-    "runargs": "see the 'run' option",
-    "pauseafterrunning": "an option of the Visual D run command",
-    "debugstdouttooutputwindow": "an option of the Visual D debugger panel",
-    "debugengine": "the debugger engine is selected by Visual Studio, not by the project",
-    "debugremote": "no vcxproj property selects a remote debugger for a D target",
-    "filestoclean": "Visual D deletes these on clean; MSBuild uses its own .tlog files",
-    "modules_ddoc": "Visual D generates a separate ddoc batch for these modules",
-    "ddocfiles": "used by the 'modules_ddoc' option only",
-    "moduledepsfile": "MSBuild tracks module dependencies in its own .tlog files",
-    "usestdlibpath": "the MSBuild rules always add the compiler library search path",
-    "runcv2pdb": "cv2pdb is not part of the MSBuild build",
-    "pathcv2pdb": "cv2pdb is not part of the MSBuild build",
-    "cv2pdbnodemangle": "cv2pdb is not part of the MSBuild build",
-    "cv2pdbenumtype": "cv2pdb is not part of the MSBuild build",
-    "cv2pdboptions": "cv2pdb is not part of the MSBuild build",
-    "cccmd": "only used to translate C++ sources for GDC",
-    "cctransopt": "only used to translate C++ sources for GDC",
+	"run": "Visual D runs the target after building; a vcxproj has no equivalent",
+	"runargs": "see the 'run' option",
+	"pauseafterrunning": "an option of the Visual D run command",
+	"debugstdouttooutputwindow": "an option of the Visual D debugger panel",
+	"debugengine": "the debugger engine is selected by Visual Studio, not by the project",
+	"debugremote": "no vcxproj property selects a remote debugger for a D target",
+	"filestoclean": "Visual D deletes these on clean; MSBuild uses its own .tlog files",
+	"modules_ddoc": "Visual D generates a separate ddoc batch for these modules",
+	"ddocfiles": "used by the 'modules_ddoc' option only",
+	"moduledepsfile": "MSBuild tracks module dependencies in its own .tlog files",
+	"usestdlibpath": "the MSBuild rules always add the compiler library search path",
+	"runcv2pdb": "cv2pdb is not part of the MSBuild build",
+	"pathcv2pdb": "cv2pdb is not part of the MSBuild build",
+	"cv2pdbnodemangle": "cv2pdb is not part of the MSBuild build",
+	"cv2pdbenumtype": "cv2pdb is not part of the MSBuild build",
+	"cv2pdboptions": "cv2pdb is not part of the MSBuild build",
+	"cccmd": "only used to translate C++ sources for GDC",
+	"cctransopt": "only used to translate C++ sources for GDC",
 ];
 immutable string[string] MAPPED_OPTIONS = [
-    "objname": "DCompile ObjectFileName (it names the object file of the whole project)",
-    "resfile": "added to the linker inputs",
-    "deffile": "Link ModuleDefinitionFile",
-    "mapverbosity": "Link GenerateMapFile (the level itself only matters when dmd links)",
-    "createimplib": "Link ImportLibrary",
-    "adddepimp": "resolved through the solution into explicit import paths and libraries",
-    "privatephobos": "-defaultlib=<objdir>privatephobos.lib",
-    "doxgeneration": "DCompile JSONFile, or a bare -X when no file is given",
-    "dodoccomments": "DCompile DocDir/DocFile, or a bare -D when neither is given",
-    "dohdrgeneration": "DCompile HeaderDir/HeaderFile, or a bare -H when neither is given",
-    "prebuildcommand": "PreBuildEvent (runs before every target, not only before linking)",
-    "postbuildcommand": "PostBuildEvent",
-    "debugtarget": "LocalDebuggerCommand",
-    "debugarguments": "LocalDebuggerCommandArguments",
-    "debugworkingdir": "LocalDebuggerWorkingDirectory",
-    "debugattach": "LocalDebuggerAttach",
-    "otherdmd": "DCompile CompilerExe",
-    "program": "the compiler executable, taken literally",
-    "enablemixin": "DCompile EnableDebugMixin and DebugMixin",
-    "singlefilecompilation": "DCompile CompilationModel (and DoNotLink for 'compile only')",
-    "mscoff": "DCompile CodeGeneration",
-    "compiler": "the DCompiler property",
-    "isx86_64": "DCompile CodeGeneration",
-    "cruntime": "the libraries passed to the linker (Visual D never passes -mscrtlib)",
-    "subsystem": "Link SubSystem",
-    "lib": "the ConfigurationType property",
-    "exefile": "TargetName/TargetExt and Link or Lib OutputFile",
-    "additionaloptions": "DCompile AdditionalOptions; -L<switch> goes to the linker",
-    "linkswitches": "Link AdditionalOptions",
-    "symdebug": "DCompile DebugInfo and Link GenerateDebugInformation",
-    "warnings": "DCompile Warnings",
-    "infowarnings": "DCompile Warnings",
-    "usedeprecated": "DCompile Deprecations",
-    "errdeprecated": "DCompile Deprecations",
-    "release": "DCompile DebugCode",
-    "boundscheck": "DCompile BoundsCheck",
-    "imppath": "DCompile ImportPaths",
-    "fileimppath": "DCompile StringImportPaths",
-    "versionids": "DCompile VersionIdentifiers",
-    "debugids": "DCompile DebugIdentifiers",
-    "outdir": "the OutDir property",
-    "objdir": "the IntDir property",
-    "objfiles": "Link AdditionalDependencies",
-    "libfiles": "Link AdditionalDependencies",
-    "libpaths": "Link AdditionalLibraryDirectories",
-    "pdbfile": "Link ProgramDatabaseFile",
-    "mapfile": "Link MapFileName",
-    "impfile": "Link ImportLibrary",
-    "quiet": "DCompile AdditionalOptions",
-    "nofloat": "DCompile AdditionalOptions",
-    "defaultlibname": "DCompile AdditionalOptions -defaultlib=",
-    "debuglibname": "DCompile AdditionalOptions -debuglib=",
-    "debuglib": "DCompile AdditionalOptions -link-debuglib (LDC only)",
+	"objname": "DCompile ObjectFileName (it names the object file of the whole project)",
+	"resfile": "added to the linker inputs",
+	"deffile": "Link ModuleDefinitionFile",
+	"mapverbosity": "Link GenerateMapFile (the level itself only matters when dmd links)",
+	"createimplib": "Link ImportLibrary",
+	"adddepimp": "resolved through the solution into explicit import paths and libraries",
+	"privatephobos": "-defaultlib=<objdir>privatephobos.lib",
+	"doxgeneration": "DCompile JSONFile, or a bare -X when no file is given",
+	"dodoccomments": "DCompile DocDir/DocFile, or a bare -D when neither is given",
+	"dohdrgeneration": "DCompile HeaderDir/HeaderFile, or a bare -H when neither is given",
+	"prebuildcommand": "PreBuildEvent (runs before every target, not only before linking)",
+	"postbuildcommand": "PostBuildEvent",
+	"debugtarget": "LocalDebuggerCommand",
+	"debugarguments": "LocalDebuggerCommandArguments",
+	"debugworkingdir": "LocalDebuggerWorkingDirectory",
+	"debugattach": "LocalDebuggerAttach",
+	"otherdmd": "DCompile CompilerExe",
+	"program": "the compiler executable, taken literally",
+	"enablemixin": "DCompile EnableDebugMixin and DebugMixin",
+	"singlefilecompilation": "DCompile CompilationModel (and DoNotLink for 'compile only')",
+	"mscoff": "DCompile CodeGeneration",
+	"compiler": "the DCompiler property",
+	"isx86_64": "DCompile CodeGeneration",
+	"cruntime": "the libraries passed to the linker (Visual D never passes -mscrtlib)",
+	"subsystem": "Link SubSystem",
+	"lib": "the ConfigurationType property",
+	"exefile": "TargetName/TargetExt and Link or Lib OutputFile",
+	"additionaloptions": "DCompile AdditionalOptions; -L<switch> goes to the linker",
+	"linkswitches": "Link AdditionalOptions",
+	"symdebug": "DCompile DebugInfo and Link GenerateDebugInformation",
+	"warnings": "DCompile Warnings",
+	"infowarnings": "DCompile Warnings",
+	"usedeprecated": "DCompile Deprecations",
+	"errdeprecated": "DCompile Deprecations",
+	"release": "DCompile DebugCode",
+	"boundscheck": "DCompile BoundsCheck",
+	"imppath": "DCompile ImportPaths",
+	"fileimppath": "DCompile StringImportPaths",
+	"versionids": "DCompile VersionIdentifiers",
+	"debugids": "DCompile DebugIdentifiers",
+	"outdir": "the OutDir property",
+	"objdir": "the IntDir property",
+	"objfiles": "Link AdditionalDependencies",
+	"libfiles": "Link AdditionalDependencies",
+	"libpaths": "Link AdditionalLibraryDirectories",
+	"pdbfile": "Link ProgramDatabaseFile",
+	"mapfile": "Link MapFileName",
+	"impfile": "Link ImportLibrary",
+	"quiet": "DCompile AdditionalOptions",
+	"nofloat": "DCompile AdditionalOptions",
+	"defaultlibname": "DCompile AdditionalOptions -defaultlib=",
+	"debuglibname": "DCompile AdditionalOptions -debuglib=",
+	"debuglib": "DCompile AdditionalOptions -link-debuglib (LDC only)",
 ];
-immutable string[] KNOWN_OPTIONS = DEAD_OPTIONS ~ array(UNSUPPORTED_OPTIONS.keys) ~ array(MAPPED_OPTIONS.keys) ~ [
-    "symdebugref", "optimize", "useinline", "genstackframe", "stackstomp",
-    "allinst", "useunittests", "cov", "trace", "vtls", "vgc", "verbose",
-    "ignoreunsupportedpragmas", "preservepaths", "betterc", "dip25",
-    "dip1000", "dip1008", "dip1021", "revert_import",
-    "transition_field", "transition_checkimports", "transition_complex",
-    "transition_vmarkdown", "preview_dtorfields", "preview_intpromote",
-    "preview_fixaliasthis", "preview_rvaluerefparam",
-    "preview_nosharedaccess", "preview_markdown", "preview_in",
-    "preview_inclincontracts", "preview_shortenedmethods",
-    "docdir", "docname", "hdrdir", "hdrname", "xfilename",
-    "mixinpath", "compiler", "otherdmd",
+immutable string[] KNOWN_OPTIONS = DEAD_OPTIONS ~ array(UNSUPPORTED_OPTIONS.keys)
+	~ array(MAPPED_OPTIONS.keys) ~ array(BOOL_META.map!(m => toLower(m[0]))) ~ [
+	"symdebugref",
+	"docdir", "docname", "hdrdir", "hdrname", "xfilename",
+	"mixinpath", "compiler", "otherdmd",
 ];
-
-// --------------------------------------------------------------------- small primitives
-
-private size_t findFrom(string s, char c, size_t from = 0)
-{
-    for (size_t i = from; i < s.length; ++i)
-        if (s[i] == c)
-            return i;
-    return size_t.max;
-}
-
-private size_t findLast(string s, char c)
-{
-    for (size_t i = s.length; i > 0; --i)
-        if (s[i - 1] == c)
-            return i - 1;
-    return size_t.max;
-}
-
-// str.split(sep) for a single character, with the empty parts Python keeps
-private string[] splitChar(string s, char sep)
-{
-    string[] res;
-    size_t i = 0;
-    while (true)
-    {
-        size_t j = findFrom(s, sep, i);
-        if (j == size_t.max)
-        {
-            res ~= s[i .. $];
-            break;
-        }
-        res ~= s[i .. j];
-        i = j + 1;
-    }
-    return res;
-}
-
-private void removeAt(ref string[] a, size_t i, size_t n = 1)
-{
-    a = a[0 .. i] ~ a[i + n .. $];
-}
-
-private bool ciHas(const string[] set, string name)
-{
-    foreach (ref s; set)
-        if (ciEqual(s, name))
-            return true;
-    return false;
-}
-
-// ci_dict() keyed by the lower-cased option name
-string ciOptionName(string s)
-{
-    return toLower(s);
-}
 
 // --------------------------------------------------------------------- ntpath
 
@@ -1514,273 +1156,225 @@ string ciOptionName(string s)
 
 private struct SplitRoot
 {
-    string drive;
-    string root;
-    string tail;
+	string drive;
+	string root;
+	string tail;
 }
 
 private SplitRoot pathSplitroot(string p)
 {
-    string normp = strReplace(p, "/", "\\");
-    SplitRoot r;
-    if (normp.length >= 1 && normp[0] == '\\')
-    {
-        if (normp.length >= 2 && normp[1] == '\\')
-        {
-            // UNC drives, e.g. \\server\share or \\?\UNC\server\share
-            // Device drives, e.g. \\.\device or \\?\device
-            size_t start = (normp.length >= 8 && ciEqual(normp[0 .. 8], `\\?\UNC\`)) ? 8 : 2;
-            size_t index = findFrom(normp, '\\', start);
-            if (index == size_t.max)
-                return SplitRoot(p, null, null);
-            size_t index2 = findFrom(normp, '\\', index + 1);
-            if (index2 == size_t.max)
-                return SplitRoot(p, null, null);
-            return SplitRoot(p[0 .. index2], normp[index2 .. index2 + 1], p[index2 + 1 .. $]);
-        }
-        else
-            // Relative path with root, e.g. \Windows
-            return SplitRoot(null, p[0 .. 1], p.length > 1 ? p[1 .. $] : null);
-    }
-    else if (normp.length >= 2 && normp[1] == ':')
-    {
-        if (normp.length >= 3 && normp[2] == '\\')
-            // Absolute drive-letter path, e.g. X:\Windows
-            return SplitRoot(p[0 .. 2], p[2 .. 3], p[3 .. $]);
-        // Relative path with drive, e.g. X:Windows
-        return SplitRoot(p[0 .. 2], null, p[2 .. $]);
-    }
-    // Relative path, e.g. Windows
-    return SplitRoot(null, null, p);
+	string normp = normalizePath(p);
+	SplitRoot r;
+	if (normp.length >= 1 && normp[0] == '\\')
+	{
+		if (normp.length >= 2 && normp[1] == '\\')
+		{
+			// UNC drives, e.g. \\server\share or \\?\UNC\server\share
+			// Device drives, e.g. \\.\device or \\?\device
+			size_t start = (normp.length >= 8 && ciEqual(normp[0 .. 8], `\\?\UNC\`)) ? 8 : 2;
+			size_t index = indexOf(normp, '\\', start);
+			if (index == size_t.max)
+				return SplitRoot(p, null, null);
+			size_t index2 = indexOf(normp, '\\', index + 1);
+			if (index2 == size_t.max)
+				return SplitRoot(p, null, null);
+			return SplitRoot(p[0 .. index2], normp[index2 .. index2 + 1], p[index2 + 1 .. $]);
+		}
+		else
+			// Relative path with root, e.g. \Windows
+			return SplitRoot(null, p[0 .. 1], p.length > 1 ? p[1 .. $] : null);
+	}
+	else if (normp.length >= 2 && normp[1] == ':')
+	{
+		if (normp.length >= 3 && normp[2] == '\\')
+			// Absolute drive-letter path, e.g. X:\Windows
+			return SplitRoot(p[0 .. 2], p[2 .. 3], p[3 .. $]);
+		// Relative path with drive, e.g. X:Windows
+		return SplitRoot(p[0 .. 2], null, p[2 .. $]);
+	}
+	// Relative path, e.g. Windows
+	return SplitRoot(null, null, p);
 }
 
 bool pathIsabs(string s)
 {
-    string t = s.length > 3 ? s[0 .. 3] : s;
-    t = strReplace(t, "/", "\\");
-    if (t.length >= 3 && t[1] == ':' && t[2] == '\\')
-        return true;
-    return t.length >= 2 && t[0] == '\\' && t[1] == '\\';
+	string t = s.length > 3 ? s[0 .. 3] : s;
+	t = normalizePath(t);
+	if (t.length >= 3 && t[1] == ':' && t[2] == '\\')
+		return true;
+	return t.length >= 2 && t[0] == '\\' && t[1] == '\\';
 }
 
 string pathJoin(string a, string b)
 {
-    SplitRoot res = pathSplitroot(a);
-    SplitRoot pr = pathSplitroot(b);
-    if (pr.root.length)
-    {
-        // Second path is absolute
-        if (pr.drive.length || !res.drive.length)
-            res.drive = pr.drive;
-        res.root = pr.root;
-        res.tail = pr.tail;
-    }
-    else if (pr.drive.length && pr.drive != res.drive)
-    {
-        if (toLower(pr.drive) != toLower(res.drive))
-        {
-            // Different drives => ignore the first path entirely
-            res.drive = pr.drive;
-            res.root = pr.root;
-            res.tail = pr.tail;
-        }
-        else
-            // Same drive in different case
-            res.drive = pr.drive;
-    }
-    if (res.tail.length && res.tail[$ - 1] != '\\' && res.tail[$ - 1] != '/')
-        res.tail ~= "\\";
-    res.tail ~= pr.tail;
-    // add separator between UNC and non-absolute path
-    if (res.tail.length && !res.root.length && res.drive.length &&
-        res.drive[$ - 1] != ':' && res.drive[$ - 1] != '\\' && res.drive[$ - 1] != '/')
-        return res.drive ~ "\\" ~ res.tail;
-    return res.drive ~ res.root ~ res.tail;
+	SplitRoot res = pathSplitroot(a);
+	SplitRoot pr = pathSplitroot(b);
+	if (pr.root.length)
+	{
+		// Second path is absolute
+		if (pr.drive.length || !res.drive.length)
+			res.drive = pr.drive;
+		res.root = pr.root;
+		res.tail = pr.tail;
+	}
+	else if (pr.drive.length && pr.drive != res.drive)
+	{
+		if (toLower(pr.drive) != toLower(res.drive))
+		{
+			// Different drives => ignore the first path entirely
+			res.drive = pr.drive;
+			res.root = pr.root;
+			res.tail = pr.tail;
+		}
+		else
+			// Same drive in different case
+			res.drive = pr.drive;
+	}
+	if (res.tail.length && res.tail[$ - 1] != '\\' && res.tail[$ - 1] != '/')
+		res.tail ~= "\\";
+	res.tail ~= pr.tail;
+	// add separator between UNC and non-absolute path
+	if (res.tail.length && !res.root.length && res.drive.length &&
+		res.drive[$ - 1] != ':' && res.drive[$ - 1] != '\\' && res.drive[$ - 1] != '/')
+		return res.drive ~ "\\" ~ res.tail;
+	return res.drive ~ res.root ~ res.tail;
 }
 
 string pathNormpath(string path)
 {
-    path = strReplace(path, "/", "\\");
-    SplitRoot sr = pathSplitroot(path);
-    string prefix = sr.drive ~ sr.root;
-    string[] comps;
-    if (sr.tail.length)
-    {
-        size_t i = 0;
-        while (i < sr.tail.length)
-        {
-            size_t j = i;
-            while (j < sr.tail.length && sr.tail[j] != '\\')
-                ++j;
-            comps ~= sr.tail[i .. j];
-            i = j;
-            while (i < sr.tail.length && sr.tail[i] == '\\')
-                ++i;
-        }
-    }
-    size_t i = 0;
-    while (i < comps.length)
-    {
-        if (!comps[i].length || comps[i] == ".")
-            removeAt(comps, i);
-        else if (comps[i] == "..")
-        {
-            if (i > 0 && comps[i - 1] != "..")
-            {
-                removeAt(comps, i - 1, 2);
-                if (i)
-                    --i;
-            }
-            else if (i == 0 && sr.root.length)
-                removeAt(comps, i);
-            else
-                ++i;
-        }
-        else
-            ++i;
-    }
-    if (!prefix.length && !comps.length)
-        comps ~= ".";
-    return prefix ~ join(comps, "\\");
+	path = normalizePath(path);
+	SplitRoot sr = pathSplitroot(path);
+	string prefix = sr.drive ~ sr.root;
+	// Empty and "." components are dropped. ".." cancels the component before it,
+	// unless that one is also "..", or unless the path is rooted and there is
+	// nothing left to cancel, in which case the ".." is dropped as well.
+	string[] comps;
+	foreach (c; split(sr.tail, '\\'))
+	{
+		if (!c.length || c == ".")
+			continue;
+		if (c == ".." && comps.length && comps[$ - 1] != "..")
+			comps.length -= 1;
+		else if (c == ".." && !comps.length && sr.root.length)
+			continue;
+		else
+			comps ~= c;
+	}
+	if (!prefix.length && !comps.length)
+		comps ~= ".";
+	return prefix ~ join(comps, "\\");
 }
 
 private string pathUpperDrive(string p)
 {
-    if (p.length >= 2 && p[1] == ':' && isAlpha(cast(dchar)p[0]) && p[0] >= 'a' && p[0] <= 'z')
-        return cast(char)(p[0] - 32) ~ p[1 .. $];
-    return p;
+	return p.length >= 2 && p[1] == ':' && isAlpha(cast(dchar)p[0]) ? p[0 .. 1].toUpper ~ p[1 .. $] : p;
 }
 
 string pathAbspath(string path)
 {
-    string n = pathNormpath(path);
-    if (pathIsabs(n))
-        return pathUpperDrive(n);
-    n = pathJoin(getcwd(), n);
-    n = pathNormpath(n);
-    return pathUpperDrive(n);
+	string n = pathNormpath(path);
+	if (pathIsabs(n))
+		return pathUpperDrive(n);
+	n = pathJoin(getcwd(), n);
+	n = pathNormpath(n);
+	return pathUpperDrive(n);
 }
 
 private string rstripSeps(string s)
 {
-    size_t n = s.length;
-    while (n && (s[n - 1] == '\\' || s[n - 1] == '/'))
-        --n;
-    return s[0 .. n];
+	size_t n = s.length;
+	while (n && (s[n - 1] == '\\' || s[n - 1] == '/'))
+		--n;
+	return s[0 .. n];
 }
 
 private string[] pathSplit(string p)
 {
-    SplitRoot sr = pathSplitroot(p);
-    string rest = sr.tail;
-    size_t i = rest.length;
-    while (i && rest[i - 1] != '\\' && rest[i - 1] != '/')
-        --i;
-    return [sr.drive ~ sr.root ~ rstripSeps(rest[0 .. i]), rest[i .. $]];
+	SplitRoot sr = pathSplitroot(p);
+	string rest = sr.tail;
+	size_t sep = max(lastIndexOf(rest, '\\'), lastIndexOf(rest, '/'));
+	size_t i = sep == size_t.max ? 0 : sep + 1;
+	return [sr.drive ~ sr.root ~ rstripSeps(rest[0 .. i]), rest[i .. $]];
 }
 
 string pathDirname(string p)
 {
-    return pathSplit(p)[0];
+	return pathSplit(p)[0];
 }
 
 string pathBasename(string p)
 {
-    return pathSplit(p)[1];
+	return pathSplit(p)[1];
 }
 
 // genericpath._splitext
 string[] pathSplitext(string p)
 {
-    ptrdiff_t sepIndex = -1;
-    for (ptrdiff_t i = cast(ptrdiff_t)p.length - 1; i >= 0; --i)
-        if (p[i] == '\\' || p[i] == '/')
-        {
-            sepIndex = i;
-            break;
-        }
-    ptrdiff_t dotIndex = -1;
-    for (ptrdiff_t i = cast(ptrdiff_t)p.length - 1; i >= 0; --i)
-        if (p[i] == '.')
-        {
-            dotIndex = i;
-            break;
-        }
-    if (dotIndex > sepIndex)
-    {
-        // skip all leading dots
-        ptrdiff_t filenameIndex = sepIndex + 1;
-        while (filenameIndex < dotIndex)
-        {
-            if (p[filenameIndex] != '.')
-                return [p[0 .. dotIndex], p[dotIndex .. $]];
-            ++filenameIndex;
-        }
-    }
-    return [p, null];
+	size_t sepIndex = max(lastIndexOf(p, '\\'), lastIndexOf(p, '/'));
+	// Start of the file name; lastIndexOf yields size_t.max when there is no separator,
+	// which must not take part in the "dot inside the file name" comparison below.
+	size_t filenameIndex = sepIndex == size_t.max ? 0 : sepIndex + 1;
+	size_t dotIndex = lastIndexOf(p, '.');
+	if (dotIndex == size_t.max || dotIndex < filenameIndex)
+		return [p, null];
+	// skip all leading dots of the file name
+	while (filenameIndex < dotIndex)
+	{
+		if (p[filenameIndex] != '.')
+			return [p[0 .. dotIndex], p[dotIndex .. $]];
+		++filenameIndex;
+	}
+	return [p, null];
 }
 
-string pathNormcase(string s)
-{
-    return toLower(strReplace(s, "/", "\\"));
-}
+// ntpath.normcase is exactly stdext.path.canonicalPath
+alias pathNormcase = canonicalPath;
 
 string pathRelpath(string path, string start)
 {
-    string startAbs = pathAbspath(start);
-    string pathAbs = pathAbspath(path);
-    SplitRoot sr = pathSplitroot(startAbs);
-    SplitRoot pr = pathSplitroot(pathAbs);
-    if (pathNormcase(sr.drive) != pathNormcase(pr.drive))
-        throw new Exception("path is on mount " ~ pr.drive ~ ", start on mount " ~ sr.drive);
-    string[] startList = sr.tail.length ? splitChar(sr.tail, '\\') : null;
-    string[] pathList = pr.tail.length ? splitChar(pr.tail, '\\') : null;
-    size_t i = 0;
-    size_t n = startList.length < pathList.length ? startList.length : pathList.length;
-    while (i < n && pathNormcase(startList[i]) == pathNormcase(pathList[i]))
-        ++i;
-    string[] rel;
-    foreach (_; 0 .. startList.length - i)
-        rel ~= "..";
-    foreach (k; i .. pathList.length)
-        rel ~= pathList[k];
-    if (!rel.length)
-        return ".";
-    return join(rel, "\\");
+	string startAbs = pathAbspath(start);
+	string pathAbs = pathAbspath(path);
+	SplitRoot sr = pathSplitroot(startAbs);
+	SplitRoot pr = pathSplitroot(pathAbs);
+	if (pathNormcase(sr.drive) != pathNormcase(pr.drive))
+		throw new Exception("path is on mount " ~ pr.drive ~ ", start on mount " ~ sr.drive);
+	string[] startList = sr.tail.length ? split(sr.tail, '\\') : null;
+	string[] pathList = pr.tail.length ? split(pr.tail, '\\') : null;
+	size_t i = 0;
+	size_t n = startList.length < pathList.length ? startList.length : pathList.length;
+	while (i < n && pathNormcase(startList[i]) == pathNormcase(pathList[i]))
+		++i;
+	string[] rel;
+	foreach (_; 0 .. startList.length - i)
+		rel ~= "..";
+	foreach (k; i .. pathList.length)
+		rel ~= pathList[k];
+	if (!rel.length)
+		return ".";
+	return join(rel, "\\");
 }
 
 // --------------------------------------------------------------------- file system
 
 private bool fileExists(string p)
 {
-    try
-        return exists(p);
-    catch (Exception e)
-        return false;
+	try
+		return exists(p);
+	catch (Exception e)
+		return false;
 }
 
 private string[] listDirSorted(string d)
 {
-    string[] res;
-    try
-        foreach (DirEntry de; dirEntries(d, SpanMode.shallow))
-        {
-            string n = de.name;
-            size_t i = findLast(n, '\\');
-            if (i != size_t.max)
-                n = n[i + 1 .. $];
-            res ~= n;
-        }
-    catch (Exception e)
-    {
-    }
-    res.sort();
-    return res;
-}
-
-private bool endsWithCi(string s, string suffix)
-{
-    return s.length >= suffix.length && ciEqual(s[$ - suffix.length .. $], suffix);
+	string[] res;
+	try
+		foreach (DirEntry de; dirEntries(d, SpanMode.shallow))
+			res ~= de.name.baseName;
+	catch (Exception e)
+	{
+	}
+	res.sort();
+	return res;
 }
 
 // --------------------------------------------------------------------- xml helpers
@@ -1789,33 +1383,33 @@ private bool endsWithCi(string s, string suffix)
 /// so the text items are concatenated here.
 string elemText(xml.Element e)
 {
-    auto app = appender!string();
-    foreach (t; e.texts)
-        app.put(xml.decode(t.toString()));
-    return app.data;
+	auto app = appender!string();
+	foreach (t; e.texts)
+		app.put(xml.decode(t.toString()));
+	return app.data;
 }
 
 private xml.Element[] childElements(xml.Element e, string name)
 {
-    xml.Element[] res;
-    foreach (ch; e.elements)
-        if (ch.tag.name == name)
-            res ~= ch;
-    return res;
+	xml.Element[] res;
+	foreach (ch; e.elements)
+		if (ch.tag.name == name)
+			res ~= ch;
+	return res;
 }
 
 /// ElementTree's Element.iter(): the element itself and all its descendants, pre-order.
 private xml.Element[] iterElements(xml.Element e)
 {
-    xml.Element[] res;
-    void walk(xml.Element el)
-    {
-        res ~= el;
-        foreach (ch; el.elements)
-            walk(ch);
-    }
-    walk(e);
-    return res;
+	xml.Element[] res;
+	void walk(xml.Element el)
+	{
+		res ~= el;
+		foreach (ch; el.elements)
+			walk(ch);
+	}
+	walk(e);
+	return res;
 }
 
 // --------------------------------------------------------------------- macro translation
@@ -1838,7 +1432,7 @@ private string rewriteInputMacros(string s)
 					++j;
 				if (j < s.length && s[j] == ')')
 				{
-					string v = ciGet(INPUT_MACRO_METADATA, toLower(s[start .. j]));
+					string v = INPUT_MACRO_METADATA.get(toLower(s[start .. j]), null);
 					app.put(v is null ? s[i .. j + 1] : v);
 					i = j + 1;
 					continue;
@@ -1882,17 +1476,10 @@ string translateMacros(string s, Report report, string where, bool custom = fals
 	{
 		foreach (pair; MACRO_ALIASES)
 			s = replaceMacroAlias(s, pair[0], pair[1]);
-		string[] names = macroRefs(s);
-		sort(names);
-		string prev;
-		bool first = true;
-		foreach (string name; names)
+		string[] names = macroRefs(s).map!(m => m.name).array;
+		foreach (string name; names.sort.uniq)
 		{
-			if (!first && name == prev)
-				continue;
-			first = false;
-			prev = name;
-			string lossy = ciGet(MACRO_LOSSY, toLower(name));
+			string lossy = MACRO_LOSSY.get(toLower(name), null);
 			if (lossy !is null)
 				report.lossy(where ~ ": $(" ~ name ~ ") " ~ lossy);
 			else if (ciHas(INPUT_MACROS, toLower(name)) && !custom)
@@ -1910,32 +1497,54 @@ string translateMacros(string s, Report report, string where, bool custom = fals
 
 // --------------------------------------------------------------------- option tables
 
-// ci_dict({1:Console,2:Windows,3:Native,4:POSIX})
-immutable string[] SUBSYSTEM_KEYS = ["1", "2", "3", "4"];
-immutable string[] SUBSYSTEM_VALUES = ["Console", "Windows", "Native", "POSIX"];
-immutable string[] BOUNDS_KEYS = ["0", "1", "2", "3"];
-immutable string[] BOUNDS_VALUES = ["", "On", "SafeOnly", "Off"];
-immutable string[] CONFIGURATION_TYPE_KEYS = ["0", "1", "2"];
-immutable string[] CONFIGURATION_TYPE_VALUES = ["Application", "StaticLibrary", "DynamicLibrary"];
-immutable string[] TARGET_EXT_KEYS = ["0", "1", "2"];
-immutable string[] TARGET_EXT_VALUES = [".exe", ".lib", ".dll"];
-
-private string ciIntGet(const string[] keys, const string[] values, int key, string dflt = null)
+// ci_dict({1:Console,2:Windows,3:Native,4:POSIX}); null for an unknown value
+private string subsystemName(int v)
 {
-	string k = text(key);
-	foreach (i, kk; keys)
-		if (kk == k)
-			return values[i];
-	return dflt;
+	switch (v)
+	{
+		case 1: return "Console";
+		case 2: return "Windows";
+		case 3: return "Native";
+		case 4: return "POSIX";
+		default: return null;
+	}
 }
 
-private string subsystemName(int v) { return ciIntGet(SUBSYSTEM_KEYS, SUBSYSTEM_VALUES, v); }
-private string boundsName(int v) { return ciIntGet(BOUNDS_KEYS, BOUNDS_VALUES, v, ""); }
+// ci_dict({0:"",1:On,2:SafeOnly,3:Off})
+private string boundsName(int v)
+{
+	switch (v)
+	{
+		case 1: return "On";
+		case 2: return "SafeOnly";
+		case 3: return "Off";
+		default: return "";
+	}
+}
+
+// ci_dict({0:Application,1:StaticLibrary,2:DynamicLibrary}); null for an output
+// type the .visualdproj would not have written.
 private string configurationTypeName(int v)
 {
-	return ciIntGet(CONFIGURATION_TYPE_KEYS, CONFIGURATION_TYPE_VALUES, v, "Application");
+	switch (v)
+	{
+		case 1: return "StaticLibrary";
+		case 2: return "DynamicLibrary";
+		case 0: return "Application";
+		default: return null;
+	}
 }
-private string targetExtName(int v) { return ciIntGet(TARGET_EXT_KEYS, TARGET_EXT_VALUES, v, ".exe"); }
+
+// ci_dict({0:.exe,1:.lib,2:.dll})
+private string targetExtName(int v)
+{
+	switch (v)
+	{
+		case 1: return ".lib";
+		case 2: return ".dll";
+		default: return ".exe";
+	}
+}
 
 /// DIR_MACRO
 private string dirMacroName(string name) { return name == "outdir" ? "OutDir" : "IntDir"; }
@@ -2068,15 +1677,13 @@ final class Converter
 		{
 			Solution sol = parseSolution(opts.slnPath);
 			slnProjects = sol.projects;
-			foreach (i, g; sol.depGuids)
-				slnDeps[g] = sol.depsOf(g);
+			slnDeps = sol.deps;
 		}
 	}
 
 	string[] depsOfProject()
 	{
-		auto dp = p.guid in slnDeps;
-		return dp is null ? null : *dp;
+		return slnDeps.get(p.guid, null);
 	}
 
 	// ---------------- macros and paths
@@ -2084,7 +1691,7 @@ final class Converter
 	/// The (path, config) tuple the Python tool passes as the report location.
 	private static string envWhere(VdProject proj, VdConfig cfg)
 	{
-		return "('" ~ strReplace(toLower(proj.path), "\\", "\\\\") ~ "', '" ~ cfg.key() ~ "')";
+		return "('" ~ replace(toLower(proj.path), "\\", "\\\\") ~ "', '" ~ cfg.key() ~ "')";
 	}
 
 	/// Return (env, env_abs): env keeps the VC macro spelling, env_abs resolves the
@@ -2310,8 +1917,9 @@ final class Converter
 	Meta[] configProperties(VdConfig cfg)
 	{
 		string compiler = cfg.compiler();
+		string ct = configurationTypeName(cfg.outputType());
 		return [
-			Meta("ConfigurationType", configurationTypeName(cfg.outputType())),
+			Meta("ConfigurationType", ct is null ? "Application" : ct),
 			Meta("PlatformToolset", "$(DefaultPlatformToolset)"),
 			Meta("CharacterSet", "Unicode"),
 			Meta("DCompiler", (compiler == "DMD" || compiler == "LDC") ? compiler : "DMD"),
@@ -2432,9 +2040,9 @@ final class Converter
 			report.note(key ~ ": compilation model 'separate compile only' -> DoNotLink=true");
 		}
 
-		foreach (i, src; BOOL_META_KEYS)
-			if (cfg.has(src))
-				d ~= Meta(BOOL_META_VALUES[i], flag(cfg.get(src)) ? "true" : "false");
+		foreach (m; BOOL_META)
+			if (cfg.has(m[0]))
+				d ~= Meta(m[1], flag(cfg.get(m[0])) ? "true" : "false");
 
 		string[] imps = words(cfg.get("imppath"));
 		if (flag(cfg.get("addDepImp")))
@@ -2988,7 +2596,7 @@ final class Converter
 		string t = stripChars(tok, '"');
 		if (t.length && t[0] == '%' && t[$ - 1] == '%')
 			t = t.length >= 2 ? t[1 .. $ - 1] : "";
-		t = strReplace(t, "\\", "/");
+		t = replace(t, "\\", "/");
 		while (t.length && t[$ - 1] == '/')
 			t = t[0 .. $ - 1];
 		t = toLower(t);
@@ -3138,7 +2746,7 @@ final class Converter
 			{
 				foreach (word; words(err))
 				{
-					string prop = ciGet(MIDL_ERRORCHECK, toLower(word));
+					string prop = MIDL_ERRORCHECK.get(toLower(word), null);
 					if (prop !is null && prop.length)
 						meta ~= Meta(prop, "true");
 					else
@@ -3148,13 +2756,13 @@ final class Converter
 			v = swGet(parsed, "env");
 			if (v.length)
 			{
-				string e2 = ciGet(MIDL_ENV, toLower(v[$ - 1]), v[$ - 1]);
+				string e2 = MIDL_ENV.get(toLower(v[$ - 1]), v[$ - 1]);
 				meta ~= Meta("TargetEnvironment", e2);
 			}
 			v = swGet(parsed, "char");
 			if (v.length)
 			{
-				string c2 = ciGet(MIDL_CHAR, toLower(v[$ - 1]), v[$ - 1]);
+				string c2 = MIDL_CHAR.get(toLower(v[$ - 1]), v[$ - 1]);
 				meta ~= Meta("DefaultCharType", c2);
 			}
 			if (!swHas(parsed, "nologo"))
@@ -3228,7 +2836,7 @@ final class Converter
 		Meta[] kept;
 		foreach (m; meta)
 		{
-			string dv = ciGet(toolDefaults, toLower(m.name));
+			string dv = toolDefaults.get(toLower(m.name), null);
 			if (dv == m.value)
 				continue;
 			kept ~= m;
@@ -3343,10 +2951,10 @@ final class Converter
 						{ any = true; break; }
 				}
 				if (any)
-					report.unsupported("<" ~ key ~ ">: " ~ ciGet(UNSUPPORTED_OPTIONS, toLower(key)));
+					report.unsupported("<" ~ key ~ ">: " ~ UNSUPPORTED_OPTIONS.get(toLower(key), null));
 			}
 			else if (ciHas(MAPPED_OPTIONS.keys, key))
-				report.note("<" ~ key ~ ">: " ~ ciGet(MAPPED_OPTIONS, toLower(key)));
+				report.note("<" ~ key ~ ">: " ~ MAPPED_OPTIONS.get(toLower(key), null));
 			else if (!ciHas(KNOWN_OPTIONS, key))
 				report.unsupported("option <" ~ key ~ "> is not known to the converter");
 		}
@@ -3592,7 +3200,8 @@ final class Converter
 		foreach (fp; unique)
 		{
 			L ~= `    <Filter Include="` ~ esc(fp) ~ `">`;
-			L ~= `      <UniqueIdentifier>{` ~ uuid5Url("visuald/" ~ p.name ~ "/" ~ fp) ~ `}</UniqueIdentifier>`;
+			string id = sha1UUID("visuald/" ~ p.name ~ "/" ~ fp, urlNamespace).toString();
+			L ~= `      <UniqueIdentifier>{` ~ toUpper(id) ~ `}</UniqueIdentifier>`;
 			L ~= `    </Filter>`;
 		}
 		L ~= `  </ItemGroup>`;
@@ -3753,54 +3362,20 @@ immutable string[string] PERCFG_META = [
 
 // --------------------------------------------------------------------- filters uuid5
 
-private string hexUpper(const(ubyte)[] b)
-{
-	static immutable string digits = "0123456789ABCDEF";
-	char[] res;
-	res.length = b.length * 2;
-	foreach (i, x; b)
-	{
-		res[i * 2] = digits[(x >> 4) & 0xF];
-		res[i * 2 + 1] = digits[x & 0xF];
-	}
-	return cast(string)res;
-}
 
-/// uuid5(NAMESPACE_URL, name) rendered upper case, without the braces.
-private string uuid5Url(string name)
-{
-	static immutable ubyte[16] ns = [
-		0x6b, 0xa7, 0xb8, 0x11, 0x9d, 0xad, 0x11, 0xd1,
-		0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8,
-	];
-	ubyte[] bytes = cast(ubyte[])name;
-	SHA1 sha;
-	sha.start();
-	sha.put(ns[]);
-	sha.put(bytes);
-	ubyte[20] h = sha.finish();
-	h[6] = cast(ubyte)((h[6] & 0x0F) | 0x50); // version 5
-	h[8] = cast(ubyte)((h[8] & 0x3F) | 0x80); // RFC 4122 variant
-	return hexUpper(h[0 .. 4]) ~ "-" ~ hexUpper(h[4 .. 6]) ~ "-" ~ hexUpper(h[6 .. 8]) ~ "-"
-		~ hexUpper(h[8 .. 10]) ~ "-" ~ hexUpper(h[10 .. 16]);
-}
 
 // --------------------------------------------------------------------- writing files
 
 /// Python's os.makedirs(outdir, exist_ok=True).
 private void ensureDir(string path)
 {
-	if (!path.length || exists(path))
-		return;
-	string parent = pathDirname(path);
-	if (parent.length && parent != path)
-		ensureDir(parent);
-	mkdir(path);
+	if (path.length && !exists(path))
+		mkdirRecurse(path);
 }
 /// Python's open(path, "w", encoding="utf-8-sig", newline="\r\n").
 private void writeTextFile(string path, string content)
 {
-	string t = strReplace(content, "\n", "\r\n");
+	string t = replace(content, "\n", "\r\n");
 	ubyte[] data = cast(ubyte[])"\xEF\xBB\xBF" ~ cast(ubyte[])t;
 	write(path, data);
 }
@@ -3920,9 +3495,9 @@ private string configSummaryLine(VdConfig cfg)
 {
 	string name = cfg.name is null ? "None" : cfg.name;
 	string platform = cfg.platform is null ? "None" : cfg.platform;
-	string ct = ciIntGet(CONFIGURATION_TYPE_KEYS, CONFIGURATION_TYPE_VALUES, cfg.outputType());
-	return "  " ~ leftJustify(name, 24) ~ " " ~ leftJustify(platform, 6) ~ " "
-		~ leftJustify(cfg.compiler(), 5) ~ " " ~ (ct is null ? "None" : ct) ~ "\n";
+	string ct = configurationTypeName(cfg.outputType());
+	return format("  %-24s %-6s %-5s %s\n", name, platform, cfg.compiler(),
+		ct is null ? "None" : ct);
 }
 
 ConvertResult convertVisualDProject(string projPath, ConvertOptions opt)

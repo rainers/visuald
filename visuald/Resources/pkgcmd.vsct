@@ -341,7 +341,7 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Convert Visual D Project to .vcxproj...</ButtonText>
+          <ButtonText>Convert Project to .vcxproj...</ButtonText>
           <CanonicalName>ConvertToVcxproj</CanonicalName>
           <LocCanonicalName>ConvertToVcxproj</LocCanonicalName>
         </Strings>
