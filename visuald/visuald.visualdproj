@@ -2298,6 +2298,7 @@
    <File path="config.d" />
    <File path="dproject.d" />
    <File path="hierarchy.d" />
+   <File path="vcxproj.d" />
   </Folder>
   <Folder name="Resources">
    <File path="Resources\AlternateRowColor.ico" />

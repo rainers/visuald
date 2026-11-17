@@ -35,6 +35,7 @@ import visuald.logutil;
 import visuald.lexutil;
 import visuald.trackprojectdocument;
 import visuald.hierutil;
+import visuald.vcxproj;
 import visuald.chiernode;
 import visuald.chiercontainer;
 import visuald.propertypage;
@@ -1068,6 +1069,10 @@ class CProjectNode : CFolderNode
 	{
 		return mFilename;
 	}
+	void SetFullPath(string filename)
+	{
+		mFilename = filename;
+	}
 
 	override CVsHierarchy GetCVsHierarchy()
 	{
@@ -1148,6 +1153,19 @@ class CProjectNode : CFolderNode
 				break;
 			}
 		}
+		else if(*pguidCmdGroup == g_commandSetCLSID)
+		{
+			switch(Cmd.cmdID)
+			{
+			case CmdConvertVcxproj:
+				fSupported = true;
+				fEnabled = true;
+				break;
+			default:
+				hr = OLECMDERR_E_NOTSUPPORTED;
+				break;
+			}
+		}
 		else
 		{
 			hr = OLECMDERR_E_NOTSUPPORTED;
@@ -1207,11 +1225,89 @@ class CProjectNode : CFolderNode
 				break;
 			}
 		}
+		else if(*pguidCmdGroup == g_commandSetCLSID)
+		{
+			switch(nCmdID)
+			{
+			case CmdConvertVcxproj:
+				hr = OnCmdConvertVcxproj();
+				break;
+			default:
+				break;
+			}
+		}
 
 		if (hr == OLECMDERR_E_NOTSUPPORTED)
 			hr = super.Exec(pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
 
 		return hr;
+	}
+
+	// Convert the .visualdproj of this project into a native .vcxproj
+	int OnCmdConvertVcxproj()
+	{
+		string projfile = GetFullPath();
+		string vcxproj = dirName(projfile) ~ "\\" ~ baseName(projfile) ~ ".vcxproj";
+		string sln = findSolution(dirName(projfile));
+		bool relink = solutionHasEntry(sln, projfile, vcxproj);
+
+		string msg;
+		if(std.file.exists(vcxproj))
+			msg = "The project file\n" ~ vcxproj ~ "\n\nalready exists.\n\n";
+		if(relink)
+			msg ~= "The entry of this project in\n" ~ sln ~ "\n\nwill be switched over to the .vcxproj,\n" ~
+				"and the .visualdproj will no longer be loaded by the solution.\n\n";
+		if(msg.length)
+		{
+			msg ~= "Do you want Visual D to convert the project?";
+			int answer = UtilMessageBox(msg, MB_YESNO | MB_ICONEXCLAMATION, "Convert to vcxproj");
+			if(answer != IDYES)
+				return S_OK;
+		}
+
+		ConvertOptions opt;
+		opt.msbuildDir = FindMSBuildRulesDir(dirName(projfile));
+		opt.updateSolution = true;
+		opt.projectRefs = true;
+		try
+		{
+			ConvertResult res = convertVisualDProject(projfile, opt);
+			writeToBuildOutputPane("Visual D: wrote " ~ res.vcxprojPath ~ "\n" ~ chomp(res.report) ~ "\n");
+			if(res.slnUpdated)
+			{
+				writeToBuildOutputPane("Visual D: reload the solution to load the .vcxproj in place of the .visualdproj\n");
+				showStatusBarText("Visual D: wrote " ~ res.vcxprojPath ~ ", and linked it in " ~ res.slnPath);
+			}
+			else
+				showStatusBarText("Visual D: wrote " ~ res.vcxprojPath);
+		}
+		catch(Exception e)
+		{
+			writeToBuildOutputPane("Visual D: converting to .vcxproj failed: " ~ e.msg ~ "\n");
+			UtilMessageBox("Converting the project to a native .vcxproj failed:", MB_OK, "Convert to vcxproj");
+			return E_FAIL;
+		}
+		return S_OK;
+	}
+
+	// The converter reads the tool defaults from the MSBuild rules that come with
+	// Visual D. Look for them in the source tree, and fall back to the directory
+	// the extension is installed to.
+	string FindMSBuildRulesDir(string dir)
+	{
+		for(string d = dir; d.length; )
+		{
+			string rules = d ~ "\\msbuild";
+			if(std.file.exists(rules ~ "\\dmd.xml"))
+				return rules;
+			string parent = dirName(d);
+			if(parent == d)
+				break;
+			d = parent;
+		}
+		if(string installDir = Package.GetGlobalOptions().VisualDInstallDir)
+			return normalizeDir(installDir) ~ "msbuild";
+		return null;
 	}
 
 	override int GetProperty(VSHPROPID propid, out VARIANT var)

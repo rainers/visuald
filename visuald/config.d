@@ -1772,11 +1772,16 @@ class ConfigProvider : DisposingComObject,
 		}
 	}
 
-	override void Dispose()
+	void clearConfigs()
 	{
 		foreach(Config cfg; mConfigs)
 			release(cfg);
 		mConfigs = mConfigs.init;
+	}
+
+	override void Dispose()
+	{
+		clearConfigs();
 	}
 
 	override HRESULT QueryInterface(const IID* riid, void** pvObject)

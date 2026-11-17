@@ -199,6 +199,7 @@ class Project : CVsHierarchy,
 		IVsAggregatableProject,
 		IVsProjectFlavorCfgProvider,
 		IPersistFileFormat,
+		IVsPersistDocData2,
 		IVsProjectBuildSystem,
 		IVsBuildPropertyStorage,
 		IVsComponentUser,
@@ -278,6 +279,12 @@ class Project : CVsHierarchy,
 			return S_OK;
 		if(queryInterface!(IPersistFileFormat) (this, riid, pvObject))
 			return S_OK;
+/+ tried to implement for copilot edit, but without success
+		if(queryInterface!(IVsPersistDocData) (this, riid, pvObject))
+			return S_OK;
+		if(queryInterface!(IVsPersistDocData2) (this, riid, pvObject))
+			return S_OK;
++/
 		if(queryInterface!(IVsProjectBuildSystem) (this, riid, pvObject))
 			return S_OK;
 		if(queryInterface!(IVsBuildPropertyStorage) (this, riid, pvObject))
@@ -962,6 +969,195 @@ class Project : CVsHierarchy,
 		return returnError(E_NOTIMPL);
 	}
 
+	// IVsPersistDocData
+	VSCOOKIE docDataCookie = VSCOOKIE_NIL;
+	VSITEMID docDataItemid = VSITEMID_NIL;
+	BOOL docDataDirty;
+	BOOL docDataReadOnly;
+
+	override HRESULT GetGuidEditorType(/+[out]+/ CLSID *pClassID)
+	{
+		mixin(LogCallMix);
+		if(!pClassID)
+			return returnError(E_INVALIDARG);
+
+		// The project file is edited in the standard text editor
+		import sdk.vsi.textmgr;
+		*pClassID = CLSID_TextEditorFactory;
+		return S_OK;
+	}
+
+	override HRESULT IsDocDataDirty(/+[out]+/ BOOL *pfDirty)
+	{
+		mixin(LogCallMix);
+		if(!pfDirty)
+			return returnError(E_INVALIDARG);
+		CProjectNode pProjectNode = GetProjectNode();
+		*pfDirty = docDataDirty || (pProjectNode && pProjectNode.IsProjectFileDirty());
+		return S_OK;
+	}
+
+	override HRESULT SetUntitledDocPath(const LPCOLESTR pszDocDataPath)
+	{
+		mixin(LogCallMix);
+		// A project always is associated with a project file
+		return returnError(E_NOTIMPL);
+	}
+
+	override HRESULT LoadDocData(const LPCOLESTR pszMkDocument)
+	{
+		mixin(LogCallMix);
+		if(!pszMkDocument)
+			return returnError(E_INVALIDARG);
+
+		string filename = to_string(pszMkDocument);
+		if(canonicalPath(filename) != canonicalPath(mFilename))
+		{
+			logCall("unable to load project document '%s' of project '%s'", filename, mFilename);
+			return returnError(E_INVALIDARG);
+		}
+
+		if(mDoc)
+			return S_OK;
+		return parseXML() ? S_OK : returnError(E_FAIL);
+	}
+
+	//SaveDocData may return STG_S_DATALOSS to indicate some characters could not be represented in the current codepage
+	override HRESULT SaveDocData(
+						const  VSSAVEFLAGS dwSave,
+						/+[out]+/ BSTR       *pbstrMkDocumentNew,
+						/+[out]+/ BOOL       *pfSaveCanceled)
+	{
+		mixin(LogCallMix);
+		if(!pbstrMkDocumentNew)
+			return returnError(E_INVALIDARG);
+
+		*pbstrMkDocumentNew = null;
+		if(pfSaveCanceled)
+			*pfSaveCanceled = false;
+
+		if(dwSave == VSSAVE_Save || dwSave == VSSAVE_SilentSave)
+		{
+			if(!mFilename.length)
+				return returnError(E_FAIL);
+			if(auto hr = Save(_toUTF16z(mFilename), false, 0))
+				return returnError(hr);
+			*pbstrMkDocumentNew = allocBSTR(mFilename);
+			if(!*pbstrMkDocumentNew)
+				return returnError(E_OUTOFMEMORY);
+			setDocDataDirty(false);
+			return S_OK;
+		}
+
+		if(dwSave == VSSAVE_SaveAs || dwSave == VSSAVE_SaveCopyAs)
+		{
+			// The environment asks the user for the new file name, saves the project
+			// through IPersistFileFormat and renames the document.
+			IVsUIShell pShell = queryService!IVsUIShell();
+			if(!pShell)
+				return returnError(E_NOINTERFACE);
+			scope(exit) release(pShell);
+
+			IPersistFileFormat pPersistFile = qi_cast!IPersistFileFormat(this);
+			if(!pPersistFile)
+				return returnError(E_NOINTERFACE);
+			scope(exit) release(pPersistFile);
+
+			if(auto hr = pShell.SaveDocDataToFile(dwSave, pPersistFile, null, pbstrMkDocumentNew, pfSaveCanceled))
+				return returnError(hr);
+			return S_OK;
+		}
+
+		return returnError(E_INVALIDARG);
+	}
+
+	//HRESULT Close();  // close and zombie (without saving) - implemented by IVsHierarchy::Close
+
+	override HRESULT OnRegisterDocData(const VSCOOKIE docCookie, /+[in]+/ IVsHierarchy pHierNew, const VSITEMID itemidNew)
+	{
+		mixin(LogCallMix);
+		docDataCookie = docCookie;
+		docDataItemid = itemidNew;
+		return S_OK;
+	}
+
+	override HRESULT RenameDocData(const VSRDTATTRIB grfAttribs, /+[in]+/ IVsHierarchy pHierNew, const VSITEMID itemidNew, const LPCOLESTR pszMkDocumentNew)
+	{
+		mixin(LogCallMix);
+		if(pHierNew !is this || itemidNew != VSITEMID_ROOT || !pszMkDocumentNew)
+			return returnError(E_INVALIDARG);
+
+		string filename = to_string(pszMkDocumentNew);
+		logCall("renaming project document '%s' to '%s'", mFilename, filename);
+		mFilename = filename;
+		if(CProjectNode pProjectNode = GetProjectNode())
+			pProjectNode.SetFullPath(filename);
+		return S_OK;
+	}
+
+	override HRESULT IsDocDataReloadable(/+[out]+/ BOOL *pfReloadable)
+	{
+		mixin(LogCallMix);
+		if(!pfReloadable)
+			return returnError(E_INVALIDARG);
+		*pfReloadable = true;
+		return S_OK;
+	}
+
+	override HRESULT ReloadDocData(const VSRELOADDOCDATA grfFlags)
+	{
+		mixin(LogCallMix);
+		// grfFlags & RDD_IgnoreNextFileChange: the project does not track file changes itself
+		if(!mFilename.length || !std.file.exists(mFilename))
+			return returnError(E_FAIL);
+
+		logCall("reloading project document '%s'", mFilename);
+		if(CProjectNode pProjectNode = GetProjectNode())
+			pProjectNode.removeFromItemMap(true);
+		if(mConfigProvider)
+			mConfigProvider.clearConfigs();
+
+		if(!parseXML())
+			return returnError(E_FAIL);
+
+		setDocDataDirty(false);
+		OnInvalidateItems(GetRootNode());
+		return S_OK;
+	}
+
+	// IVsPersistDocData2
+	override HRESULT SetDocDataDirty(const BOOL fDirty)
+	{
+		mixin(LogCallMix);
+		setDocDataDirty(fDirty != 0);
+		return S_OK;
+	}
+
+	override HRESULT IsDocDataReadOnly(/+[out]+/ BOOL *pfReadOnly)
+	{
+		mixin(LogCallMix);
+		if(!pfReadOnly)
+			return returnError(E_INVALIDARG);
+		*pfReadOnly = docDataReadOnly;
+		return S_OK;
+	}
+
+	override HRESULT SetDocDataReadOnly(const BOOL fReadOnly)
+	{
+		mixin(LogCallMix);
+		docDataReadOnly = fReadOnly;
+		return S_OK;
+	}
+
+	// Keep the dirty state of the document and of the project file in sync,
+	// as both are stored in the same file.
+	void setDocDataDirty(bool dirty)
+	{
+		docDataDirty = dirty;
+		if(CProjectNode pProjectNode = GetProjectNode())
+			pProjectNode.SetProjectFileDirty(dirty);
+	}
+
 	// IVsProjectBuildSystem
 	override int SetHostObject(
 	    /* [in] */ const wchar* pszTargetName,
@@ -1227,6 +1423,7 @@ class Project : CVsHierarchy,
 				case CmdNewFilter:
 				case CmdDubUpgrade:
 				case CmdDubRefresh:
+				case CmdConvertVcxproj:
 					return GetProjectNode().QueryStatus(pguidCmdGroup, cCmds, prgCmds, pCmdText);
 				default:
 					break;

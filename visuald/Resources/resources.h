@@ -73,3 +73,5 @@
 #define CmdStepOverForeach 0x127
 
 #define CmdStartCtfeDebug  0x128
+
+#define CmdConvertVcxproj  0x129
