@@ -1,13 +1,11 @@
 // -*- D -*-
 // Convert a Visual D ".visualdproj" into a native MSBuild ".vcxproj".
 //
-// Port of tools/visuald2vcxproj.py. The conversion is driven by three sources of truth:
+// The conversion is driven by three sources of truth:
 //
 //   visuald/config.d                 the option model and the command lines Visual D builds
 //   msbuild/dmd.xml, msbuild/ldc.xml the DCompile property vocabulary of the MSBuild rules
 //   msbuild/dcompile_defaults.props  the defaults a vcxproj inherits for DCompile
-//
-// The output is written as raw text so that it is byte-identical to the Python tool.
 module visuald.vcxproj;
 
 import std.array : Appender, appender, array;
@@ -342,7 +340,7 @@ private string replaceCi(string s, string pat, string repl)
 	return app.data;
 }
 
-string ciGet(string[string] aa, string key, string dflt = null)
+string ciGet(const string[string] aa, string key, string dflt = null)
 {
 	auto p = key in aa;
 	return p is null ? dflt : *p;
@@ -1302,176 +1300,156 @@ bool solutionHasEntry(string slnPath, string path1, string path2 = null)
 
 // --------------------------------------------------------------------- option tables
 
-__gshared string[] TRAILING_SEP_MACROS; // MSBuild macros whose value already ends in a backslash
-
+immutable string[] TRAILING_SEP_MACROS = [ // MSBuild macros whose value already ends in a backslash
+    "outdir", "intdir", "projectdir", "solutiondir", "inputdir", "targetdir",
+    "vcinstalldir", "vctoolsinstalldir", "vsinstalldir", "devenvdir", "windowsdkdir",
+    "dmdbindir", "ldcbindir", "userrootdir", "vctargetspath", "extensiondir", "projectpath",
+];
 // Macros a visualdproj uses that a vcxproj spells differently (insertion order matters).
-__gshared string[][] MACRO_ALIASES;
-
+immutable string[][] MACRO_ALIASES = [
+    ["safeprojectname", "ProjectName"],
+    ["fulloutdir", "OutDir"],
+    ["fullintdir", "IntDir"],
+    ["universalcrtsdkdir", "WindowsSdkDir"],
+    ["windowsdkversion", "WindowsTargetPlatformVersion"],
+    // The C++ toolset defines $(Configuration) and $(Platform); the "...Name" spellings
+    // the visualdproj uses are only defined by the Visual D rules inside the IDE.
+    ["configurationname", "Configuration"],
+    ["platformname", "Platform"],
+];
 // Macros that have no counterpart in a vcxproj.
-__gshared string[string] MACRO_LOSSY;
-
+immutable string[string] MACRO_LOSSY = [
+    "visualdinstalldir": "the Visual D installation folder is not an MSBuild property",
+    "cc": "the C++ compiler of the Visual D options is not an MSBuild property",
+];
 // Macros the custom build step understands; everywhere else they have to be spelled out.
-__gshared string[] INPUT_MACROS;
-
+immutable string[] INPUT_MACROS = [
+	"inputpath", "inputname", "inputdir", "inputfilename", "inputext",
+    "rootname", "ext", "filename", "filedir"];
 // The same macros spelled as the MSBuild item metadata a custom build step expands.
-__gshared string[string] INPUT_MACRO_METADATA;
-
-__gshared string[] BOOL_META_KEYS;
-__gshared string[] BOOL_META_VALUES;
-
-__gshared string[] DEAD_OPTIONS;
-__gshared string[string] UNSUPPORTED_OPTIONS;
-__gshared string[string] MAPPED_OPTIONS;
-__gshared string[] KNOWN_OPTIONS;
-
-shared static this()
-{
-    TRAILING_SEP_MACROS = [
-        "outdir", "intdir", "projectdir", "solutiondir", "inputdir", "targetdir",
-        "vcinstalldir", "vctoolsinstalldir", "vsinstalldir", "devenvdir", "windowsdkdir",
-        "dmdbindir", "ldcbindir", "userrootdir", "vctargetspath", "extensiondir", "projectpath",
-    ];
-    MACRO_ALIASES = [
-        ["safeprojectname", "ProjectName"],
-        ["fulloutdir", "OutDir"],
-        ["fullintdir", "IntDir"],
-        ["universalcrtsdkdir", "WindowsSdkDir"],
-        ["windowsdkversion", "WindowsTargetPlatformVersion"],
-        // The C++ toolset defines $(Configuration) and $(Platform); the "...Name" spellings
-        // the visualdproj uses are only defined by the Visual D rules inside the IDE.
-        ["configurationname", "Configuration"],
-        ["platformname", "Platform"],
-    ];
-    MACRO_LOSSY = [
-        "visualdinstalldir": "the Visual D installation folder is not an MSBuild property",
-        "cc": "the C++ compiler of the Visual D options is not an MSBuild property",
-    ];
-    INPUT_MACROS = ["inputpath", "inputname", "inputdir", "inputfilename", "inputext",
-                    "rootname", "ext", "filename", "filedir"];
-    INPUT_MACRO_METADATA = [
-        "inputpath": "%(Identity)",
-        "inputfilename": "%(Filename)%(Extension)",
-        "inputname": "%(Filename)",
-        "rootname": "%(Filename)",
-        "filename": "%(Filename)",
-        "inputext": "%(Extension)",
-        "ext": "%(Extension)",
-        "inputdir": "%(RelativeDir)",
-        "filedir": "%(RelativeDir)",
-    ];
-    BOOL_META_KEYS = [
-        "optimize", "useInline", "genStackFrame", "stackStomp", "allinst", "useUnitTests",
-        "cov", "trace", "vtls", "vgc", "verbose", "ignoreUnsupportedPragmas", "preservePaths",
-        "betterC", "dip25", "dip1000", "dip1008", "dip1021", "revert_import",
-        "transition_field", "transition_checkimports", "transition_complex",
-        "transition_vmarkdown", "preview_dtorfields", "preview_intpromote",
-        "preview_fixAliasThis", "preview_rvaluerefparam", "preview_nosharedaccess",
-        "preview_markdown", "preview_in", "preview_inclincontracts", "preview_shortenedMethods",
-    ];
-    BOOL_META_VALUES = [
-        "Optimizer", "Inliner", "StackFrame", "StackStomp", "AllInst", "Unittest",
-        "Coverage", "Profile", "ShowTLS", "ShowGC", "Verbose", "IgnorePragma",
-        "PreserveSourcePath", "BetterC", "DIP25", "DIP1000", "DIP1008", "DIP1021",
-        "RevertImport", "TransitionField", "TransitionCheckImports", "TransitionComplex",
-        "TransitionVMarkdown", "PreviewDtorFields", "PreviewIntPromote", "PreviewFixAliasThis",
-        "PreviewRvalueRefParam", "PreviewNoSharedAccess", "PreviewMarkdown", "PreviewIn",
-        "PreviewInclusiveInContracts", "PreviewShortenedMethods",
-    ];
-    DEAD_OPTIONS = [
-        "obj", "link", "multiobj", "oneobj", "cpu", "scheduler", "pic", "debuglevel",
-        "versionlevel", "dump_source", "useassert", "useinvariants", "usein", "useout",
-        "usearraybounds", "useswitcherror", "noboundscheck", "libname",
-        "islinux", "isosx", "iswindows", "isfreebsd", "issolaris",
-    ];
-    UNSUPPORTED_OPTIONS = [
-        "run": "Visual D runs the target after building; a vcxproj has no equivalent",
-        "runargs": "see the 'run' option",
-        "pauseafterrunning": "an option of the Visual D run command",
-        "debugstdouttooutputwindow": "an option of the Visual D debugger panel",
-        "debugengine": "the debugger engine is selected by Visual Studio, not by the project",
-        "debugremote": "no vcxproj property selects a remote debugger for a D target",
-        "filestoclean": "Visual D deletes these on clean; MSBuild uses its own .tlog files",
-        "modules_ddoc": "Visual D generates a separate ddoc batch for these modules",
-        "ddocfiles": "used by the 'modules_ddoc' option only",
-        "moduledepsfile": "MSBuild tracks module dependencies in its own .tlog files",
-        "usestdlibpath": "the MSBuild rules always add the compiler library search path",
-        "runcv2pdb": "cv2pdb is not part of the MSBuild build",
-        "pathcv2pdb": "cv2pdb is not part of the MSBuild build",
-        "cv2pdbnodemangle": "cv2pdb is not part of the MSBuild build",
-        "cv2pdbenumtype": "cv2pdb is not part of the MSBuild build",
-        "cv2pdboptions": "cv2pdb is not part of the MSBuild build",
-        "cccmd": "only used to translate C++ sources for GDC",
-        "cctransopt": "only used to translate C++ sources for GDC",
-    ];
-    MAPPED_OPTIONS = [
-        "objname": "DCompile ObjectFileName (it names the object file of the whole project)",
-        "resfile": "added to the linker inputs",
-        "deffile": "Link ModuleDefinitionFile",
-        "mapverbosity": "Link GenerateMapFile (the level itself only matters when dmd links)",
-        "createimplib": "Link ImportLibrary",
-        "adddepimp": "resolved through the solution into explicit import paths and libraries",
-        "privatephobos": "-defaultlib=<objdir>privatephobos.lib",
-        "doxgeneration": "DCompile JSONFile, or a bare -X when no file is given",
-        "dodoccomments": "DCompile DocDir/DocFile, or a bare -D when neither is given",
-        "dohdrgeneration": "DCompile HeaderDir/HeaderFile, or a bare -H when neither is given",
-        "prebuildcommand": "PreBuildEvent (runs before every target, not only before linking)",
-        "postbuildcommand": "PostBuildEvent",
-        "debugtarget": "LocalDebuggerCommand",
-        "debugarguments": "LocalDebuggerCommandArguments",
-        "debugworkingdir": "LocalDebuggerWorkingDirectory",
-        "debugattach": "LocalDebuggerAttach",
-        "otherdmd": "DCompile CompilerExe",
-        "program": "the compiler executable, taken literally",
-        "enablemixin": "DCompile EnableDebugMixin and DebugMixin",
-        "singlefilecompilation": "DCompile CompilationModel (and DoNotLink for 'compile only')",
-        "mscoff": "DCompile CodeGeneration",
-        "compiler": "the DCompiler property",
-        "isx86_64": "DCompile CodeGeneration",
-        "cruntime": "the libraries passed to the linker (Visual D never passes -mscrtlib)",
-        "subsystem": "Link SubSystem",
-        "lib": "the ConfigurationType property",
-        "exefile": "TargetName/TargetExt and Link or Lib OutputFile",
-        "additionaloptions": "DCompile AdditionalOptions; -L<switch> goes to the linker",
-        "linkswitches": "Link AdditionalOptions",
-        "symdebug": "DCompile DebugInfo and Link GenerateDebugInformation",
-        "warnings": "DCompile Warnings",
-        "infowarnings": "DCompile Warnings",
-        "usedeprecated": "DCompile Deprecations",
-        "errdeprecated": "DCompile Deprecations",
-        "release": "DCompile DebugCode",
-        "boundscheck": "DCompile BoundsCheck",
-        "imppath": "DCompile ImportPaths",
-        "fileimppath": "DCompile StringImportPaths",
-        "versionids": "DCompile VersionIdentifiers",
-        "debugids": "DCompile DebugIdentifiers",
-        "outdir": "the OutDir property",
-        "objdir": "the IntDir property",
-        "objfiles": "Link AdditionalDependencies",
-        "libfiles": "Link AdditionalDependencies",
-        "libpaths": "Link AdditionalLibraryDirectories",
-        "pdbfile": "Link ProgramDatabaseFile",
-        "mapfile": "Link MapFileName",
-        "impfile": "Link ImportLibrary",
-        "quiet": "DCompile AdditionalOptions",
-        "nofloat": "DCompile AdditionalOptions",
-        "defaultlibname": "DCompile AdditionalOptions -defaultlib=",
-        "debuglibname": "DCompile AdditionalOptions -debuglib=",
-        "debuglib": "DCompile AdditionalOptions -link-debuglib (LDC only)",
-    ];
-    KNOWN_OPTIONS = DEAD_OPTIONS ~ array(UNSUPPORTED_OPTIONS.keys) ~ array(MAPPED_OPTIONS.keys) ~ [
-        "symdebugref", "optimize", "useinline", "genstackframe", "stackstomp",
-        "allinst", "useunittests", "cov", "trace", "vtls", "vgc", "verbose",
-        "ignoreunsupportedpragmas", "preservepaths", "betterc", "dip25",
-        "dip1000", "dip1008", "dip1021", "revert_import",
-        "transition_field", "transition_checkimports", "transition_complex",
-        "transition_vmarkdown", "preview_dtorfields", "preview_intpromote",
-        "preview_fixaliasthis", "preview_rvaluerefparam",
-        "preview_nosharedaccess", "preview_markdown", "preview_in",
-        "preview_inclincontracts", "preview_shortenedmethods",
-        "docdir", "docname", "hdrdir", "hdrname", "xfilename",
-        "mixinpath", "compiler", "otherdmd",
-    ];
-}
+immutable string[string] INPUT_MACRO_METADATA = [
+    "inputpath": "%(Identity)",
+    "inputfilename": "%(Filename)%(Extension)",
+    "inputname": "%(Filename)",
+    "rootname": "%(Filename)",
+    "filename": "%(Filename)",
+    "inputext": "%(Extension)",
+    "ext": "%(Extension)",
+    "inputdir": "%(RelativeDir)",
+    "filedir": "%(RelativeDir)",
+];
+immutable string[] BOOL_META_KEYS = [
+    "optimize", "useInline", "genStackFrame", "stackStomp", "allinst", "useUnitTests",
+    "cov", "trace", "vtls", "vgc", "verbose", "ignoreUnsupportedPragmas", "preservePaths",
+    "betterC", "dip25", "dip1000", "dip1008", "dip1021", "revert_import",
+    "transition_field", "transition_checkimports", "transition_complex",
+    "transition_vmarkdown", "preview_dtorfields", "preview_intpromote",
+    "preview_fixAliasThis", "preview_rvaluerefparam", "preview_nosharedaccess",
+    "preview_markdown", "preview_in", "preview_inclincontracts", "preview_shortenedMethods",
+];
+immutable string[] BOOL_META_VALUES = [
+    "Optimizer", "Inliner", "StackFrame", "StackStomp", "AllInst", "Unittest",
+    "Coverage", "Profile", "ShowTLS", "ShowGC", "Verbose", "IgnorePragma",
+    "PreserveSourcePath", "BetterC", "DIP25", "DIP1000", "DIP1008", "DIP1021",
+    "RevertImport", "TransitionField", "TransitionCheckImports", "TransitionComplex",
+    "TransitionVMarkdown", "PreviewDtorFields", "PreviewIntPromote", "PreviewFixAliasThis",
+    "PreviewRvalueRefParam", "PreviewNoSharedAccess", "PreviewMarkdown", "PreviewIn",
+    "PreviewInclusiveInContracts", "PreviewShortenedMethods",
+];
+immutable string[] DEAD_OPTIONS = [
+    "obj", "link", "multiobj", "oneobj", "cpu", "scheduler", "pic", "debuglevel",
+    "versionlevel", "dump_source", "useassert", "useinvariants", "usein", "useout",
+    "usearraybounds", "useswitcherror", "noboundscheck", "libname",
+    "islinux", "isosx", "iswindows", "isfreebsd", "issolaris",
+];
+immutable string[string] UNSUPPORTED_OPTIONS = [
+    "run": "Visual D runs the target after building; a vcxproj has no equivalent",
+    "runargs": "see the 'run' option",
+    "pauseafterrunning": "an option of the Visual D run command",
+    "debugstdouttooutputwindow": "an option of the Visual D debugger panel",
+    "debugengine": "the debugger engine is selected by Visual Studio, not by the project",
+    "debugremote": "no vcxproj property selects a remote debugger for a D target",
+    "filestoclean": "Visual D deletes these on clean; MSBuild uses its own .tlog files",
+    "modules_ddoc": "Visual D generates a separate ddoc batch for these modules",
+    "ddocfiles": "used by the 'modules_ddoc' option only",
+    "moduledepsfile": "MSBuild tracks module dependencies in its own .tlog files",
+    "usestdlibpath": "the MSBuild rules always add the compiler library search path",
+    "runcv2pdb": "cv2pdb is not part of the MSBuild build",
+    "pathcv2pdb": "cv2pdb is not part of the MSBuild build",
+    "cv2pdbnodemangle": "cv2pdb is not part of the MSBuild build",
+    "cv2pdbenumtype": "cv2pdb is not part of the MSBuild build",
+    "cv2pdboptions": "cv2pdb is not part of the MSBuild build",
+    "cccmd": "only used to translate C++ sources for GDC",
+    "cctransopt": "only used to translate C++ sources for GDC",
+];
+immutable string[string] MAPPED_OPTIONS = [
+    "objname": "DCompile ObjectFileName (it names the object file of the whole project)",
+    "resfile": "added to the linker inputs",
+    "deffile": "Link ModuleDefinitionFile",
+    "mapverbosity": "Link GenerateMapFile (the level itself only matters when dmd links)",
+    "createimplib": "Link ImportLibrary",
+    "adddepimp": "resolved through the solution into explicit import paths and libraries",
+    "privatephobos": "-defaultlib=<objdir>privatephobos.lib",
+    "doxgeneration": "DCompile JSONFile, or a bare -X when no file is given",
+    "dodoccomments": "DCompile DocDir/DocFile, or a bare -D when neither is given",
+    "dohdrgeneration": "DCompile HeaderDir/HeaderFile, or a bare -H when neither is given",
+    "prebuildcommand": "PreBuildEvent (runs before every target, not only before linking)",
+    "postbuildcommand": "PostBuildEvent",
+    "debugtarget": "LocalDebuggerCommand",
+    "debugarguments": "LocalDebuggerCommandArguments",
+    "debugworkingdir": "LocalDebuggerWorkingDirectory",
+    "debugattach": "LocalDebuggerAttach",
+    "otherdmd": "DCompile CompilerExe",
+    "program": "the compiler executable, taken literally",
+    "enablemixin": "DCompile EnableDebugMixin and DebugMixin",
+    "singlefilecompilation": "DCompile CompilationModel (and DoNotLink for 'compile only')",
+    "mscoff": "DCompile CodeGeneration",
+    "compiler": "the DCompiler property",
+    "isx86_64": "DCompile CodeGeneration",
+    "cruntime": "the libraries passed to the linker (Visual D never passes -mscrtlib)",
+    "subsystem": "Link SubSystem",
+    "lib": "the ConfigurationType property",
+    "exefile": "TargetName/TargetExt and Link or Lib OutputFile",
+    "additionaloptions": "DCompile AdditionalOptions; -L<switch> goes to the linker",
+    "linkswitches": "Link AdditionalOptions",
+    "symdebug": "DCompile DebugInfo and Link GenerateDebugInformation",
+    "warnings": "DCompile Warnings",
+    "infowarnings": "DCompile Warnings",
+    "usedeprecated": "DCompile Deprecations",
+    "errdeprecated": "DCompile Deprecations",
+    "release": "DCompile DebugCode",
+    "boundscheck": "DCompile BoundsCheck",
+    "imppath": "DCompile ImportPaths",
+    "fileimppath": "DCompile StringImportPaths",
+    "versionids": "DCompile VersionIdentifiers",
+    "debugids": "DCompile DebugIdentifiers",
+    "outdir": "the OutDir property",
+    "objdir": "the IntDir property",
+    "objfiles": "Link AdditionalDependencies",
+    "libfiles": "Link AdditionalDependencies",
+    "libpaths": "Link AdditionalLibraryDirectories",
+    "pdbfile": "Link ProgramDatabaseFile",
+    "mapfile": "Link MapFileName",
+    "impfile": "Link ImportLibrary",
+    "quiet": "DCompile AdditionalOptions",
+    "nofloat": "DCompile AdditionalOptions",
+    "defaultlibname": "DCompile AdditionalOptions -defaultlib=",
+    "debuglibname": "DCompile AdditionalOptions -debuglib=",
+    "debuglib": "DCompile AdditionalOptions -link-debuglib (LDC only)",
+];
+immutable string[] KNOWN_OPTIONS = DEAD_OPTIONS ~ array(UNSUPPORTED_OPTIONS.keys) ~ array(MAPPED_OPTIONS.keys) ~ [
+    "symdebugref", "optimize", "useinline", "genstackframe", "stackstomp",
+    "allinst", "useunittests", "cov", "trace", "vtls", "vgc", "verbose",
+    "ignoreunsupportedpragmas", "preservepaths", "betterc", "dip25",
+    "dip1000", "dip1008", "dip1021", "revert_import",
+    "transition_field", "transition_checkimports", "transition_complex",
+    "transition_vmarkdown", "preview_dtorfields", "preview_intpromote",
+    "preview_fixaliasthis", "preview_rvaluerefparam",
+    "preview_nosharedaccess", "preview_markdown", "preview_in",
+    "preview_inclincontracts", "preview_shortenedmethods",
+    "docdir", "docname", "hdrdir", "hdrname", "xfilename",
+    "mixinpath", "compiler", "otherdmd",
+];
 
 // --------------------------------------------------------------------- small primitives
 
@@ -1932,26 +1910,15 @@ string translateMacros(string s, Report report, string where, bool custom = fals
 
 // --------------------------------------------------------------------- option tables
 
-__gshared string[] SUBSYSTEM_KEYS;    // ci_dict({1:Console,2:Windows,3:Native,4:POSIX})
-__gshared string[] SUBSYSTEM_VALUES;
-__gshared string[] BOUNDS_KEYS;
-__gshared string[] BOUNDS_VALUES;
-__gshared string[] CONFIGURATION_TYPE_KEYS;
-__gshared string[] CONFIGURATION_TYPE_VALUES;
-__gshared string[] TARGET_EXT_KEYS;
-__gshared string[] TARGET_EXT_VALUES;
-
-shared static this()
-{
-	SUBSYSTEM_KEYS = ["1", "2", "3", "4"];
-	SUBSYSTEM_VALUES = ["Console", "Windows", "Native", "POSIX"];
-	BOUNDS_KEYS = ["0", "1", "2", "3"];
-	BOUNDS_VALUES = ["", "On", "SafeOnly", "Off"];
-	CONFIGURATION_TYPE_KEYS = ["0", "1", "2"];
-	CONFIGURATION_TYPE_VALUES = ["Application", "StaticLibrary", "DynamicLibrary"];
-	TARGET_EXT_KEYS = ["0", "1", "2"];
-	TARGET_EXT_VALUES = [".exe", ".lib", ".dll"];
-}
+// ci_dict({1:Console,2:Windows,3:Native,4:POSIX})
+immutable string[] SUBSYSTEM_KEYS = ["1", "2", "3", "4"];
+immutable string[] SUBSYSTEM_VALUES = ["Console", "Windows", "Native", "POSIX"];
+immutable string[] BOUNDS_KEYS = ["0", "1", "2", "3"];
+immutable string[] BOUNDS_VALUES = ["", "On", "SafeOnly", "Off"];
+immutable string[] CONFIGURATION_TYPE_KEYS = ["0", "1", "2"];
+immutable string[] CONFIGURATION_TYPE_VALUES = ["Application", "StaticLibrary", "DynamicLibrary"];
+immutable string[] TARGET_EXT_KEYS = ["0", "1", "2"];
+immutable string[] TARGET_EXT_VALUES = [".exe", ".lib", ".dll"];
 
 private string ciIntGet(const string[] keys, const string[] values, int key, string dflt = null)
 {
@@ -2689,6 +2656,8 @@ final class Converter
 		if (sub !is null)
 			link ~= Meta("SubSystem", sub);
 		link ~= Meta("GenerateDebugInformation", symdebug ? "true" : "false");
+		if (!cfg.is64())
+			link ~= Meta("ImageHasSafeExceptionHandlers", "false");
 		if (symdebug && cfg.get("pdbfile").length)
 		{
 			string got = settingPath(cfg.get("pdbfile"), cfg);
@@ -3255,7 +3224,7 @@ final class Converter
 			else
 				meta ~= Meta("AdditionalOptions", opts2);
 		}
-		string[string] toolDefaults = kind == "midl" ? MIDL_DEFAULTS : RC_DEFAULTS;
+		const string[string] toolDefaults = kind == "midl" ? MIDL_DEFAULTS : RC_DEFAULTS;
 		Meta[] kept;
 		foreach (m; meta)
 		{
@@ -3740,50 +3709,47 @@ private string joinSlash(const string[] extra)
 	return join(t, " ");
 }
 
-__gshared string[] SWITCH_PREFIXES;
-__gshared string[] MIDL_VALUE_SWITCHES;
-__gshared string[] RC_VALUE_SWITCHES;
-__gshared string[string] MIDL_DEFAULTS;   // the values Microsoft.Cpp.Common.props inherits
-__gshared string[string] RC_DEFAULTS;
-__gshared string[string] MIDL_ENV;
-__gshared string[string] MIDL_CHAR;
-__gshared string[string] MIDL_ERRORCHECK;
-__gshared string[string] PERCFG_META;
-
-shared static this()
-{
-	SWITCH_PREFIXES = [
-		"errorchecknone", "app_config", "oicf", "nologo", "env", "char",
-		"error", "target", "wmf", "fo", "out", "tlb", "h", "i", "d", "w",
-		"r", "m", "c", "u", "l", "t", "x",
-	];
-	MIDL_VALUE_SWITCHES = ["d", "u", "i", "out", "tlb", "h", "env", "char", "error",
-		"target", "wmf", "prefix", "server", "x"];
-	RC_VALUE_SWITCHES = ["fo", "i", "d", "u", "l", "c", "t"];
-	MIDL_DEFAULTS = [
-		"typelibraryname": "$(IntDir)$(ProjectName).tlb",
-		"warninglevel": "1",
-		"defaultchartype": "Signed",
-		"suppressstartupbanner": "true",
-		"headerfilename": "%(Filename)_h.h",
-		"minimumtargetsystem": "NT60",
-	];
-	RC_DEFAULTS = [
-		"resourceoutputfilename": "$(IntDir)%(Filename).res",
-		"suppressstartupbanner": "true",
-		"culture": "0x0409",
-	];
-	MIDL_ENV = ["win32": "Win32", "x64": "X64", "arm32": "ARM32",
-		"arm64": "ARM64", "ia64": "Itanium", "x86": "Win32"];
-	MIDL_CHAR = ["signed": "Signed", "unsigned": "Unsigned", "ascii7": "Ascii",
-		"ascii": "Ascii"];
-	MIDL_ERRORCHECK = ["stub_data": "ErrorCheckStubData",
-		"allocations": "ErrorCheckAllocations",
-		"bounds": "ErrorCheckBounds",
-		"enumrange": "ErrorCheckEnumRange",
-		"refpointers": "ErrorCheckRefPointers"];
-	PERCFG_META = ["customcmd": "Command", "outfile": "Outputs", "addopt": "AdditionalOptions"];
-}
+immutable string[] SWITCH_PREFIXES = [
+	"errorchecknone", "app_config", "oicf", "nologo", "env", "char",
+	"error", "target", "wmf", "fo", "out", "tlb", "h", "i", "d", "w",
+	"r", "m", "c", "u", "l", "t", "x",
+];
+immutable string[] MIDL_VALUE_SWITCHES = [
+	"d", "u", "i", "out", "tlb", "h", "env", "char", "error",
+	"target", "wmf", "prefix", "server", "x"
+];
+immutable string[] RC_VALUE_SWITCHES = ["fo", "i", "d", "u", "l", "c", "t"];
+immutable string[string] MIDL_DEFAULTS = [    // the values Microsoft.Cpp.Common.props inherits
+	"typelibraryname": "$(IntDir)$(ProjectName).tlb",
+	"warninglevel": "1",
+	"defaultchartype": "Signed",
+	"suppressstartupbanner": "true",
+	"headerfilename": "%(Filename)_h.h",
+	"minimumtargetsystem": "NT60",
+];
+immutable string[string] RC_DEFAULTS = [
+	"resourceoutputfilename": "$(IntDir)%(Filename).res",
+	"suppressstartupbanner": "true",
+	"culture": "0x0409",
+];
+immutable string[string] MIDL_ENV = [
+	"win32": "Win32", "x64": "X64", "arm32": "ARM32",
+	"arm64": "ARM64", "ia64": "Itanium", "x86": "Win32"
+];
+immutable string[string] MIDL_CHAR = [
+	"signed": "Signed", "unsigned": "Unsigned", "ascii7": "Ascii",
+	"ascii": "Ascii"
+];
+immutable string[string] MIDL_ERRORCHECK = [
+	"stub_data": "ErrorCheckStubData",
+	"allocations": "ErrorCheckAllocations",
+	"bounds": "ErrorCheckBounds",
+	"enumrange": "ErrorCheckEnumRange",
+	"refpointers": "ErrorCheckRefPointers"
+];
+immutable string[string] PERCFG_META = [
+	"customcmd": "Command", "outfile": "Outputs", "addopt": "AdditionalOptions"
+];
 
 // --------------------------------------------------------------------- filters uuid5
 

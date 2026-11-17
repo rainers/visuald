@@ -1,10 +1,9 @@
 // -*- D -*-
-// Command line front end for visuald.vcxproj, mirroring tools/visuald2vcxproj.py.
+// Command line front end for visuald.vcxproj
 //
 //   dmd -m64 -I. -o- -of=vcxproj_conv.exe tools/vcxproj_main.d
 //
-// The library does the work; this file only parses the arguments and prints what the
-// Python tool prints.
+// The library does the work; this file only parses the arguments and prints results
 module vcxproj_main;
 
 import std.conv : text;
