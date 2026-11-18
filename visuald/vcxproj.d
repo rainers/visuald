@@ -658,16 +658,6 @@ string findSolution(string projectDir)
 	return walkUpFor(projectDir, &test);
 }
 
-string findMsbuildDir(string projectDir)
-{
-	string test(string d)
-	{
-		string cand = pathJoin(d, "msbuild");
-		return fileExists(pathJoin(cand, "dmd.xml")) ? cand : null;
-	}
-	return walkUpFor(projectDir, &test);
-}
-
 // --------------------------------------------------------------------- reading files
 
 /// Read a file the way the Python tool does: UTF-16 for a BOM, UTF-8 otherwise,
@@ -3131,7 +3121,12 @@ final class Converter
 			foreach (cfg; p.configs)
 				foreach (guid; depsOfProject())
 				{
-					string path = slnProjects.get(guid, null);
+					// MSBuild cannot load a .visualdproj, so a project that is
+					// converted along with this one is referenced through the
+					// .vcxproj generated for it instead of its solution entry.
+					string path = opts.refVcxproj.get(guid, null);
+					if (path is null || !path.length)
+						path = slnProjects.get(guid, null);
 					if (path is null || !path.length)
 						continue;
 					string rel = pathRelpath(path, rstripSeps(p.dir));
@@ -3475,6 +3470,7 @@ struct ConvertOptions
 	bool nativeTools = true;
 	bool updateSolution;  // point the .sln entry at the generated .vcxproj
 	bool dryRun;
+	string[string] refVcxproj;  // project guid -> .vcxproj to emit as a ProjectReference
 }
 
 struct ConvertResult
@@ -3510,8 +3506,6 @@ ConvertResult convertVisualDProject(string projPath, ConvertOptions opt)
 	if (sln.length)
 		sln = pathAbspath(sln);
 	string msbuildDir = opt.msbuildDir;
-	if (!msbuildDir.length)
-		msbuildDir = findMsbuildDir(project.dir);
 	if (msbuildDir.length)
 		msbuildDir = pathAbspath(msbuildDir);
 	if (!msbuildDir.length || !fileExists(pathJoin(msbuildDir, "dmd.xml")))

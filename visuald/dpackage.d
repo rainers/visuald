@@ -31,6 +31,7 @@ import stdext.registry;
 
 import visuald.comutil;
 import visuald.hierutil;
+import visuald.hierarchy;
 import visuald.stringutil;
 import visuald.fileutil;
 import visuald.dproject;
@@ -642,6 +643,11 @@ version(none)
 				case CmdStartCtfeDebug:
 					prgCmds[i].cmdf = OLECMDF_SUPPORTED | OLECMDF_ENABLED;
 					break;
+				case CmdConvertAllVcxproj:
+					// the solution menu entry is only offered when the solution has projects to convert
+					prgCmds[i].cmdf = OLECMDF_SUPPORTED;
+					prgCmds[i].cmdf |= solutionHasVisualDProjects() ? OLECMDF_ENABLED : OLECMDF_INVISIBLE;
+					break;
 				default:
 					prgCmds[i].cmdf = OLECMDF_SUPPORTED;
 					break;
@@ -736,6 +742,10 @@ version(none)
 		if(nCmdID == CmdStartCtfeDebug)
 		{
 			return StartCtfeDebug();
+		}
+		if(nCmdID == CmdConvertAllVcxproj)
+		{
+			return OnCmdConvertAllVcxproj();
 		}
 		return OLECMDERR_E_NOTSUPPORTED;
 	}

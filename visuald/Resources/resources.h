@@ -75,3 +75,5 @@
 #define CmdStartCtfeDebug  0x128
 
 #define CmdConvertVcxproj  0x129
+
+#define CmdConvertAllVcxproj  0x12A

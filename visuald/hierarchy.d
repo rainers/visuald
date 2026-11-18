@@ -1266,7 +1266,7 @@ class CProjectNode : CFolderNode
 		}
 
 		ConvertOptions opt;
-		opt.msbuildDir = FindMSBuildRulesDir(dirName(projfile));
+		opt.msbuildDir = Package.GetGlobalOptions().VisualDInstallDir ~ "msbuild";
 		opt.updateSolution = true;
 		opt.projectRefs = true;
 		try
@@ -1288,26 +1288,6 @@ class CProjectNode : CFolderNode
 			return E_FAIL;
 		}
 		return S_OK;
-	}
-
-	// The converter reads the tool defaults from the MSBuild rules that come with
-	// Visual D. Look for them in the source tree, and fall back to the directory
-	// the extension is installed to.
-	string FindMSBuildRulesDir(string dir)
-	{
-		for(string d = dir; d.length; )
-		{
-			string rules = d ~ "\\msbuild";
-			if(std.file.exists(rules ~ "\\dmd.xml"))
-				return rules;
-			string parent = dirName(d);
-			if(parent == d)
-				break;
-			d = parent;
-		}
-		if(string installDir = Package.GetGlobalOptions().VisualDInstallDir)
-			return normalizeDir(installDir) ~ "msbuild";
-		return null;
 	}
 
 	override int GetProperty(VSHPROPID propid, out VARIANT var)
@@ -2579,5 +2559,127 @@ protected:
 	static BOOL g_bStartedDrag;
 	static BOOL g_bInContextMenu;   // is OK to support Cut/Copy,Paste/Rename/etc.
 
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Convert the Visual D projects of the whole solution to native .vcxproj files
+
+// The .visualdproj of every Visual D project loaded in the current solution
+string[] getVisualDProjectFiles()
+{
+	string[] projfiles;
+	IVsSolution srpSolution = queryService!(IVsSolution)();
+	if(!srpSolution)
+		return projfiles;
+	scope(exit) release(srpSolution);
+
+	IEnumHierarchies pEnum;
+	if(srpSolution.GetProjectEnum(EPF_LOADEDINSOLUTION|EPF_MATCHTYPE, &g_projectFactoryCLSID, &pEnum) != S_OK)
+		return projfiles;
+	scope(exit) release(pEnum);
+
+	IVsHierarchy pHierarchy;
+	while(pEnum.Next(1, &pHierarchy, null) == S_OK)
+	{
+		scope(exit) release(pHierarchy);
+		BSTR name;
+		if(pHierarchy.GetCanonicalName(VSITEMID_ROOT, &name) == S_OK)
+			projfiles ~= detachBSTR(name);
+	}
+	return projfiles;
+}
+
+// Whether the solution contains projects that can be converted to .vcxproj
+bool solutionHasVisualDProjects()
+{
+	return getVisualDProjectFiles().length != 0;
+}
+
+// Convert the .visualdproj of every Visual D project in the solution to a native .vcxproj
+int OnCmdConvertAllVcxproj()
+{
+	string[] projfiles = getVisualDProjectFiles();
+	if(!projfiles.length)
+	{
+		UtilMessageBox("The solution does not contain any Visual D project.", MB_OK, "Convert to vcxproj");
+		return S_OK;
+	}
+
+	string sln = GetSolutionFilename();
+	string msg = format("Convert %d Visual D project%s to native .vcxproj files?\n\n",
+		projfiles.length, projfiles.length == 1 ? "" : "s");
+	foreach(projfile; projfiles)
+		msg ~= "\t" ~ projfile ~ "\n";
+	msg ~= "\n";
+	if(sln.length)
+		msg ~= "In " ~ sln ~ "\nthe projects will be replaced by the generated .vcxproj files,\n" ~
+			"and the .visualdproj will no longer be loaded by the solution.\n\n";
+	msg ~= "Existing .vcxproj files will be overwritten.\n\n" ~
+		"Click Yes to convert and update the solution, No to only write the .vcxproj files.";
+	int answer = UtilMessageBox(msg, MB_YESNOCANCEL|MB_ICONEXCLAMATION, "Convert to vcxproj");
+	if(answer == IDCANCEL)
+		return S_OK;
+	bool updateSolution = answer == IDYES;
+
+	ConvertOptions opt;
+	opt.projectRefs = true;
+	opt.updateSolution = updateSolution;
+	opt.slnPath = sln;   // update the solution that is open in the IDE
+
+	// A ProjectReference has to name a project MSBuild can load, so a project that
+	// is converted along with this one is referenced through the .vcxproj written
+	// for it rather than through the .visualdproj named in the solution.
+	string[string] converted;
+	foreach(projfile; projfiles)
+	{
+		string abs = pathAbspath(projfile);
+		converted[pathNormcase(abs)] =
+			pathDirname(abs) ~ "\\" ~ pathSplitext(pathBasename(abs))[0] ~ ".vcxproj";
+	}
+	if(sln.length)
+	{
+		try
+		{
+			foreach(string guid, string path; parseSolution(sln).projects)
+				if(auto vcxproj = pathNormcase(pathAbspath(path)) in converted)
+					opt.refVcxproj[guid] = *vcxproj;
+		}
+		catch(Exception)
+		{
+			// keep the references pointing at the .visualdproj files
+		}
+	}
+
+	writeToBuildOutputPane(format("Visual D: converting %d projects to .vcxproj\n", projfiles.length));
+	int written = 0;
+	string errors;
+	foreach(projfile; projfiles)
+	{
+		opt.msbuildDir = Package.GetGlobalOptions().VisualDInstallDir ~ "msbuild";
+		try
+		{
+			ConvertResult res = convertVisualDProject(projfile, opt);
+			writeToBuildOutputPane("Visual D: wrote " ~ res.vcxprojPath ~ "\n" ~ chomp(res.report) ~ "\n", false);
+			written++;
+		}
+		catch(Exception e)
+		{
+			writeToBuildOutputPane("Visual D: converting " ~ projfile ~ " to .vcxproj failed:\n" ~ chomp(e.msg) ~ "\n", false);
+			errors ~= projfile ~ "\n\t" ~ e.msg ~ "\n";
+		}
+	}
+
+	int failed = cast(int)(projfiles.length - written);
+	string summary = format("Visual D: converted %d of %d projects to .vcxproj", written, projfiles.length);
+	if(failed)
+		summary ~= format(", %d failed", failed);
+	if(updateSolution && written)
+		summary ~= " - reload the solution to load the .vcxproj files";
+	writeToBuildOutputPane(summary ~ "\n", false);
+	showStatusBarText(summary);
+	if(failed)
+		UtilMessageBox("Converting to native .vcxproj files failed for:\n\n" ~ errors,
+			MB_OK|MB_ICONEXCLAMATION, "Convert to vcxproj");
+	return failed ? E_FAIL : S_OK;
 }
 
