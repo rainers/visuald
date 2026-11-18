@@ -1,0 +1,479 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug COFF32|ARM64">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|ARM64">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|ARM64">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|ARM64">
+      <Configuration>Release LDC</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|Win32">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|x64">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug COFF32|Win32">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug COFF32|x64">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|Win32">
+      <Configuration>Release LDC</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|x64">
+      <Configuration>Release LDC</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|Win32">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|x64">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2F75431E-B8DB-4231-AAC1-EA68D06A22E6}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>vdserver</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\x64\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>vdserver_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\x64\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>vdserver_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>Off</BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <BoundsCheck>
+      </BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
+      <SubSystem>WINDOWS</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\stdext\stdext.vcxproj">
+      <Project>{2070DF9A-6D80-4E3C-950A-C1BBA1B20F4D}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\sdk\vsi.vcxproj">
+      <Project>{32872753-4812-40DA-9B24-1C2114621E78}</Project>
+    </ProjectReference>
+    <ProjectReference Include="parser.vcxproj">
+      <Project>{FE3A959D-6CFA-43BF-8637-62125B571770}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <DCompile Include="vdserver.d" />
+    <DCompile Include="vdserverfactory.d" />
+    <Midl Include="ivdserver.idl" />
+    <Midl Include="vdserver.idl">
+      <AdditionalDependenciesMetadata>ivdserver.idl</AdditionalDependenciesMetadata>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <ErrorCheckStubData>true</ErrorCheckStubData>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <WarningLevel>
+      </WarningLevel>
+      <HeaderFileName>
+      </HeaderFileName>
+      <MinimumTargetSystem>
+      </MinimumTargetSystem>
+    </Midl>
+    <ResourceCompile Include="vdserver.rc">
+      <AdditionalDependenciesMetadata>$(OutDir)vdserver.tlb;..\version</AdditionalDependenciesMetadata>
+      <ResourceOutputFileName>$(OutDir)vdserver.res</ResourceOutputFileName>
+      <AdditionalIncludeDirectories>$(OutDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </ResourceCompile>
+    <None Include="vdserver.reg" />
+    <None Include="vdserver_d.reg" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

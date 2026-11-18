@@ -113,7 +113,7 @@
   !define CONFIG_X64  "Release COFF32"
 !endif
 !ifndef CONFIG_ARM64
-  !define CONFIG_ARM64  "Release LDC ARM"
+  !define CONFIG_ARM64  "Release COFF32"
 !endif
 !ifndef CONFIG_DMDSERVER
   !define CONFIG_DMDSERVER  "Release"
@@ -300,7 +300,7 @@ Section "Visual Studio package" SecPackage
   ${SetOutPath} "$INSTDIR"
   
   ${File} "..\bin\${CONFIG}\" ${DLLNAME}
-  ${File} "..\bin\${CONFIG}\" vdserver.tlb
+  ${File} "..\bin\${CONFIG}\vdserver\" vdserver.tlb
   ${File} "..\bin\${CONFIG}\" pipedmd.exe
   ${File} "..\bin\${CONFIG}\" mb2utf16.exe
   ;; ${File} "..\bin\${CONFIG}\" filemonitor.dll
@@ -337,7 +337,7 @@ Section "Visual Studio package" SecPackage
   ${SetOutPath} "$INSTDIR\x64"
   ${File} "..\bin\${CONFIG_X64}\x64\" ${DLLNAME}
   ${SetOutPath} "$INSTDIR\arm64"
-  ${File} "..\bin\${CONFIG_ARM64}\" ${DLLNAME}
+  ${File} "..\bin\${CONFIG_ARM64}\ARM64\" ${DLLNAME}
 !endif
 
   ${SetOutPath} "$INSTDIR"

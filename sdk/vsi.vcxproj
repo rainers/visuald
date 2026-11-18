@@ -1,0 +1,818 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug COFF32|ARM64">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|ARM64">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|ARM64">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|ARM64">
+      <Configuration>Release LDC</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestDebug|ARM64">
+      <Configuration>TestDebug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestDebug|Win32">
+      <Configuration>TestDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestDebug|x64">
+      <Configuration>TestDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|Win32">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|x64">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug COFF32|Win32">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug COFF32|x64">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|Win32">
+      <Configuration>Release LDC</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|x64">
+      <Configuration>Release LDC</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|Win32">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|x64">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{32872753-4812-40DA-9B24-1C2114621E78}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>vsi</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>Off</BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <PreserveSourcePath>true</PreserveSourcePath>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib -gx</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <PreserveSourcePath>true</PreserveSourcePath>
+      <ImportPaths>..</ImportPaths>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>Off</BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <PreserveSourcePath>true</PreserveSourcePath>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <PreserveSourcePath>true</PreserveSourcePath>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <PreserveSourcePath>true</PreserveSourcePath>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <PreserveSourcePath>true</PreserveSourcePath>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <BoundsCheck>
+      </BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">
+    <DCompile>
+      <Warnings>Error</Warnings>
+      <DebugCode>Release</DebugCode>
+      <BoundsCheck>
+      </BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>..</ImportPaths>
+      <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
+      <AdditionalOptions>-lib</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\build\build.vcxproj">
+      <Project>{CD26A145-F663-473D-8908-0254FE377D48}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <DCompile Include="port\activdbg.d" />
+    <DCompile Include="port\apiquery2.d" />
+    <DCompile Include="port\apiset.d" />
+    <DCompile Include="port\apisetcconv.d" />
+    <DCompile Include="port\base.d" />
+    <DCompile Include="port\bitfields.d" />
+    <DCompile Include="port\cguid.d" />
+    <DCompile Include="port\ctype.d" />
+    <DCompile Include="port\dte.d" />
+    <DCompile Include="port\excpt.d" />
+    <DCompile Include="port\guiddef.d" />
+    <DCompile Include="port\in6addr.d" />
+    <DCompile Include="port\inaddr.d" />
+    <DCompile Include="port\kernelspecs.d" />
+    <DCompile Include="port\limits.d" />
+    <DCompile Include="port\mprapi.d" />
+    <DCompile Include="port\msxml.d" />
+    <DCompile Include="port\netioapi.d" />
+    <DCompile Include="port\packoff.d" />
+    <DCompile Include="port\packon.d" />
+    <DCompile Include="port\poppack.d" />
+    <DCompile Include="port\pp.d" />
+    <DCompile Include="port\propidl.d" />
+    <DCompile Include="port\pshpack1.d" />
+    <DCompile Include="port\pshpack2.d" />
+    <DCompile Include="port\pshpack4.d" />
+    <DCompile Include="port\pshpack8.d" />
+    <DCompile Include="port\registryroots.d" />
+    <DCompile Include="port\rpc.d" />
+    <DCompile Include="port\rpcdcep.d" />
+    <DCompile Include="port\rpcndr.d" />
+    <DCompile Include="port\servprov.d" />
+    <DCompile Include="port\sharedvenusids.d" />
+    <DCompile Include="port\specstrings.d" />
+    <DCompile Include="port\stdarg.d" />
+    <DCompile Include="port\stdlib.d" />
+    <DCompile Include="port\stdole2.d" />
+    <DCompile Include="port\stdole32.d" />
+    <DCompile Include="port\string.d" />
+    <DCompile Include="port\textfind100.d" />
+    <DCompile Include="port\time.d" />
+    <DCompile Include="port\tvout.d" />
+    <DCompile Include="port\urlmon.d" />
+    <DCompile Include="port\vapiempguids.d" />
+    <DCompile Include="port\venuscmddef.d" />
+    <DCompile Include="port\vsi.d" />
+    <DCompile Include="port\vsversion_generated.d" />
+    <DCompile Include="port\winapifamily.d" />
+    <DCompile Include="win32\windef.d" />
+    <DCompile Include="win32\sdkddkver.d" />
+    <DCompile Include="win32\basetsd.d" />
+    <DCompile Include="win32\ntstatus.d" />
+    <DCompile Include="win32\winnt.d" />
+    <DCompile Include="win32\winbase.d" />
+    <DCompile Include="win32\winuser.d" />
+    <DCompile Include="win32\ktmtypes.d" />
+    <DCompile Include="win32\winerror.d" />
+    <DCompile Include="win32\winreg.d" />
+    <DCompile Include="win32\reason.d" />
+    <DCompile Include="win32\commctrl.d" />
+    <DCompile Include="win32\wingdi.d" />
+    <DCompile Include="win32\prsht.d" />
+    <DCompile Include="win32\iphlpapi.d" />
+    <DCompile Include="win32\iprtrmib.d" />
+    <DCompile Include="win32\ipexport.d" />
+    <DCompile Include="win32\iptypes.d" />
+    <DCompile Include="win32\tcpestats.d" />
+    <DCompile Include="win32\ipifcons.d" />
+    <DCompile Include="win32\ipmib.d" />
+    <DCompile Include="win32\tcpmib.d" />
+    <DCompile Include="win32\udpmib.d" />
+    <DCompile Include="win32\ifmib.d" />
+    <DCompile Include="win32\ifdef.d" />
+    <DCompile Include="win32\nldef.d" />
+    <DCompile Include="win32\winnls.d" />
+    <DCompile Include="win32\shellapi.d" />
+    <DCompile Include="win32\rpcdce.d" />
+    <DCompile Include="win32\unknwn.d" />
+    <DCompile Include="win32\oaidl.d" />
+    <DCompile Include="win32\wtypes.d" />
+    <DCompile Include="win32\oleidl.d" />
+    <DCompile Include="win32\ocidl.d" />
+    <DCompile Include="win32\objidl.d" />
+    <DCompile Include="win32\docobj.d" />
+    <DCompile Include="win32\oleauto.d" />
+    <DCompile Include="win32\objbase.d" />
+    <DCompile Include="win32\mshtmcid.d" />
+    <DCompile Include="win32\xmldom.d" />
+    <DCompile Include="win32\xmldso.d" />
+    <DCompile Include="win32\xmldomdid.d" />
+    <DCompile Include="win32\xmldsodid.d" />
+    <DCompile Include="win32\idispids.d" />
+    <DCompile Include="win32\activdbg.d" />
+    <DCompile Include="win32\activscp.d" />
+    <DCompile Include="win32\dbgprop.d" />
+    <DCompile Include="win32\wtypesbase.d" />
+    <DCompile Include="win32\minwinbase.d" />
+    <DCompile Include="win32\processenv.d" />
+    <DCompile Include="win32\minwindef.d" />
+    <DCompile Include="win32\fileapi.d" />
+    <DCompile Include="win32\debugapi.d" />
+    <DCompile Include="win32\handleapi.d" />
+    <DCompile Include="win32\errhandlingapi.d" />
+    <DCompile Include="win32\fibersapi.d" />
+    <DCompile Include="win32\namedpipeapi.d" />
+    <DCompile Include="win32\profileapi.d" />
+    <DCompile Include="win32\heapapi.d" />
+    <DCompile Include="win32\synchapi.d" />
+    <DCompile Include="win32\interlockedapi.d" />
+    <DCompile Include="win32\processthreadsapi.d" />
+    <DCompile Include="win32\sysinfoapi.d" />
+    <DCompile Include="win32\memoryapi.d" />
+    <DCompile Include="win32\threadpoollegacyapiset.d" />
+    <DCompile Include="win32\utilapiset.d" />
+    <DCompile Include="win32\ioapiset.d" />
+    <DCompile Include="win32\threadpoolapiset.d" />
+    <DCompile Include="win32\wow64apiset.d" />
+    <DCompile Include="win32\jobapi.d" />
+    <DCompile Include="win32\timezoneapi.d" />
+    <DCompile Include="win32\datetimeapi.d" />
+    <DCompile Include="win32\stringapiset.d" />
+    <DCompile Include="win32\libloaderapi.d" />
+    <DCompile Include="win32\securitybaseapi.d" />
+    <DCompile Include="win32\namespaceapi.d" />
+    <DCompile Include="win32\systemtopologyapi.d" />
+    <DCompile Include="win32\processtopologyapi.d" />
+    <DCompile Include="win32\securityappcontainer.d" />
+    <DCompile Include="win32\realtimeapiset.d" />
+    <DCompile Include="win32\unknwnbase.d" />
+    <DCompile Include="win32\objidlbase.d" />
+    <DCompile Include="win32\combaseapi.d" />
+    <DCompile Include="win32\mprapidef.d" />
+    <DCompile Include="win32\lmerr.d" />
+    <DCompile Include="win32\lmcons.d" />
+    <DCompile Include="win32\coml2api.d" />
+    <DCompile Include="win32\jobapi2.d" />
+    <DCompile Include="win32\propidlbase.d" />
+    <DCompile Include="win32\enclaveapi.d" />
+    <DCompile Include="win32\dpa_dsa.d" />
+    <DCompile Include="win32\fileapifromapp.d" />
+    <DCompile Include="vsi\sdk_shared.d" />
+    <DCompile Include="vsi\vsshell.d" />
+    <DCompile Include="vsi\completion.d" />
+    <DCompile Include="vsi\compsvcspkg.d" />
+    <DCompile Include="vsi\compsvcspkg100.d" />
+    <DCompile Include="vsi\compsvcspkg110.d" />
+    <DCompile Include="vsi\compsvcspkg80.d" />
+    <DCompile Include="vsi\compsvcspkg90.d" />
+    <DCompile Include="vsi\containedlanguage.d" />
+    <DCompile Include="vsi\context.d" />
+    <DCompile Include="vsi\context2.d" />
+    <DCompile Include="vsi\customfind.d" />
+    <DCompile Include="vsi\debugger80.d" />
+    <DCompile Include="vsi\designer.d" />
+    <DCompile Include="vsi\discoveryservice.d" />
+    <DCompile Include="vsi\discoveryservice80.d" />
+    <DCompile Include="vsi\discoveryservice90.d" />
+    <DCompile Include="vsi\ee.d" />
+    <DCompile Include="vsi\ee100.d" />
+    <DCompile Include="vsi\ee90.d" />
+    <DCompile Include="vsi\enc.d" />
+    <DCompile Include="vsi\encbuild.d" />
+    <DCompile Include="vsi\fpstfmt.d" />
+    <DCompile Include="vsi\imageparameters140.d" />
+    <DCompile Include="vsi\ivsgetscciproviderinterface.d" />
+    <DCompile Include="vsi\ivsprojectmru.d" />
+    <DCompile Include="vsi\ivsqueryeditquerysave2.d" />
+    <DCompile Include="vsi\ivsqueryeditquerysave80.d" />
+    <DCompile Include="vsi\ivsqueryeditquerysave90.d" />
+    <DCompile Include="vsi\ivsregisterscciprovider.d" />
+    <DCompile Include="vsi\ivssccaddwebprojectfromsourcecontrol.d" />
+    <DCompile Include="vsi\ivsscccontrolnewsolution.d" />
+    <DCompile Include="vsi\ivssccenlistmentpathtranslation.d" />
+    <DCompile Include="vsi\ivssccglyphs.d" />
+    <DCompile Include="vsi\ivssccmanager2.d" />
+    <DCompile Include="vsi\ivssccmanagertooltip.d" />
+    <DCompile Include="vsi\ivssccopenfromsourcecontrol.d" />
+    <DCompile Include="vsi\ivssccproject2.d" />
+    <DCompile Include="vsi\ivssccprojectenlistmentchoice.d" />
+    <DCompile Include="vsi\ivssccprojectenlistmentfactory.d" />
+    <DCompile Include="vsi\ivssccprojectfactoryupgradechoice.d" />
+    <DCompile Include="vsi\ivssccprojectproviderbinding.d" />
+    <DCompile Include="vsi\ivssccprovider.d" />
+    <DCompile Include="vsi\ivssccproviderfactory.d" />
+    <DCompile Include="vsi\ivsscctoolsoptions.d" />
+    <DCompile Include="vsi\ivssccvirtualfolders.d" />
+    <DCompile Include="vsi\ivstrackprojectdocuments110.d" />
+    <DCompile Include="vsi\ivstrackprojectdocuments2.d" />
+    <DCompile Include="vsi\ivstrackprojectdocuments80.d" />
+    <DCompile Include="vsi\ivstrackprojectdocumentsevents110.d" />
+    <DCompile Include="vsi\ivstrackprojectdocumentsevents2.d" />
+    <DCompile Include="vsi\ivstrackprojectdocumentsevents80.d" />
+    <DCompile Include="vsi\ivstrackprojectretargeting.d" />
+    <DCompile Include="vsi\ivstrackprojectretargetingevents.d" />
+    <DCompile Include="vsi\ivswebservices.d" />
+    <DCompile Include="vsi\msdbg.d" />
+    <DCompile Include="vsi\msdbg100.d" />
+    <DCompile Include="vsi\msdbg110.d" />
+    <DCompile Include="vsi\msdbg120.d" />
+    <DCompile Include="vsi\msdbg120a.d" />
+    <DCompile Include="vsi\msdbg140.d" />
+    <DCompile Include="vsi\msdbg150.d" />
+    <DCompile Include="vsi\msdbg155.d" />
+    <DCompile Include="vsi\msdbg156.d" />
+    <DCompile Include="vsi\msdbg157.d" />
+    <DCompile Include="vsi\msdbg158.d" />
+    <DCompile Include="vsi\msdbg160.d" />
+    <DCompile Include="vsi\msdbg161.d" />
+    <DCompile Include="vsi\msdbg162.d" />
+    <DCompile Include="vsi\msdbg163.d" />
+    <DCompile Include="vsi\msdbg164.d" />
+    <DCompile Include="vsi\msdbg165.d" />
+    <DCompile Include="vsi\msdbg166.d" />
+    <DCompile Include="vsi\msdbg167.d" />
+    <DCompile Include="vsi\msdbg168.d" />
+    <DCompile Include="vsi\msdbg169.d" />
+    <DCompile Include="vsi\msdbg16a.d" />
+    <DCompile Include="vsi\msdbg170.d" />
+    <DCompile Include="vsi\msdbg171.d" />
+    <DCompile Include="vsi\msdbg1710.d" />
+    <DCompile Include="vsi\msdbg1711.d" />
+    <DCompile Include="vsi\msdbg1712.d" />
+    <DCompile Include="vsi\msdbg1713.d" />
+    <DCompile Include="vsi\msdbg1714.d" />
+    <DCompile Include="vsi\msdbg172.d" />
+    <DCompile Include="vsi\msdbg173.d" />
+    <DCompile Include="vsi\msdbg174.d" />
+    <DCompile Include="vsi\msdbg175.d" />
+    <DCompile Include="vsi\msdbg176.d" />
+    <DCompile Include="vsi\msdbg177.d" />
+    <DCompile Include="vsi\msdbg178.d" />
+    <DCompile Include="vsi\msdbg179.d" />
+    <DCompile Include="vsi\msdbg1800.d" />
+    <DCompile Include="vsi\msdbg90.d" />
+    <DCompile Include="vsi\objext.d" />
+    <DCompile Include="vsi\ocdesign.d" />
+    <DCompile Include="vsi\olecm.d" />
+    <DCompile Include="vsi\oleipc.d" />
+    <DCompile Include="vsi\portpriv.d" />
+    <DCompile Include="vsi\proffserv.d" />
+    <DCompile Include="vsi\sh.d" />
+    <DCompile Include="vsi\singlefileeditor.d" />
+    <DCompile Include="vsi\textfind.d" />
+    <DCompile Include="vsi\textfind2.d" />
+    <DCompile Include="vsi\textfind90.d" />
+    <DCompile Include="vsi\textmgr.d" />
+    <DCompile Include="vsi\textmgr100.d" />
+    <DCompile Include="vsi\textmgr110.d" />
+    <DCompile Include="vsi\textmgr120.d" />
+    <DCompile Include="vsi\textmgr121.d" />
+    <DCompile Include="vsi\textmgr142.d" />
+    <DCompile Include="vsi\textmgr150.d" />
+    <DCompile Include="vsi\textmgr151.d" />
+    <DCompile Include="vsi\textmgr160.d" />
+    <DCompile Include="vsi\textmgr1713.d" />
+    <DCompile Include="vsi\textmgr2.d" />
+    <DCompile Include="vsi\textmgr90.d" />
+    <DCompile Include="vsi\textmgr91.d" />
+    <DCompile Include="vsi\uilocale.d" />
+    <DCompile Include="vsi\vapiemp.d" />
+    <DCompile Include="vsi\vbapkg.d" />
+    <DCompile Include="vsi\vsbrowse.d" />
+    <DCompile Include="vsi\vsdisp.d" />
+    <DCompile Include="vsi\vsempweb.d" />
+    <DCompile Include="vsi\vshelp.d" />
+    <DCompile Include="vsi\vshelp80.d" />
+    <DCompile Include="vsi\vslangproj.d" />
+    <DCompile Include="vsi\vslangproj100.d" />
+    <DCompile Include="vsi\vslangproj110.d" />
+    <DCompile Include="vsi\vslangproj140.d" />
+    <DCompile Include="vsi\vslangproj150.d" />
+    <DCompile Include="vsi\vslangproj157.d" />
+    <DCompile Include="vsi\vslangproj158.d" />
+    <DCompile Include="vsi\vslangproj165.d" />
+    <DCompile Include="vsi\vslangproj1711.d" />
+    <DCompile Include="vsi\vslangproj2.d" />
+    <DCompile Include="vsi\vslangproj80.d" />
+    <DCompile Include="vsi\vslangproj90.d" />
+    <DCompile Include="vsi\vsmanaged.d" />
+    <DCompile Include="vsi\vsplatformui.d" />
+    <DCompile Include="vsi\vsplatformui110.d" />
+    <DCompile Include="vsi\vsqryed.d" />
+    <DCompile Include="vsi\vsscceng.d" />
+    <DCompile Include="vsi\vssccmgr.d" />
+    <DCompile Include="vsi\vssccprj.d" />
+    <DCompile Include="vsi\vsshell100.d" />
+    <DCompile Include="vsi\vsshell110.d" />
+    <DCompile Include="vsi\vsshell120.d" />
+    <DCompile Include="vsi\vsshell121.d" />
+    <DCompile Include="vsi\vsshell140.d" />
+    <DCompile Include="vsi\vsshell141.d" />
+    <DCompile Include="vsi\vsshell142.d" />
+    <DCompile Include="vsi\vsshell150.d" />
+    <DCompile Include="vsi\vsshell151.d" />
+    <DCompile Include="vsi\vsshell153.d" />
+    <DCompile Include="vsi\vsshell155.d" />
+    <DCompile Include="vsi\vsshell156.d" />
+    <DCompile Include="vsi\vsshell157.d" />
+    <DCompile Include="vsi\vsshell158.d" />
+    <DCompile Include="vsi\vsshell160.d" />
+    <DCompile Include="vsi\vsshell161.d" />
+    <DCompile Include="vsi\vsshell1610.d" />
+    <DCompile Include="vsi\vsshell162.d" />
+    <DCompile Include="vsi\vsshell163.d" />
+    <DCompile Include="vsi\vsshell164.d" />
+    <DCompile Include="vsi\vsshell165.d" />
+    <DCompile Include="vsi\vsshell166.d" />
+    <DCompile Include="vsi\vsshell167.d" />
+    <DCompile Include="vsi\vsshell169.d" />
+    <DCompile Include="vsi\vsshell171.d" />
+    <DCompile Include="vsi\vsshell1710.d" />
+    <DCompile Include="vsi\vsshell1711.d" />
+    <DCompile Include="vsi\vsshell1712.d" />
+    <DCompile Include="vsi\vsshell1713.d" />
+    <DCompile Include="vsi\vsshell172.d" />
+    <DCompile Include="vsi\vsshell174.d" />
+    <DCompile Include="vsi\vsshell175.d" />
+    <DCompile Include="vsi\vsshell176.d" />
+    <DCompile Include="vsi\vsshell177.d" />
+    <DCompile Include="vsi\vsshell178.d" />
+    <DCompile Include="vsi\vsshell179.d" />
+    <DCompile Include="vsi\vsshell18.d" />
+    <DCompile Include="vsi\vsshell2.d" />
+    <DCompile Include="vsi\vsshell80.d" />
+    <DCompile Include="vsi\vsshell90.d" />
+    <DCompile Include="vsi\vssolutn.d" />
+    <DCompile Include="vsi\vssplash.d" />
+    <DCompile Include="vsi\vstrkdoc.d" />
+    <DCompile Include="vsi\wcfreferences.d" />
+    <DCompile Include="vsi\webapplicationctx.d" />
+    <DCompile Include="vsi\webmigration.d" />
+    <DCompile Include="vsi\webproperties.d" />
+    <DCompile Include="vsi\webproperties100.d" />
+    <DCompile Include="vsi\webproperties90.d" />
+    <DCompile Include="vsi\indentstyle.d" />
+    <DCompile Include="vsi\completionuuids.d" />
+    <DCompile Include="vsi\contextuuids.d" />
+    <DCompile Include="vsi\textmgruuids.d" />
+    <DCompile Include="vsi\vsshelluuids.d" />
+    <DCompile Include="vsi\vsdbgcmd.d" />
+    <DCompile Include="vsi\venusids.d" />
+    <DCompile Include="vsi\stdidcmd.d" />
+    <DCompile Include="vsi\vsshlids.d" />
+    <DCompile Include="vsi\mnuhelpids.d" />
+    <DCompile Include="vsi\wcfreferencesids.d" />
+    <DCompile Include="vsi\vsdebugguids.d" />
+    <DCompile Include="vsi\vsregkeynames.d" />
+    <DCompile Include="vsi\scguids.d" />
+    <DCompile Include="vsi\wbids.d" />
+    <DCompile Include="vsi\sharedids.d" />
+    <DCompile Include="vsi\vseeguids.d" />
+    <DCompile Include="vsi\sdk_version.d" />
+    <DCompile Include="vsi\scc.d" />
+    <DCompile Include="vsi\vsplatformuiuuids.d" />
+    <DCompile Include="vsi\vscookie.d" />
+    <DCompile Include="vsi\dte80.d" />
+    <DCompile Include="vsi\dte80a.d" />
+    <DCompile Include="vsi\dte90.d" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

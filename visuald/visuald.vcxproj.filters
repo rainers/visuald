@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="a_workaround">
+      <UniqueIdentifier>{288087F8-9AC6-59AB-A989-19796249D96F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="language">
+      <UniqueIdentifier>{AF7E0E3A-3C37-57C7-940A-2A79205B7410}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lexer">
+      <UniqueIdentifier>{3811C00D-B533-52C1-B76E-0DD6BCE9033D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="project">
+      <UniqueIdentifier>{24C36A51-F10B-5483-B358-E685F61B167C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{84F81C26-4267-5F74-8982-B3A88E944FD9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <DCompile Include="workaround.d">
+      <Filter>a_workaround</Filter>
+    </DCompile>
+    <DCompile Include="colorizer.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="completion.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="cppwizard.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="dlangsvc.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="expansionprovider.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="simpleparser.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="taskprovider.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="vdextensions.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="vdserverclient.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="viewfilter.d">
+      <Filter>language</Filter>
+    </DCompile>
+    <DCompile Include="..\vdc\ivdserver.d">
+      <Filter>lexer</Filter>
+    </DCompile>
+    <DCompile Include="..\vdc\lexer.d">
+      <Filter>lexer</Filter>
+    </DCompile>
+    <DCompile Include="..\vdc\util.d">
+      <Filter>lexer</Filter>
+    </DCompile>
+    <DCompile Include="..\vdc\versions.d">
+      <Filter>lexer</Filter>
+    </DCompile>
+    <DCompile Include="automation.d">
+      <Filter>project</Filter>
+    </DCompile>
+    <DCompile Include="build.d">
+      <Filter>project</Filter>
+    </DCompile>
+    <DCompile Include="chiercontainer.d">
+      <Filter>project</Filter>
+    </DCompile>
+    <DCompile Include="chiernode.d">
+      <Filter>project</Filter>
+    </DCompile>
+    <DCompile Include="config.d">
+      <Filter>project</Filter>
+    </DCompile>
+    <DCompile Include="dproject.d">
+      <Filter>project</Filter>
+    </DCompile>
+    <DCompile Include="hierarchy.d">
+      <Filter>project</Filter>
+    </DCompile>
+    <DCompile Include="vcxproj.d">
+      <Filter>project</Filter>
+    </DCompile>
+    <DCompile Include="comutil.d" />
+    <DCompile Include="ctfedebug.d" />
+    <DCompile Include="dimagelist.d" />
+    <DCompile Include="dllmain.d" />
+    <DCompile Include="dpackage.d" />
+    <DCompile Include="fileutil.d" />
+    <DCompile Include="getmsobj.d" />
+    <DCompile Include="help.d" />
+    <DCompile Include="hierutil.d" />
+    <DCompile Include="intellisense.d" />
+    <DCompile Include="lexutil.d" />
+    <DCompile Include="library.d" />
+    <DCompile Include="logutil.d" />
+    <DCompile Include="..\tools\nostacktrace.d" />
+    <DCompile Include="oledatasource.d" />
+    <DCompile Include="pkgutil.d" />
+    <DCompile Include="profiler.d" />
+    <DCompile Include="propertypage.d" />
+    <DCompile Include="register.d" />
+    <DCompile Include="searchsymbol.d" />
+    <DCompile Include="stringutil.d" />
+    <DCompile Include="tokenreplace.d" />
+    <DCompile Include="tokenreplacedialog.d" />
+    <DCompile Include="trackprojectdocument.d" />
+    <DCompile Include="updates.d" />
+    <DCompile Include="vscommands.d" />
+    <DCompile Include="winctrl.d" />
+    <DCompile Include="windows.d" />
+    <DCompile Include="wmmsg.d" />
+    <DCompile Include="xmlwrap.d" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="visuald.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Resources\resources.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Resources\pkgcmd.vsct">
+      <Filter>Resources</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AlternateRowColor.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\ascend.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\CaseSensitive.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\completionset.bmp">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\DAboutBox.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\dconsole.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\descend.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\dfile.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\difile.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\DImageList.bmp">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\DSplashScreenIcon.bmp">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\dub.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\dwinproj.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\faninout.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\GroupByType.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\refresh.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\RegExp.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\removetrace.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\SearchFile.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\SearchSymbol.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\settrace.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\WholeWord.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="visuald.def" />
+  </ItemGroup>
+</Project>

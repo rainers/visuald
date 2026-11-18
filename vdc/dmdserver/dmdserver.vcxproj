@@ -1,0 +1,825 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug COFF32|ARM64">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|ARM64">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|ARM64">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|ARM64">
+      <Configuration>Release LDC</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug COFF32|Win32">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug COFF32|x64">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|Win32">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|x64">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|Win32">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|x64">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestDebug|ARM64">
+      <Configuration>TestDebug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestDebug|Win32">
+      <Configuration>TestDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestDebug|x64">
+      <Configuration>TestDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|Win32">
+      <Configuration>Release LDC</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|x64">
+      <Configuration>Release LDC</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{34289BD7-AB7E-4264-B146-8139DDE9F0BF}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>dmdserver</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>dmd\compiler\src</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ShowTLS>true</ShowTLS>
+      <ImportPaths>dmd\compiler\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+      <EnableDebugMixin>true</EnableDebugMixin>
+      <DebugMixin>$(IntDir)$(ProjectName).mixin</DebugMixin>
+      <AdditionalOptions>-gf</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ShowTLS>true</ShowTLS>
+      <ImportPaths>dmd\compiler\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+      <EnableDebugMixin>true</EnableDebugMixin>
+      <DebugMixin>$(IntDir)$(ProjectName).mixin</DebugMixin>
+      <AdditionalOptions>-gf</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>dmd\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>dmd\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <BoundsCheck>
+      </BoundsCheck>
+      <ImportPaths>dmd\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <DebugCode>Release</DebugCode>
+      <BoundsCheck>
+      </BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>dmd\compiler\src</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+      <AdditionalOptions>-check=assert</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <DebugCode>Release</DebugCode>
+      <Optimizer>true</Optimizer>
+      <ImportPaths>dmd\compiler\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+      <AdditionalOptions>-gf -check=assert</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <DebugCode>Release</DebugCode>
+      <Optimizer>true</Optimizer>
+      <ImportPaths>dmd\compiler\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+      <AdditionalOptions>-gf -check=assert</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <BoundsCheck>
+      </BoundsCheck>
+      <Unittest>true</Unittest>
+      <ImportPaths>dmd\src;..\..;$(DMDInstallDir)\src\druntime\src</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+      <EnableDebugMixin>true</EnableDebugMixin>
+      <DebugMixin>$(IntDir)$(ProjectName).mixin</DebugMixin>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <BoundsCheck>
+      </BoundsCheck>
+      <StackStomp>true</StackStomp>
+      <Unittest>true</Unittest>
+      <ImportPaths>dmd\compiler\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;TEST;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+      <EnableDebugMixin>true</EnableDebugMixin>
+      <DebugMixin>$(IntDir)$(ProjectName).mixin</DebugMixin>
+      <AdditionalOptions>-verrors=0</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <BoundsCheck>
+      </BoundsCheck>
+      <StackStomp>true</StackStomp>
+      <Unittest>true</Unittest>
+      <ImportPaths>dmd\compiler\src</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;TEST;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+      <EnableDebugMixin>true</EnableDebugMixin>
+      <DebugMixin>$(IntDir)$(ProjectName).mixin</DebugMixin>
+      <AdditionalOptions>-verrors=0</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <DebugCode>Release</DebugCode>
+      <BoundsCheck>
+      </BoundsCheck>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>dmd\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+      <AdditionalOptions>-check=assert</AdditionalOptions>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <DebugCode>Release</DebugCode>
+      <DebugFull>false</DebugFull>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>dmd\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <Deprecations>Allow</Deprecations>
+      <DebugCode>Release</DebugCode>
+      <DebugFull>false</DebugFull>
+      <Optimizer>true</Optimizer>
+      <Inliner>true</Inliner>
+      <ImportPaths>dmd\src;..\..</ImportPaths>
+      <StringImportPaths>dmd;dmd\compiler\src\dmd\res</StringImportPaths>
+      <VersionIdentifiers>MARS;NoBackend;GC;LanguageServer</VersionIdentifiers>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>ole32.lib;oleaut32.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
+      <StackReserveSize>8388608</StackReserveSize>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\stdext\stdext.vcxproj">
+      <Project>{2070DF9A-6D80-4E3C-950A-C1BBA1B20F4D}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\sdk\vsi.vcxproj">
+      <Project>{32872753-4812-40DA-9B24-1C2114621E78}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <DCompile Include="dmd\compiler\src\dmd\common\bitfields.d" />
+    <DCompile Include="dmd\compiler\src\dmd\common\charactertables.d" />
+    <DCompile Include="dmd\compiler\src\dmd\common\file.d" />
+    <DCompile Include="dmd\compiler\src\dmd\common\identifiertables.d" />
+    <DCompile Include="dmd\compiler\src\dmd\common\int128.d" />
+    <DCompile Include="dmd\compiler\src\dmd\common\outbuffer.d" />
+    <DCompile Include="dmd\compiler\src\dmd\common\smallbuffer.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\analysis.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\expression.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\report.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\statement.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\structure.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dfa\entry.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dfa\utils.d" />
+    <DCompile Include="dmd\compiler\src\dmd\iasm\dmdaarch64.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\iasm\dmdx86.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\iasm\gcc.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\iasm\package.d" />
+    <DCompile Include="dmd\compiler\src\dmd\mangle\basic.d" />
+    <DCompile Include="dmd\compiler\src\dmd\mangle\cpp.d" />
+    <DCompile Include="dmd\compiler\src\dmd\mangle\cppwin.d" />
+    <DCompile Include="dmd\compiler\src\dmd\mangle\package.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\aav.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\array.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\bitarray.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\complex.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\ctfloat.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\env.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\file.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\filename.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\hash.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\longdouble.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\man.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\optional.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\port.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\response.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\rmem.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\speller.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\string.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\stringtable.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\strtold.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\utf.d" />
+    <DCompile Include="dmd\compiler\src\dmd\visitor\foreachvar.d" />
+    <DCompile Include="dmd\compiler\src\dmd\visitor\package.d" />
+    <DCompile Include="dmd\compiler\src\dmd\visitor\parsetime.d" />
+    <DCompile Include="dmd\compiler\src\dmd\visitor\permissive.d" />
+    <DCompile Include="dmd\compiler\src\dmd\visitor\postorder.d" />
+    <DCompile Include="dmd\compiler\src\dmd\visitor\statement_rewrite_walker.d" />
+    <DCompile Include="dmd\compiler\src\dmd\visitor\strict.d" />
+    <DCompile Include="dmd\compiler\src\dmd\visitor\transitive.d" />
+    <DCompile Include="dmd\compiler\src\dmd\access.d" />
+    <DCompile Include="dmd\compiler\src\dmd\aggregate.d" />
+    <DCompile Include="dmd\compiler\src\dmd\aliasthis.d" />
+    <DCompile Include="dmd\compiler\src\dmd\argtypes_aarch64.d" />
+    <DCompile Include="dmd\compiler\src\dmd\argtypes_sysv_x64.d" />
+    <DCompile Include="dmd\compiler\src\dmd\argtypes_x86.d" />
+    <DCompile Include="dmd\compiler\src\dmd\arrayop.d" />
+    <DCompile Include="dmd\compiler\src\dmd\arraytypes.d" />
+    <DCompile Include="dmd\compiler\src\dmd\ast_node.d" />
+    <DCompile Include="dmd\compiler\src\dmd\astbase.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\astcodegen.d" />
+    <DCompile Include="dmd\compiler\src\dmd\astenums.d" />
+    <DCompile Include="dmd\compiler\src\dmd\asttypename.d" />
+    <DCompile Include="dmd\compiler\src\dmd\attrib.d" />
+    <DCompile Include="dmd\compiler\src\dmd\attribsem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\blockexit.d" />
+    <DCompile Include="dmd\compiler\src\dmd\builtin.d" />
+    <DCompile Include="dmd\compiler\src\dmd\canthrow.d" />
+    <DCompile Include="dmd\compiler\src\dmd\chkformat.d" />
+    <DCompile Include="dmd\compiler\src\dmd\cli.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\clone.d" />
+    <DCompile Include="dmd\compiler\src\dmd\compiler.d" />
+    <DCompile Include="dmd\compiler\src\dmd\cond.d" />
+    <DCompile Include="dmd\compiler\src\dmd\console.d" />
+    <DCompile Include="dmd\compiler\src\dmd\constfold.d" />
+    <DCompile Include="dmd\compiler\src\dmd\cparse.d" />
+    <DCompile Include="dmd\compiler\src\dmd\cpreprocess.d" />
+    <DCompile Include="dmd\compiler\src\dmd\ctfeexpr.d" />
+    <DCompile Include="dmd\compiler\src\dmd\ctorflow.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dcast.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dclass.d" />
+    <DCompile Include="dmd\compiler\src\dmd\declaration.d" />
+    <DCompile Include="dmd\compiler\src\dmd\delegatize.d" />
+    <DCompile Include="dmd\compiler\src\dmd\denum.d" />
+    <DCompile Include="dmd\compiler\src\dmd\deps.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dimport.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dinifile.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dinterpret.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dmacro.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dmdparams.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dmodule.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dmsc.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\doc.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dscope.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dstruct.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dsymbol.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dsymbolsem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dtemplate.d" />
+    <DCompile Include="dmd\compiler\src\dmd\dversion.d" />
+    <DCompile Include="dmd\compiler\src\dmd\entity.d" />
+    <DCompile Include="dmd\compiler\src\dmd\enumsem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\errors.d" />
+    <DCompile Include="dmd\compiler\src\dmd\errorsink.d" />
+    <DCompile Include="dmd\compiler\src\dmd\escape.d" />
+    <DCompile Include="dmd\compiler\src\dmd\expression.d" />
+    <DCompile Include="dmd\compiler\src\dmd\expressionsem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\file_manager.d" />
+    <DCompile Include="dmd\compiler\src\dmd\frontend.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\func.d" />
+    <DCompile Include="dmd\compiler\src\dmd\funcsem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\globals.d" />
+    <DCompile Include="dmd\compiler\src\dmd\hdrgen.d" />
+    <DCompile Include="dmd\compiler\src\dmd\id.d" />
+    <DCompile Include="dmd\compiler\src\dmd\identifier.d" />
+    <DCompile Include="dmd\compiler\src\dmd\impcnvtab.d" />
+    <DCompile Include="dmd\compiler\src\dmd\imphint.d" />
+    <DCompile Include="dmd\compiler\src\dmd\importc.d" />
+    <DCompile Include="dmd\compiler\src\dmd\init.d" />
+    <DCompile Include="dmd\compiler\src\dmd\initsem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\inline.d" />
+    <DCompile Include="dmd\compiler\src\dmd\inlinecost.d" />
+    <DCompile Include="dmd\compiler\src\dmd\intrange.d" />
+    <DCompile Include="dmd\compiler\src\dmd\irstate.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\json.d" />
+    <DCompile Include="dmd\compiler\src\dmd\lambdacomp.d" />
+    <DCompile Include="dmd\compiler\src\dmd\lexer.d" />
+    <DCompile Include="dmd\compiler\src\dmd\link.d" />
+    <DCompile Include="dmd\compiler\src\dmd\location.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\mars.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\mtype.d" />
+    <DCompile Include="dmd\compiler\src\dmd\mustuse.d" />
+    <DCompile Include="dmd\compiler\src\dmd\nogc.d" />
+    <DCompile Include="dmd\compiler\src\dmd\nspace.d" />
+    <DCompile Include="dmd\compiler\src\dmd\ob.d" />
+    <DCompile Include="dmd\compiler\src\dmd\objc.d" />
+    <DCompile Include="dmd\compiler\src\dmd\objc_glue.d">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\opover.d" />
+    <DCompile Include="dmd\compiler\src\dmd\optimize.d" />
+    <DCompile Include="dmd\compiler\src\dmd\parse.d" />
+    <DCompile Include="dmd\compiler\src\dmd\pragmasem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\printast.d" />
+    <DCompile Include="dmd\compiler\src\dmd\root\region.d" />
+    <DCompile Include="dmd\compiler\src\dmd\rootobject.d" />
+    <DCompile Include="dmd\compiler\src\dmd\safe.d" />
+    <DCompile Include="dmd\compiler\src\dmd\sarif.d" />
+    <DCompile Include="dmd\compiler\src\dmd\semantic2.d" />
+    <DCompile Include="dmd\compiler\src\dmd\semantic3.d" />
+    <DCompile Include="dmd\compiler\src\dmd\sideeffect.d" />
+    <DCompile Include="dmd\compiler\src\dmd\statement.d" />
+    <DCompile Include="dmd\compiler\src\dmd\statementsem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\staticassert.d" />
+    <DCompile Include="dmd\compiler\src\dmd\staticcond.d" />
+    <DCompile Include="dmd\compiler\src\dmd\stmtstate.d" />
+    <DCompile Include="dmd\compiler\src\dmd\target.d" />
+    <DCompile Include="dmd\compiler\src\dmd\targetcompiler.d" />
+    <DCompile Include="dmd\compiler\src\dmd\templateparamsem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\templatesem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\timetrace.d" />
+    <DCompile Include="dmd\compiler\src\dmd\tokens.d" />
+    <DCompile Include="dmd\compiler\src\dmd\traits.d" />
+    <DCompile Include="dmd\compiler\src\dmd\typesem.d" />
+    <DCompile Include="dmd\compiler\src\dmd\typinf.d" />
+    <DCompile Include="dmd\compiler\src\dmd\utils.d" />
+    <DCompile Include="dmd\compiler\src\dmd\vsoptions.d" />
+    <DCompile Include="ctfedebug.d" />
+    <DCompile Include="dapio.d" />
+    <DCompile Include="dmderrors.d" />
+    <DCompile Include="dmdinit.d" />
+    <DCompile Include="dmdlib.d" />
+    <DCompile Include="dmdlocation.d" />
+    <DCompile Include="dmdrmem.d" />
+    <DCompile Include="dmdserver.d" />
+    <DCompile Include="..\ivdserver.d" />
+    <DCompile Include="semanalysis.d" />
+    <DCompile Include="semvisitor.d" />
+    <DCompile Include="..\..\tools\tracegc.d" />
+    <DCompile Include="..\vdserverfactory.d" />
+    <Midl Include="dmdserver.idl">
+      <AdditionalDependenciesMetadata>..\ivdserver.idl</AdditionalDependenciesMetadata>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <ErrorCheckStubData>true</ErrorCheckStubData>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <WarningLevel>
+      </WarningLevel>
+      <HeaderFileName>
+      </HeaderFileName>
+      <MinimumTargetSystem>
+      </MinimumTargetSystem>
+    </Midl>
+    <ResourceCompile Include="dmdserver.rc">
+      <AdditionalDependenciesMetadata>$(IntDir)dmdserver.tlb;..\..\version</AdditionalDependenciesMetadata>
+      <ResourceOutputFileName>$(OutDir)dmdserver.res</ResourceOutputFileName>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </ResourceCompile>
+    <ClInclude Include="dmd\compiler\src\dmd\root\longdouble.h" />
+    <None Include="dmd\compiler\src\dmd\boostlicense.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

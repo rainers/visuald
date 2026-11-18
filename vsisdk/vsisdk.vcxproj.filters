@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <DCompile Include="..\sdk\port\activdbg.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\apiquery2.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\apiset.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\apisetcconv.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\base.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\bitfields.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\cguid.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\ctype.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\dte.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\excpt.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\guiddef.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\in6addr.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\inaddr.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\kernelspecs.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\limits.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\mprapi.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\msxml.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\netioapi.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\packoff.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\packon.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\poppack.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\pp.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\propidl.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\pshpack1.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\pshpack2.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\pshpack4.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\pshpack8.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\registryroots.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\rpc.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\rpcdcep.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\rpcndr.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\servprov.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\sharedvenusids.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\specstrings.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\stdarg.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\stdlib.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\stdole2.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\stdole32.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\string.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\textfind100.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\time.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\tvout.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\urlmon.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\vapiempguids.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\venuscmddef.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\vsi.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\vsversion_generated.d">
+      <Filter>port</Filter>
+    </DCompile>
+    <DCompile Include="..\sdk\port\winapifamily.d">
+      <Filter>port</Filter>
+    </DCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="port">
+      <UniqueIdentifier>{699b6af3-40c2-4812-a972-37afb28d5690}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

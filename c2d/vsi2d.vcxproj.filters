@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="c2d">
+      <UniqueIdentifier>{B1CD0E29-67D6-5BDB-95A8-9CEE6B4FF09B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="stdext">
+      <UniqueIdentifier>{743411AA-F504-5219-B7E6-879DD181ED97}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <DCompile Include="ast.d">
+      <Filter>c2d</Filter>
+    </DCompile>
+    <DCompile Include="cpp2d.d">
+      <Filter>c2d</Filter>
+    </DCompile>
+    <DCompile Include="dgutil.d">
+      <Filter>c2d</Filter>
+    </DCompile>
+    <DCompile Include="dlist.d">
+      <Filter>c2d</Filter>
+    </DCompile>
+    <DCompile Include="pp.d">
+      <Filter>c2d</Filter>
+    </DCompile>
+    <DCompile Include="tokenizer.d">
+      <Filter>c2d</Filter>
+    </DCompile>
+    <DCompile Include="tokutil.d">
+      <Filter>c2d</Filter>
+    </DCompile>
+    <DCompile Include="..\stdext\array.d">
+      <Filter>stdext</Filter>
+    </DCompile>
+    <DCompile Include="..\stdext\file.d">
+      <Filter>stdext</Filter>
+    </DCompile>
+    <DCompile Include="..\stdext\path.d">
+      <Filter>stdext</Filter>
+    </DCompile>
+    <DCompile Include="..\stdext\string.d">
+      <Filter>stdext</Filter>
+    </DCompile>
+    <DCompile Include="idl2d.d" />
+    <DCompile Include="idl2d_main.d" />
+  </ItemGroup>
+</Project>

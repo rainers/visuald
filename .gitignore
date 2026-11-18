@@ -16,3 +16,4 @@ vdextensions/obj
 .vs
 /msbuild/dbuild/assemblies
 /vdextensions/assembly
+*.user

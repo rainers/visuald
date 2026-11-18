@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ast">
+      <UniqueIdentifier>{BBB46F6F-22BD-5041-9534-A2134BDF8608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parser">
+      <UniqueIdentifier>{481F443F-DA3A-543B-A212-F85FE462D234}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <DCompile Include="ast\aggr.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\all.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\decl.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\expr.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\iasm.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\misc.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\mod.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\node.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\stmt.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\tmpl.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\type.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="ast\writer.d">
+      <Filter>ast</Filter>
+    </DCompile>
+    <DCompile Include="parser\aggr.d">
+      <Filter>parser</Filter>
+    </DCompile>
+    <DCompile Include="parser\decl.d">
+      <Filter>parser</Filter>
+    </DCompile>
+    <DCompile Include="parser\engine.d">
+      <Filter>parser</Filter>
+    </DCompile>
+    <DCompile Include="parser\expr.d">
+      <Filter>parser</Filter>
+    </DCompile>
+    <DCompile Include="parser\iasm.d">
+      <Filter>parser</Filter>
+    </DCompile>
+    <DCompile Include="parser\misc.d">
+      <Filter>parser</Filter>
+    </DCompile>
+    <DCompile Include="parser\mod.d">
+      <Filter>parser</Filter>
+    </DCompile>
+    <DCompile Include="parser\stmt.d">
+      <Filter>parser</Filter>
+    </DCompile>
+    <DCompile Include="parser\tmpl.d">
+      <Filter>parser</Filter>
+    </DCompile>
+    <DCompile Include="interpret.d" />
+    <DCompile Include="ivdserver.d" />
+    <DCompile Include="lexer.d" />
+    <DCompile Include="logger.d" />
+    <DCompile Include="parsertest.d" />
+    <DCompile Include="semantic.d" />
+    <DCompile Include="semanticopt.d" />
+    <DCompile Include="util.d" />
+    <DCompile Include="versions.d" />
+  </ItemGroup>
+</Project>

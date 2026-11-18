@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ResourceCompile Include="vdserver.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <DCompile Include="vdserver.d" />
+    <DCompile Include="vdserverfactory.d" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="ivdserver.idl" />
+    <Midl Include="vdserver.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vdserver.reg" />
+    <None Include="vdserver_d.reg" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,816 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug COFF32|ARM64">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|ARM64">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|ARM64">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|ARM64">
+      <Configuration>Release LDC</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|Win32">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug COFF32|Win32">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestDebug|ARM64">
+      <Configuration>TestDebug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestDebug|Win32">
+      <Configuration>TestDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|Win32">
+      <Configuration>Release LDC</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release COFF32|x64">
+      <Configuration>Release COFF32</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug COFF32|x64">
+      <Configuration>Debug COFF32</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestDebug|x64">
+      <Configuration>TestDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release LDC|x64">
+      <Configuration>Release LDC</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|Win32">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug LDC|x64">
+      <Configuration>Debug LDC</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CD26A145-F663-473D-8908-0254FE377D48}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>build</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>DMD</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DCompiler>LDC</DCompiler>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\x64\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\x64\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\x64\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\x64\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'">
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\x64\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.sdk</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|ARM64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|x64'">
+    <DCompile>
+      <Warnings>None</Warnings>
+      <DebugCode>Release</DebugCode>
+      <DebugInfo>None</DebugInfo>
+      <DebugFull>false</DebugFull>
+      <BoundsCheck>
+      </BoundsCheck>
+      <CompilationModel>File</CompilationModel>
+      <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
+    </DCompile>
+    <Lib>
+      <OutputFile>$(IntDir)$(ProjectName).sdk</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Command>echo $(ProjectDir)sdk.bat &gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)sdk_libs.bat &gt;&gt;"$(TargetDir)build.dep"
+echo $(ProjectDir)build.visualdproj &gt;&gt;"$(TargetDir)build.dep"
+echo Success &gt;"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\c2d\vsi2d.vcxproj">
+      <Project>{8760F45A-69D9-4B68-BE63-0E055B51D447}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\tools\tbl2idl.vcxproj">
+      <Project>{df6b590f-b431-833f-196e-f36b6a3d5058}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <DCompile Include="..\tools\largeadr.d" />
+    <CustomBuild Include="dte_idl.bat">
+      <Command>if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)tlb2idl.exe" "$(IntDir)dte_idl.success"</Command>
+      <Outputs>$(IntDir)dte_idl.success</Outputs>
+      <AdditionalDependencies>$(OutDir)tlb2idl.exe</AdditionalDependencies>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">Compiling %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">if "%VSCMD_ARG_TGT_ARCH%" == "x86" goto vcvars_set
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+:vcvars_set
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)tlb2idl.exe" "$(IntDir)dte_idl.success"</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\tools\filemonitor.d">
+      <Command>echo Compiling %(Identity)...
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+$(DMDInstallDir)\windows\bin\dmd -g -map "$(IntDir)%(Filename).map" "-of$(OutDir)%(Filename).dll" "-od$(IntDir)" -defaultlib=user32.lib -m32mscoff -L/SUBSYSTEM:CONSOLE -L/ENTRY:DllMain@12 %(Identity) kernel32.lib user32.lib</Command>
+      <Outputs>$(OutDir)%(Filename).dll</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">if "%VSCMD_ARG_TGT_ARCH%" == "x86" goto vcvars_set
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+:vcvars_set
+if errorlevel 1 goto reportError
+$(DMDInstallDir)\windows\bin\dmd -g -map "$(IntDir)%(Filename).map" "-of$(OutDir)%(Filename).dll" "-od$(IntDir)." -defaultlib=user32.lib -m32mscoff -L/SUBSYSTEM:CONSOLE -L/ENTRY:DllMain@12 %(Identity) kernel32.lib user32.lib</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">Compiling %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+$(DMDInstallDir)\windows\bin\dmd -g -map "$(IntDir)%(Filename).map" "-of$(OutDir)%(Filename).dll" "-od$(IntDir)" -defaultlib=user32.lib -m32mscoff -L/SUBSYSTEM:CONSOLE -L/ENTRY:DllMain@12 %(Identity) kernel32.lib user32.lib</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\tools\mb2utf16.d">
+      <Command>echo Compiling %(Identity)...
+set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d user32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Outputs>$(OutDir)%(Filename).exe</Outputs>
+      <AdditionalDependencies>..\tools\nostacktrace.d;..\tools\nodebugger.d;..\tools\noregistry.d;..\tools\nodll.d</AdditionalDependencies>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">Compiling %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d user32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d user32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if "%VSCMD_ARG_TGT_ARCH%" == "x86" goto vcvars_set
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+:vcvars_set
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d user32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d user32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\noregistry.d ..\tools\nodll.d user32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\tools\pipedmd.d">
+      <Command>echo Compiling %(Identity)...
+set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std -version=pipeLink "-of$(OutDir)pipelink.exe" %(Identity) ..\tools\nostacktrace.d  ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Outputs>$(OutDir)%(Filename).exe</Outputs>
+      <AdditionalDependencies>..\tools\nostacktrace.d;..\tools\nodebugger.d;..\tools\noregistry.d;..\tools\nodll.d</AdditionalDependencies>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">Compiling %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std -version=pipeLink "-of$(OutDir)pipelink.exe" %(Identity) ..\tools\nostacktrace.d  ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std -version=pipeLink "-of$(OutDir)pipelink.exe" %(Identity) ..\tools\nostacktrace.d  ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if "%VSCMD_ARG_TGT_ARCH%" == "x86" goto vcvars_set
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+:vcvars_set
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std -version=pipeLink "-of$(OutDir)pipelink.exe" %(Identity) ..\tools\nostacktrace.d  ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std -version=pipeLink "-of$(OutDir)pipelink.exe" %(Identity) ..\tools\nostacktrace.d  ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">set ldmd=$(LDCInstallDir)\bin\ldmd2.exe
+if not exist "%ldmd%" set ldmd=$(DMDInstallDir)\windows\bin\dmd.exe
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std -version=pipeLink "-of$(OutDir)pipelink.exe" %(Identity) ..\tools\nostacktrace.d  ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01
+if errorlevel 1 goto reportError
+"%ldmd%" -m32 -i=std "-of$(OutDir)%(Filename).exe" %(Identity) ..\tools\nostacktrace.d ..\tools\nodebugger.d ..\tools\nodll.d ..\tools\noregistry.d ..\stdext\string.d user32.lib oleaut32.lib ole32.lib -L/SUBSYSTEM:CONSOLE,5.01</Command>
+    </CustomBuild>
+    <CustomBuild Include="sdk.bat">
+      <Command>if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk.success"</Command>
+      <Outputs>$(IntDir)sdk.success</Outputs>
+      <AdditionalDependencies>$(IntDir)dte_idl.success;$(OutDir)vsi2d.exe</AdditionalDependencies>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">Compiling %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">if "%VSCMD_ARG_TGT_ARCH%" == "x86" goto vcvars_set
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+:vcvars_set
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk.success"
+</Command>
+    </CustomBuild>
+    <CustomBuild Include="sdk_libs.bat">
+      <Command>if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Outputs>$(IntDir)sdk_libs.success</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">if "%VSCMD_ARG_TGT_ARCH%" == "x86" goto vcvars_set
+if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+:vcvars_set
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">$(IntDir)sdk_libs.success</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">$(IntDir)sdk_libs.success</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">$(IntDir)sdk_libs.success</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">$(IntDir)sdk_libs.success</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">$(IntDir)sdk_libs.success</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">$(IntDir)sdk_libs.success</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">$(IntDir)sdk_libs.success</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">$(IntDir)sdk_libs.success</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">$(IntDir)sdk_libs.success</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release COFF32|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|x64'">if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release COFF32|x64'">if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release LDC|ARM64'">if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release LDC|x64'">if exist "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat" call "$(VSINSTALLDIR)Common7\Tools\vsvars32.bat"
+if exist "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" ( pushd . &amp;&amp; call "$(VCINSTALLDIR)Auxiliary\Build\vcvars32.bat" &amp;&amp; popd )
+if errorlevel 1 goto reportError
+call %(Identity) "$(OutDir)vsi2d.exe" "$(IntDir)sdk_libs.success"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release COFF32|Win32'">Building %(Outputs)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release LDC|Win32'">Compiling %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">Compiling %(Identity)</Message>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

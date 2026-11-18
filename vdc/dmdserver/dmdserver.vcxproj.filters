@@ -1,0 +1,552 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="dmd">
+      <UniqueIdentifier>{31406B06-FF5E-5EA8-8B9B-269EB6BE5ABA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dmd\common">
+      <UniqueIdentifier>{06BFFE97-1EB9-5C06-BE94-BE21E6377575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dmd\dfa">
+      <UniqueIdentifier>{1CF5E9DB-2C83-5618-B173-1E191AC57413}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dmd\dfa\fast">
+      <UniqueIdentifier>{C3DC7C98-2F76-509D-97A9-92BC0C17F204}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dmd\iasm">
+      <UniqueIdentifier>{1014E141-8109-5B68-9D40-1454384EDA7C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dmd\mangle">
+      <UniqueIdentifier>{C5C751D0-9370-5B3E-B7E1-913DC394B15E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dmd\root">
+      <UniqueIdentifier>{8FAB3041-602A-5540-B508-FAEAA9E27D98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dmd\visitor">
+      <UniqueIdentifier>{3E99AB85-599B-5913-86E9-4611D91D224B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <DCompile Include="dmd\compiler\src\dmd\common\bitfields.d">
+      <Filter>dmd\common</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\common\charactertables.d">
+      <Filter>dmd\common</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\common\file.d">
+      <Filter>dmd\common</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\common\identifiertables.d">
+      <Filter>dmd\common</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\common\int128.d">
+      <Filter>dmd\common</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\common\outbuffer.d">
+      <Filter>dmd\common</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\common\smallbuffer.d">
+      <Filter>dmd\common</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\analysis.d">
+      <Filter>dmd\dfa\fast</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\expression.d">
+      <Filter>dmd\dfa\fast</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\report.d">
+      <Filter>dmd\dfa\fast</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\statement.d">
+      <Filter>dmd\dfa\fast</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dfa\fast\structure.d">
+      <Filter>dmd\dfa\fast</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dfa\entry.d">
+      <Filter>dmd\dfa</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dfa\utils.d">
+      <Filter>dmd\dfa</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\iasm\dmdaarch64.d">
+      <Filter>dmd\iasm</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\iasm\dmdx86.d">
+      <Filter>dmd\iasm</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\iasm\gcc.d">
+      <Filter>dmd\iasm</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\iasm\package.d">
+      <Filter>dmd\iasm</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\mangle\basic.d">
+      <Filter>dmd\mangle</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\mangle\cpp.d">
+      <Filter>dmd\mangle</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\mangle\cppwin.d">
+      <Filter>dmd\mangle</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\mangle\package.d">
+      <Filter>dmd\mangle</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\aav.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\array.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\bitarray.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\complex.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\ctfloat.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\env.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\file.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\filename.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\hash.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\longdouble.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\man.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\optional.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\port.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\response.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\rmem.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\speller.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\string.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\stringtable.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\strtold.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\utf.d">
+      <Filter>dmd\root</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\visitor\foreachvar.d">
+      <Filter>dmd\visitor</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\visitor\package.d">
+      <Filter>dmd\visitor</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\visitor\parsetime.d">
+      <Filter>dmd\visitor</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\visitor\permissive.d">
+      <Filter>dmd\visitor</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\visitor\postorder.d">
+      <Filter>dmd\visitor</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\visitor\statement_rewrite_walker.d">
+      <Filter>dmd\visitor</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\visitor\strict.d">
+      <Filter>dmd\visitor</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\visitor\transitive.d">
+      <Filter>dmd\visitor</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\access.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\aggregate.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\aliasthis.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\argtypes_aarch64.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\argtypes_sysv_x64.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\argtypes_x86.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\arrayop.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\arraytypes.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\ast_node.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\astbase.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\astcodegen.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\astenums.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\asttypename.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\attrib.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\attribsem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\blockexit.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\builtin.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\canthrow.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\chkformat.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\cli.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\clone.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\compiler.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\cond.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\console.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\constfold.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\cparse.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\cpreprocess.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\ctfeexpr.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\ctorflow.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dcast.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dclass.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\declaration.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\delegatize.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\denum.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\deps.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dimport.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dinifile.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dinterpret.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dmacro.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dmdparams.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dmodule.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dmsc.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\doc.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dscope.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dstruct.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dsymbol.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dsymbolsem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dtemplate.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\dversion.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\entity.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\enumsem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\errors.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\errorsink.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\escape.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\expression.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\expressionsem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\file_manager.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\frontend.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\func.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\funcsem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\globals.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\hdrgen.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\id.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\identifier.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\impcnvtab.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\imphint.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\importc.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\init.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\initsem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\inline.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\inlinecost.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\intrange.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\irstate.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\json.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\lambdacomp.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\lexer.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\link.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\location.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\mars.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\mtype.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\mustuse.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\nogc.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\nspace.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\ob.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\objc.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\objc_glue.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\opover.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\optimize.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\parse.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\pragmasem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\printast.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\root\region.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\rootobject.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\safe.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\sarif.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\semantic2.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\semantic3.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\sideeffect.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\statement.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\statementsem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\staticassert.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\staticcond.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\stmtstate.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\target.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\targetcompiler.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\templateparamsem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\templatesem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\timetrace.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\tokens.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\traits.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\typesem.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\typinf.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\utils.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="dmd\compiler\src\dmd\vsoptions.d">
+      <Filter>dmd</Filter>
+    </DCompile>
+    <DCompile Include="ctfedebug.d" />
+    <DCompile Include="dapio.d" />
+    <DCompile Include="dmderrors.d" />
+    <DCompile Include="dmdinit.d" />
+    <DCompile Include="dmdlib.d" />
+    <DCompile Include="dmdlocation.d" />
+    <DCompile Include="dmdrmem.d" />
+    <DCompile Include="dmdserver.d" />
+    <DCompile Include="..\ivdserver.d" />
+    <DCompile Include="semanalysis.d" />
+    <DCompile Include="semvisitor.d" />
+    <DCompile Include="..\..\tools\tracegc.d" />
+    <DCompile Include="..\vdserverfactory.d" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dmd\compiler\src\dmd\root\longdouble.h">
+      <Filter>dmd\root</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="dmd\compiler\src\dmd\boostlicense.txt">
+      <Filter>dmd</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dmdserver.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="dmdserver.idl" />
+  </ItemGroup>
+</Project>

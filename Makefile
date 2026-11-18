@@ -42,7 +42,7 @@ MSBUILD15 = "c:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild
 # CONFIG  = Release LDC
 CONFIG  = Release COFF32
 CONFIG_X64 = Release COFF32
-CONFIG_ARM64 = Release LDC ARM
+CONFIG_ARM64 = Release COFF32
 CONFIG_DMDSERVER = Release COFF32
 
 ##############################################################
@@ -65,7 +65,7 @@ visuald_vs_x64:
 	devenv visuald_vs10.sln /Project "VisualD"   /Build "$(CONFIG_X64)|x64"
 
 visuald_vs_arm64:
-	devenv visuald_vs10.sln /Project "VisualD"   /Build "$(CONFIG_ARM64)|x64"
+	devenv visuald_vs10.sln /Project "VisualD"   /Build "$(CONFIG_ARM64)|ARM64"
 
 visuald_test:
 	devenv visuald_vs10.sln /Project "VisualD"   /Build "TestDebug|Win32"
