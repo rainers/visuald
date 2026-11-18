@@ -14,7 +14,7 @@ if "%CONFIG%" == "" set CONFIG=Debug
 set OUTDIR=..\bin\%CONFIG%
 set LIBIBERTY=%BINUTILS%\libiberty
 
-%DMD% -c -m32mscoff -of%OUTDIR%\dcxxfilt.obj dcxxfilt.d || exit /B 1
+%DMD% -c -m32mscoff -of%OUTDIR%\dcxxfilt.obj dcxxfilt.d ../stdext/string.d -I.. || exit /B 1
 
 set SRC=
 set SRC=%SRC% %LIBIBERTY%\d-demangle.c

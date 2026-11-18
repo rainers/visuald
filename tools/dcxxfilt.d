@@ -20,6 +20,7 @@
    Software Foundation, 51 Franklin Street - Fifth Floor, Boston, MA
    02110-1301, USA.  */
 
+import stdext.string : decodeDmdString;
 import core.demangle;
 import core.stdc.stdio;
 import core.stdc.stdlib;
