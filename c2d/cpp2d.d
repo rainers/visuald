@@ -89,8 +89,6 @@ alias std.string.indexOf indexOf;
 
 ///////////////////////////////////////////////////////////////////////
 
-bool[string] keywordsMap;
-string[string] tokenMap;
 string[string] filenameMap;
 
 alias object.AssociativeArray!(string, string[]) _wa1; // fully instantiate type info for string[][string]
@@ -364,10 +362,8 @@ struct C2DOptions
 
 C2DOptions options;
 
-static this()
-{
-	// bool says whether the C++ keyword exists and has the same meaning
-	keywordsMap = [
+// bool says whether the C++ keyword exists and has the same meaning
+const bool[string] keywordsMap = [
 		"this" : true,
 		"super" : false,
 		"assert" : true,
@@ -500,7 +496,7 @@ static this()
 		// dmd specific?
 	*/
 
-	tokenMap = [
+string[string] tokenMap = [
 		"::" : ".",
 		"->" : ".",
 
@@ -560,7 +556,7 @@ static this()
 		"mem"       : "dmd_mem",
 	];
 	*/
-}
+
 
 string createModuleName(string filename)
 {
@@ -601,7 +597,7 @@ string mapTokenText(Token tok)
 	if(tok.type == Token.Number)
 		return fixNumber(tok.text);
 
-	if(bool *pb = tok.text in keywordsMap)
+	if(const bool *pb = tok.text in keywordsMap)
 		if(!*pb)
 			return options.keywordsPrefix ~ tok.text;
 	if(string *ps = tok.text in tokenMap)
