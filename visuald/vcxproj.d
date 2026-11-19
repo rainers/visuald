@@ -14,18 +14,19 @@
 // See accompanying file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 module visuald.vcxproj;
 
-import std.algorithm : canFind, endsWith, equal, filter, map, max, sort, startsWith, uniq;
-import std.array : appender, array, join, replace, split;
-import std.ascii : isAlpha, isAlphaNum, isDigit, isWhite;
-import std.conv : ConvException, text, to;
-import std.file : DirEntry, dirEntries, exists, getcwd, mkdirRecurse, read, SpanMode, write;
-import std.format : format;
-import std.path : baseName;
-import std.range : only, walkLength;
-import std.regex : matchFirst, Regex, regex, replaceAll, replaceFirst, splitter;
-import std.stdio : writeln;
-import std.string : indexOf, lastIndexOf, leftJustify, splitLines, startsWith, strip, toLower, toUpper;
-import std.uuid : sha1UUID, urlNamespace;
+// selective symbol import makes them public before dmd 2.113
+import std.algorithm; // : canFind, endsWith, equal, filter, map, max, sort, startsWith, uniq;
+import std.array; // : appender, array, join, replace, split;
+import std.ascii; // : isAlpha, isAlphaNum, isDigit, isWhite;
+import std.conv; // : ConvException, text, to;
+import std.file; // : DirEntry, dirEntries, exists, getcwd, mkdirRecurse, read, SpanMode, write;
+import std.format; // : format;
+import std.path; // : baseName;
+import std.range; // : only, walkLength;
+import std.regex; // : matchFirst, Regex, regex, replaceAll, replaceFirst, splitter;
+import std.stdio; // : writeln;
+import std.string; // : indexOf, lastIndexOf, leftJustify, splitLines, startsWith, strip, toLower, toUpper;
+import std.uuid; // : sha1UUID, urlNamespace;
 
 import stdext.path : canonicalPath, normalizePath;
 
@@ -422,7 +423,7 @@ bool msbuildCondition(string cond, string[string] env)
 // re.split(r"\s+and\s+", cond)
 private auto andPattern()
 {
-	static immutable Regex!char re = regex(`\s+and\s+`);
+	static Regex!char re = regex(`\s+and\s+`);
 	return re;
 }
 
@@ -434,7 +435,7 @@ private string[] splitAnd(string cond)
 // re.match(r"^(.+?)\s*(==|!=)\s*(.+)$", part)
 private auto conditionPartPattern()
 {
-	static immutable Regex!char re = regex(`^(.+?)\s*(==|!=)\s*(.+)$`);
+	static Regex!char re = regex(`^(.+?)\s*(==|!=)\s*(.+)$`);
 	return re;
 }
 
@@ -3372,7 +3373,7 @@ private void writeTextFile(string path, string content)
 {
 	string t = replace(content, "\n", "\r\n");
 	ubyte[] data = cast(ubyte[])"\xEF\xBB\xBF" ~ cast(ubyte[])t;
-	write(path, data);
+	std.file.write(path, data);
 }
 
 enum TextEncoding { utf8, utf8Bom, utf16Le, utf16Be }
@@ -3427,7 +3428,7 @@ private void writeTextFileEnc(string path, string content, TextEncoding enc)
 			break;
 	}
 	try
-		write(path, data);
+		std.file.write(path, data);
 	catch (Exception e)
 		throw new Exception("cannot write " ~ path ~ " (" ~ e.msg ~ ")");
 }
