@@ -245,7 +245,6 @@
     <DCompile>
       <BoundsCheck>
       </BoundsCheck>
-      <CompilationModel>File</CompilationModel>
       <Unittest>true</Unittest>
       <ImportPaths>..</ImportPaths>
       <StringImportPaths>..;resources</StringImportPaths>
@@ -258,7 +257,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalDependencies>user32.lib;kernel32.lib;advapi32.lib;comdlg32.lib;ole32.lib;oleaut32.lib;comctl32.lib;shell32.lib;gdi32.lib;winmm.lib;winhttp.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib</AdditionalDependencies>
-      <ModuleDefinitionFile>visuald.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug LDC|Win32'">
@@ -355,7 +355,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>user32.lib;kernel32.lib;advapi32.lib;comdlg32.lib;ole32.lib;oleaut32.lib;comctl32.lib;shell32.lib;gdi32.lib;winmm.lib;winhttp.lib;user32.lib;kernel32.lib;legacy_stdio_definitions.lib;libcmtd.lib</AdditionalDependencies>
-      <ModuleDefinitionFile>visuald.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|ARM64'">

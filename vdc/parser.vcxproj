@@ -243,7 +243,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|Win32'">
     <DCompile>
-      <Warnings>Error</Warnings>
+      <Warnings>Info</Warnings>
       <DebugCode>Release</DebugCode>
       <DebugInfo>None</DebugInfo>
       <DebugFull>false</DebugFull>

@@ -273,7 +273,7 @@ final class ConsoleCapture
 		if (!CreatePipe(&hRead, &hWrite, null, pipeSize))
 			return;
 
-		int fd = _open_osfhandle(cast(long) hWrite, _O_WRONLY | _O_BINARY);
+		int fd = _open_osfhandle(cast(size_t) hWrite, _O_WRONLY | _O_BINARY);
 		if (fd == -1)
 		{
 			CloseHandle(hRead);

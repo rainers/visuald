@@ -331,11 +331,10 @@
       <Warnings>None</Warnings>
       <BoundsCheck>
       </BoundsCheck>
-      <CompilationModel>File</CompilationModel>
       <Unittest>true</Unittest>
       <ImportPaths>..</ImportPaths>
       <JSONFile>$(IntDir)$(TargetName).json</JSONFile>
-      <AdditionalOptions>-gx -of$(OutDir)$(ProjectName).obj</AdditionalOptions>
+      <AdditionalOptions>-gx -lib</AdditionalOptions>
     </DCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'">

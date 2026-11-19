@@ -247,12 +247,11 @@
       <Warnings>None</Warnings>
       <BoundsCheck>
       </BoundsCheck>
-      <CompilationModel>File</CompilationModel>
       <Unittest>true</Unittest>
       <ImportPaths>..</ImportPaths>
       <StringImportPaths>..</StringImportPaths>
       <JSONFile>$(IntDir)$(ProjectName).json</JSONFile>
-      <AdditionalOptions>-of$(OutDir)$(ProjectName).obj</AdditionalOptions>
+      <AdditionalOptions>-lib</AdditionalOptions>
     </DCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestDebug|x64'">
